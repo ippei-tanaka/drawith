@@ -1,7 +1,12 @@
 import { config } from 'dotenv';
 import { defineConfig } from "drizzle-kit";
 
-config({ path: '.env' });
+if (process.env.npm_lifecycle_script === "drizzle-kit") {
+  console.log(1231);
+  config({ path: '.env.local' });
+} else {
+  config({ path: '.env' });
+}
 
 export default defineConfig({
   schema: "./src/schema.ts",

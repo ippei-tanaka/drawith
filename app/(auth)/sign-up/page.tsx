@@ -9,7 +9,8 @@ const randomLastNames = ["Morgan", "Parker", "Reed", "Hayes", "Brooks", "Quinn"]
 
 export default function SignUpPage() {
   const [state, formAction, isPending] = useActionState(signUpWithEmail, null);
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -17,9 +18,9 @@ export default function SignUpPage() {
   const fillWithRandomValues = () => {
     const firstName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
     const lastName = randomLastNames[Math.floor(Math.random() * randomLastNames.length)];
-    const fullName = `${firstName} ${lastName}`;
     const uniqueId = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
-    setName(fullName);
+    setFirstName(firstName);
+    setLastName(lastName);
     setEmail(`${firstName.toLowerCase()}.${lastName.toLowerCase()}.${uniqueId}@example.com`);
     setPassword(`Drawith!${uniqueId}`);
     setTermsAccepted(true);
@@ -56,8 +57,10 @@ export default function SignUpPage() {
             </button>
           </div>
           <form className="auth-form" action={formAction}>
-            <label htmlFor="sign-up-name">Your name</label>
-            <input id="sign-up-name" name="name" type="text" autoComplete="name" placeholder="How should we call you?" value={name} onChange={(event) => setName(event.target.value)} required />
+            <label htmlFor="sign-up-first-name">First name</label>
+            <input id="sign-up-first-name" name="firstName" type="text" autoComplete="given-name" placeholder="First name" value={firstName} onChange={(event) => setFirstName(event.target.value)} required />
+            <label htmlFor="sign-up-last-name">Last name</label>
+            <input id="sign-up-last-name" name="lastName" type="text" autoComplete="family-name" placeholder="Last name" value={lastName} onChange={(event) => setLastName(event.target.value)} required />
             <label htmlFor="sign-up-email">Email address</label>
             <input id="sign-up-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
             <label htmlFor="sign-up-password">Create a password</label>
