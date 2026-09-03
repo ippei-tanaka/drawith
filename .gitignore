@@ -38,4 +38,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# neon dev branch state
+.neon-dev-branch.json
 next-env.d.ts

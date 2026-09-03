@@ -5,6 +5,7 @@
   "scripts": {
     "predev": "tsx scripts/ensure-dev-branch.ts",
     "dev": "next dev",
+    "postdev": "tsx scripts/cleanup-dev-branch.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

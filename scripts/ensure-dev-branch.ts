@@ -11,7 +11,8 @@ config({ path: ".env" });
 import { createDevBranch, getBranchAuthConfig, getConnectionUri } from "../lib/neon/branches";
 
 const ENV_LOCAL_PATH = ".env.local";
-// Auto-delete predev branches so they don't accumulate across dev sessions.
+const STATE_FILE_PATH = ".neon-dev-branch.json";
+// Belt-and-suspenders: auto-delete via Neon too, in case postdev never runs (e.g. process killed).
 const BRANCH_TTL_HOURS = 24;
 
 function setEnvVar(contents: string, key: string, value: string): string {
@@ -46,6 +47,8 @@ async function main() {
   envContents = setEnvVar(envContents, "DATABASE_URL", databaseUrl);
   envContents = setEnvVar(envContents, "NEON_AUTH_BASE_URL", authConfig.base_url);
   writeFileSync(ENV_LOCAL_PATH, envContents);
+
+  writeFileSync(STATE_FILE_PATH, JSON.stringify({ id: branch.id, name: branch.name }, null, 2));
 
   console.log(`Updated ${ENV_LOCAL_PATH} with DATABASE_URL and NEON_AUTH_BASE_URL for the new branch`);
 }
