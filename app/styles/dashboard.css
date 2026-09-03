@@ -78,6 +78,19 @@
   font-size: 13px;
 }
 
+.dashboard-sign-out {
+  border: 0;
+  background: transparent;
+  color: #77838a;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.dashboard-sign-out:hover {
+  color: var(--ink);
+}
+
 .dashboard-avatar {
   width: 34px;
   height: 34px;
