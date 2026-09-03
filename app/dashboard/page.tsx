@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { signOut } from "../../(auth)/sign-out/actions";
+import { signOut } from "../(auth)/sign-out/actions";
 
 const recentBoards = [
   { title: "Friday brainstorm", detail: "Edited 12 minutes ago", members: "3 people", color: "coral", preview: "↗" },

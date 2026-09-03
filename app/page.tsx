@@ -10,7 +10,8 @@ const collaborators = [
   { name: "You", initials: "YO", color: "#4f7cf7", status: "Editing" },
 ];
 
-export default function Home() {
+export default function Home() 
+{
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
@@ -34,6 +35,7 @@ export default function Home() {
       context.fillStyle = "#fffefb";
       context.fillRect(0, 0, width, height);
     };
+
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
     return () => window.removeEventListener("resize", resizeCanvas);
@@ -43,15 +45,18 @@ export default function Home() {
     const rect = event.currentTarget.getBoundingClientRect();
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   };
+  
   const saveHistory = () => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
     if (canvas && context) historyRef.current.push(context.getImageData(0, 0, canvas.width, canvas.height));
   };
+  
   const beginDrawing = (event: React.PointerEvent<HTMLCanvasElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
     saveHistory(); drawingRef.current = true; lastPoint.current = pointForEvent(event);
   };
+
   const draw = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!drawingRef.current || !lastPoint.current) return;
     const context = event.currentTarget.getContext("2d");
@@ -65,11 +70,14 @@ export default function Home() {
     context.lineTo(nextPoint.x, nextPoint.y); context.stroke(); context.globalAlpha = 1;
     lastPoint.current = nextPoint;
   };
+  
   const stopDrawing = () => { drawingRef.current = false; lastPoint.current = null; };
+  
   const undo = () => {
     const canvas = canvasRef.current; const context = canvas?.getContext("2d"); const snapshot = historyRef.current.pop();
     if (canvas && context && snapshot) context.putImageData(snapshot, 0, 0);
   };
+
   const clearCanvas = () => {
     const canvas = canvasRef.current; const context = canvas?.getContext("2d");
     if (!canvas || !context) return;

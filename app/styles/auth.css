@@ -207,6 +207,21 @@
   line-height: 1.55;
 }
 
+.auth-fill-button {
+  margin-top: 18px;
+  border: 1px solid #e7b2a5;
+  border-radius: 5px;
+  padding: 8px 11px;
+  color: #c95e49;
+  background: #fff8f5;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-fill-button:hover {
+  background: #fff0eb;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

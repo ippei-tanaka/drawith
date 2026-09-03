@@ -1,11 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { signUpWithEmail } from "./actions";
+
+const randomFirstNames = ["Alex", "Jordan", "Taylor", "Riley", "Casey", "Morgan"];
+const randomLastNames = ["Morgan", "Parker", "Reed", "Hayes", "Brooks", "Quinn"];
 
 export default function SignUpPage() {
   const [state, formAction, isPending] = useActionState(signUpWithEmail, null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
+  const fillWithRandomValues = () => {
+    const firstName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
+    const lastName = randomLastNames[Math.floor(Math.random() * randomLastNames.length)];
+    const fullName = `${firstName} ${lastName}`;
+    const uniqueId = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    setName(fullName);
+    setEmail(`${firstName.toLowerCase()}.${lastName.toLowerCase()}.${uniqueId}@example.com`);
+    setPassword(`Drawith!${uniqueId}`);
+    setTermsAccepted(true);
+  };
 
   return (
     <main className="auth-page">
@@ -33,16 +51,19 @@ export default function SignUpPage() {
             <p className="eyebrow">Create your account</p>
             <h1>Bring the next great idea to life.</h1>
             <p>Start your collaborative canvas in a few seconds.</p>
+            <button className="auth-fill-button" type="button" onClick={fillWithRandomValues}>
+              Fill with random values
+            </button>
           </div>
           <form className="auth-form" action={formAction}>
             <label htmlFor="sign-up-name">Your name</label>
-            <input id="sign-up-name" name="name" type="text" autoComplete="name" placeholder="How should we call you?" required />
+            <input id="sign-up-name" name="name" type="text" autoComplete="name" placeholder="How should we call you?" value={name} onChange={(event) => setName(event.target.value)} required />
             <label htmlFor="sign-up-email">Email address</label>
-            <input id="sign-up-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
+            <input id="sign-up-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
             <label htmlFor="sign-up-password">Create a password</label>
-            <input id="sign-up-password" name="password" type="password" autoComplete="new-password" placeholder="At least 8 characters" minLength={8} required />
+            <input id="sign-up-password" name="password" type="password" autoComplete="new-password" placeholder="At least 8 characters" minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} required />
             <label className="consent-label" htmlFor="terms">
-              <input id="terms" name="terms" type="checkbox" required />
+              <input id="terms" name="terms" type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} required />
               <span>I agree to the <a href="#terms">Terms of service</a> and <a href="#privacy">Privacy policy</a>.</span>
             </label>
             {state?.error && <p className="auth-error" role="alert">{state.error}</p>}
