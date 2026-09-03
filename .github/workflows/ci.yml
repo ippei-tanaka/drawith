@@ -19,7 +19,11 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEON_AUTH_BASE_URL: ${{ secrets.NEON_AUTH_BASE_URL }}
+      NEON_AUTH_COOKIE_SECRET: ${{ secrets.NEON_AUTH_COOKIE_SECRET }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -35,6 +39,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Test
+        run: npm test -- --run
 
       - name: Build
         run: npm run build
