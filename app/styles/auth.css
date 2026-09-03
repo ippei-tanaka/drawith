@@ -275,6 +275,18 @@
     box-shadow 0.15s;
 }
 
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.auth-error {
+  margin: 3px 0 0;
+  color: #b33d32;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .auth-submit:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 0 #172237;
