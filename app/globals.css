@@ -1,7 +1,7 @@
 @import "tailwindcss";
-@import "./dashboard.css";
-@import "./auth.css";
-@import "./board.css";
+@import "./styles/dashboard.css";
+@import "./styles/auth.css";
+@import "./styles/board.css";
 
 :root {
   --ink: #24324a;
