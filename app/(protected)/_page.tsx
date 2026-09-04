@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { drawingBoard } from "@/src/schema";
+import { db } from "@/src/db";
 
 type Tool = "pen" | "marker" | "eraser";
 
@@ -24,8 +26,10 @@ export default function Home()
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    
     const context = canvas.getContext("2d");
     if (!context) return;
+    
     const resizeCanvas = () => {
       const { width, height } = canvas.getBoundingClientRect();
       const scale = window.devicePixelRatio || 1;
@@ -54,11 +58,14 @@ export default function Home()
   
   const beginDrawing = (event: React.PointerEvent<HTMLCanvasElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    saveHistory(); drawingRef.current = true; lastPoint.current = pointForEvent(event);
+    saveHistory(); 
+    drawingRef.current = true; 
+    lastPoint.current = pointForEvent(event);
   };
 
   const draw = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!drawingRef.current || !lastPoint.current) return;
+    
     const context = event.currentTarget.getContext("2d");
     if (!context) return;
     const nextPoint = pointForEvent(event);

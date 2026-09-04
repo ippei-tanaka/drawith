@@ -2,7 +2,6 @@ import { config } from 'dotenv';
 import { defineConfig } from "drizzle-kit";
 
 if (process.env.npm_lifecycle_script === "drizzle-kit") {
-  console.log(1231);
   config({ path: '.env.local' });
 } else {
   config({ path: '.env' });

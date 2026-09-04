@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { signOut } from "../(auth)/sign-out/actions";
+import { signOut } from "../../(public)/sign-out/actions";
+import { auth } from "@/lib/auth/server";
 
 const recentBoards = [
   { title: "Friday brainstorm", detail: "Edited 12 minutes ago", members: "3 people", color: "coral", preview: "↗" },
@@ -7,7 +8,10 @@ const recentBoards = [
   { title: "Untitled canvas", detail: "Edited 3 days ago", members: "Only you", color: "yellow", preview: "✦" },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage() 
+{
+  const { data: session } = await auth.getSession();
+
   return (
     <main className="dashboard-page">
       <header className="dashboard-topbar">
@@ -17,12 +21,12 @@ export default function DashboardPage() {
       </header>
 
       <div className="dashboard-content">
-        <section className="dashboard-welcome"><div><p className="dashboard-eyebrow">Wednesday, September 2</p><h1>Good morning, Yuki.</h1><p className="dashboard-subtitle">What are you making space for today?</p></div><Link className="new-board-button" href="/"><span aria-hidden="true">+</span> New board</Link></section>
+        <section className="dashboard-welcome"><div><p className="dashboard-eyebrow">Wednesday, September 2</p><h1>Good morning, Yuki.</h1><p className="dashboard-subtitle">What are you making space for today?</p></div><Link className="new-board-button" href="/dashboard/new"><span aria-hidden="true">+</span> New board</Link></section>
 
         <section className="dashboard-section" aria-labelledby="recent-heading">
-          <div className="section-heading"><h2 id="recent-heading">Recent boards</h2><button className="sort-button">Recently edited <span aria-hidden="true">⌄</span></button></div>
+          <div className="section-heading"><h2 id="recent-heading">Your boards</h2><button className="sort-button" type="button">Recently edited <span aria-hidden="true">⌄</span></button></div>
           <div className="board-grid">
-            <Link className="new-board-card" href="/"><span className="new-board-icon">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
+            <Link className="new-board-card" href="/dashboard/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
             {recentBoards.map((board) => <Link className={`board-card board-card-${board.color}`} href="/" key={board.title}><div className="board-preview" aria-hidden="true"><span>{board.preview}</span></div><div className="board-card-info"><div><strong>{board.title}</strong><span>{board.detail}</span></div><small>{board.members}</small></div></Link>)}
           </div>
         </section>

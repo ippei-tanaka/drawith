@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
-import { userProfiles } from "@/src/schema";
+import { userProfile } from "@/src/schema";
 import { db } from "@/src/db";
 
 export type AuthActionState = { error: string } | null;
@@ -48,7 +48,7 @@ export async function signUpWithEmail(
   }
 
   try {
-    await db.insert(userProfiles).values({
+    await db.insert(userProfile).values({
       userId: authResult.data.user.id,
       firstName,
       lastName
