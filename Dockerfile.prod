@@ -7,9 +7,6 @@ RUN npm ci
 
 COPY . .
 
-# Set env vars for build-time auth config (32+ char secret required)
-#ENV NEON_AUTH_COOKIE_SECRET=dummysecretforbuildonlychangeatruntime123456
-#ENV DATABASE_URL=postgresql://dummy@localhost/dummy
 ENV DATABASE_URL=postgresql://drawith_user:drawith_password@postgres:5432/drawith_db
 
 RUN npm run build

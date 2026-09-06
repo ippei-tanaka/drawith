@@ -1,6 +1,6 @@
 // import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
-
+console.log(process.env);
 export default async function ProtectedLayout({ children }: LayoutProps<"/">) 
 {
   // const session = await auth.getSession();
@@ -11,6 +11,6 @@ export default async function ProtectedLayout({ children }: LayoutProps<"/">)
   // }
 
   return (
-    <>test23</>
+    <>test1222223{`${process.env.POSTGRES_PASSWORD}`}</>
   );
 }

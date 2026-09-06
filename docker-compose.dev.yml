@@ -1,33 +1,41 @@
+# docker compose --env-file .env.docker.dev -f docker-compose.dev.yml up --build --watch
+
+
+name: drawith-dev
+
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: drawith-postgres
+    container_name: drawith-postgres-dev
     environment:
-      POSTGRES_USER: drawith_user
-      POSTGRES_PASSWORD: drawith_password
-      POSTGRES_DB: drawith_db
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: $POSTGRES_DB
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U drawith_user -d drawith_db"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+
   app:
-    build: .
-    container_name: drawith-app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: drawith-app-dev
     environment:
-      DATABASE_URL: postgresql://drawith_user:drawith_password@postgres:5432/drawith_db
-      NODE_ENV: production
+      DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
+      NODE_ENV: development
     ports:
       - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
-    command: npm start
+    command: npm run dev
     develop:
       watch:
         - action: sync
