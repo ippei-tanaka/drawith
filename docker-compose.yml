@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U drawith_user"]
+      test: ["CMD-SHELL", "pg_isready -U drawith_user -d drawith_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,6 +28,30 @@ services:
       postgres:
         condition: service_healthy
     command: npm start
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /app/app
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./lib
+          target: /app/lib
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./public
+          target: /app/public
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
 
 volumes:
   postgres_data:

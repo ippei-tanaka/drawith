@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { signOut } from "../../(public)/sign-out/actions";
-import { auth } from "@/lib/auth/server";
+// import { auth } from "@/lib/auth/server";
 
 const recentBoards = [
   { title: "Friday brainstorm", detail: "Edited 12 minutes ago", members: "3 people", color: "coral", preview: "↗" },
@@ -8,9 +8,9 @@ const recentBoards = [
   { title: "Untitled canvas", detail: "Edited 3 days ago", members: "Only you", color: "yellow", preview: "✦" },
 ];
 
-export default async function DashboardPage() 
+export default function DashboardPage() 
 {
-  const { data: session } = await auth.getSession();
+  // const { data: session } = await auth.getSession();
 
   return (
     <main className="dashboard-page">

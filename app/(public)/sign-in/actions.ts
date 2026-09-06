@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth/server";
+// import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 
 export type AuthActionState = { error: string } | null;
@@ -21,11 +21,11 @@ export async function signInWithEmail(
     return { error: "Enter your email address and password." };
   }
 
-  const { error } = await auth.signIn.email({ email, password });
+  // const { error } = await auth.signIn.email({ email, password });
 
-  if (error) {
-    return { error: error.message || "Unable to sign in. Check your details and try again." };
-  }
+  // if (error) {
+  //   return { error: error.message || "Unable to sign in. Check your details and try again." };
+  // }
 
   redirect("/");
 }

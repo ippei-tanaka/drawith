@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { drawingBoard } from "@/src/schema";
-import { db } from "@/src/db";
 
 type Tool = "pen" | "marker" | "eraser";
 

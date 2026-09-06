@@ -1,9 +1,9 @@
 "use server";
 
-import { auth } from "@/lib/auth/server";
+// import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { userProfile } from "@/src/schema";
-import { db } from "@/src/db";
+// import { db } from "@/src/db";
 
 export type AuthActionState = { error: string } | null;
 
@@ -41,21 +41,21 @@ export async function signUpWithEmail(
     return { error: "Please agree to the terms and privacy policy." };
   }
 
-  const authResult = await auth.signUp.email({ email, name: `${firstName} ${lastName}`, password });
+  // const authResult = await auth.signUp.email({ email, name: `${firstName} ${lastName}`, password });
 
-  if (authResult.error) {
-    return { error: authResult.error.message || "Unable to create your account. Please try again." };
-  }
+  // if (authResult.error) {
+  //   return { error: authResult.error.message || "Unable to create your account. Please try again." };
+  // }
 
-  try {
-    await db.insert(userProfile).values({
-      userId: authResult.data.user.id,
-      firstName,
-      lastName
-    });
-  } catch (error) {
-    return { error: "Unable to create your profile. Please try again." };
-  }
+  // try {
+  //   await db.insert(userProfile).values({
+  //     userId: "", // authResult.data.user.id,
+  //     firstName,
+  //     lastName
+  //   });
+  // } catch (error) {
+  //   return { error: "Unable to create your profile. Please try again." };
+  // }
 
   redirect("/");
 }
