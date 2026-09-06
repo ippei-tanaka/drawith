@@ -1,10 +1,7 @@
 import { config } from 'dotenv';
 import { defineConfig } from "drizzle-kit";
 
-config({ 
-  path: ['.env.local'],
-  override: true,
-});
+config({ path: '.env.docker' });
 
 export default defineConfig({
   schema: "./src/schema.ts",
