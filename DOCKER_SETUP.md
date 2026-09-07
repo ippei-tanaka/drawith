@@ -144,7 +144,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.docker.prod exec app n
 | Watch mode | Yes (`docker compose watch`) | No |
 | Restart policy | Manual | `unless-stopped` |
 | Healthchecks | Postgres only | Postgres + App |
-| Container names | `drawith-app` | `drawith-app-prod` |
+| Container names | `drawith-app-dev` | `drawith-app-prod` |
 | Image size | Larger (dev deps) | Smaller (production build) |
 
 ## Environment Variables
