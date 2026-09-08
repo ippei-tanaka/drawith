@@ -13,13 +13,15 @@
     "auth:migrate": "auth migrate"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.12.0",
     "better-auth": "^1.7.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
     "next": "16.3.4",
     "pg": "^8.23.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-redux": "^9.3.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

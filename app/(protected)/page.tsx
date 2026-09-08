@@ -1,28 +1,24 @@
 "use client";
 
-// import Link from "next/link";
-// import { getUser } from "./actions/auth";
-import { authClient } from "@/lib/auth/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { fetchSession, signOut } from "@/lib/store/authSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 
 
 export default function Home()
 {
-  const [user, setUser] = useState<null | { name: string }>(null);
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    console.log(11);
-    authClient.getSession().then(data => {
-      console.log(data);
-      setUser({name: data.data?.user.name || ""});
-    });
-  }, []);
+    dispatch(fetchSession());
+  }, [dispatch]);
 
   return (
     <>
       test
       {user && <p>Welcome, {user.name}!</p>}
-      <button onClick={() => {authClient.signOut()}}>Sign Out</button>
+      <button onClick={() => {dispatch(signOut())}}>Sign Out</button>
     </>
   );
 }
