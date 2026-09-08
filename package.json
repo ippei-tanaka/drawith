@@ -8,9 +8,12 @@
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "auth:generate": "auth generate",
+    "auth:migrate": "auth migrate"
   },
   "dependencies": {
+    "better-auth": "^1.7.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
     "next": "16.3.4",
@@ -24,6 +27,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "auth": "^1.7.3",
     "drizzle-kit": "^1.0.0-rc.4",
     "env-cmd": "^11.0.0",
     "eslint": "^9",

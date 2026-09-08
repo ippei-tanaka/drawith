@@ -1,4 +1,5 @@
-import { pgTable, text, timestamp, uuid, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, boolean, index } from 'drizzle-orm/pg-core';
+import { defineRelations } from "drizzle-orm";
 
 export const userProfile = pgTable('user_profile', {
   userId: uuid('user_id').notNull().primaryKey(),

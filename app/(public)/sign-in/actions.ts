@@ -1,7 +1,9 @@
 "use server";
 
-// import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+
+import { auth } from "@/lib/auth";
 
 export type AuthActionState = { error: string } | null;
 
@@ -21,11 +23,15 @@ export async function signInWithEmail(
     return { error: "Enter your email address and password." };
   }
 
-  // const { error } = await auth.signIn.email({ email, password });
+  let authResult;
+  try {
+    authResult = await auth.api.signInEmail({body: {email, password}});
+  } catch (error) {
+    return { error: (error as Error).message || "Unable to sign in. Check your details and try again." };
+  }
 
-  // if (error) {
-  //   return { error: error.message || "Unable to sign in. Check your details and try again." };
-  // }
+    console.log("Sign In result:", authResult);
+
 
   redirect("/");
 }

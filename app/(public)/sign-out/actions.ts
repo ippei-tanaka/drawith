@@ -1,9 +1,9 @@
 "use server";
 
-// import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export async function signOut() {
-  // await auth.signOut();
+  await authClient.signOut();
   redirect("/sign-in");
 }

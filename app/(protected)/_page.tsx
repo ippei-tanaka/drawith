@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { drawingBoard } from "@/src/schema";
+import { drawingBoard } from "@/lib/schema";
 
 type Tool = "pen" | "marker" | "eraser";
 
