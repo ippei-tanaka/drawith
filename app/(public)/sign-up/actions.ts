@@ -2,10 +2,10 @@
 
 // import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
-import { userProfile } from "@/lib/schema";
+import { userProfile } from "@/src/schema";
 // import { db } from "@/src/db";
-import { authClient } from "@/lib/auth-client";
-import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/auth/client";
+import { auth } from "@/lib/auth/server";
 
 export type AuthActionState = { error: string } | null;
 
