@@ -1,20 +1,17 @@
-"use server";
+"use client";
 
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth/server"; // path to your Better Auth server instance
-import { headers } from "next/headers";
+import { authClient } from "@/lib/auth/client";
+import { useEffect } from "react";
 
-export default async function ProtectedLayout({ children }: LayoutProps<"/">) 
+export default function ProtectedLayout({ children }: LayoutProps<"/">) 
 {
-  const session = await auth.api.getSession({
-    headers: await headers() // you need to pass the headers object.
-  })
+  useEffect(() => {
+    console.log(22);
+    authClient.getSession().then(data => {
+      console.log(data);
+    });
+  }, []);
 
-  if (!session || !session.user?.id) {
-    redirect("/sign-in");
-  }
-
-  return (
-    <>{children}</>
-  );
+  return children;
 }

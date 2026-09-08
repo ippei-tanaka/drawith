@@ -1,8 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { authClient } from "@/lib/auth/client";
-
 import { auth } from "@/lib/auth/server";
 
 export type AuthActionState = { error: string } | null;
