@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 // import { authClient } from "@/lib/auth/client";
 import { auth } from "@/lib/auth/server";
-import { getUser } from "@/app/(protected)/actions/auth";
+import { getUser } from "@/app/(pages)/actions/auth";
 
 export default async function SignOutPage() {
       console.log(1111);
