@@ -1,4 +1,4 @@
-import BoardCanvas from "@/(protected)/_page";
+import BoardCanvas from "../../_page";
 
 const boardTitles: Record<string, string> = {
   "friday-brainstorm": "Friday brainstorm",
