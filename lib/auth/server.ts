@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/db";
-import * as authSchema from "@/lib/auth/schema";
+import * as schema from "@/lib/db/schema";
 import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
@@ -10,7 +10,7 @@ export const auth = betterAuth({
     },
     database: drizzleAdapter(db, {
         provider: "pg",
-        schema: authSchema,
+        schema: schema,
     }),
     plugins: [nextCookies()]
 });

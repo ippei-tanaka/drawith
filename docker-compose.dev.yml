@@ -63,6 +63,7 @@ services:
             - "*.tsbuildinfo"
             - .neon-dev-branch.json
             - next-env.d.ts
+            - .vscode/
         - action: rebuild
           path: package.json
 

@@ -42,3 +42,5 @@ yarn-error.log*
 # neon dev branch state
 .neon-dev-branch.json
 next-env.d.ts
+
+.vscode/
