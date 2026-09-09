@@ -6,12 +6,5 @@ import { useEffect } from "react";
 
 export default function ProtectedLayout({ children }: LayoutProps<"/">) 
 {
-  useEffect(() => {
-    console.log(22);
-    authClient.getSession().then(data => {
-      console.log(data);
-    });
-  }, []);
-
   return children;
 }

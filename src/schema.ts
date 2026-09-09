@@ -1,10 +1,10 @@
-import { pgTable, text, timestamp, uuid, boolean, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, index } from 'drizzle-orm/pg-core';
 import { defineRelations } from "drizzle-orm";
 import { user } from '@/lib/auth/schema';
 
 export const userProfile = pgTable('user_profile', {
-  id: uuid('id').notNull().primaryKey(),
-  userId: uuid('user_id').notNull().references(() => user.id, { onDelete: "cascade" }),
+  id: text('id').notNull().primaryKey(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: "cascade" }),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -12,8 +12,8 @@ export const userProfile = pgTable('user_profile', {
 });
 
 export const drawingBoard = pgTable('drawing_board', {
-  id: uuid('id').notNull().primaryKey(),
-  ownerId: uuid("owner_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  id: text('id').notNull().primaryKey(),
+  ownerId: text("owner_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   name: text('name').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),

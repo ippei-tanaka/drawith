@@ -1,8 +1,8 @@
-import { pgTable, text, timestamp, boolean, index, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, index } from 'drizzle-orm/pg-core';
 import { defineRelations } from "drizzle-orm";
 
 export const user = pgTable("user", {
-  id: uuid("id").primaryKey(),
+  id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
@@ -17,7 +17,7 @@ export const user = pgTable("user", {
 export const session = pgTable(
   "session",
   {
-    id: uuid("id").primaryKey(),
+    id: text("id").primaryKey(),
     expiresAt: timestamp("expires_at").notNull(),
     token: text("token").notNull().unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -26,7 +26,7 @@ export const session = pgTable(
       .notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
-    userId: uuid("user_id")
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
@@ -36,10 +36,10 @@ export const session = pgTable(
 export const account = pgTable(
   "account",
   {
-    id: uuid("id").primaryKey(),
+    id: text("id").primaryKey(),
     accountId: text("account_id").notNull(),
     providerId: text("provider_id").notNull(),
-    userId: uuid("user_id")
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     accessToken: text("access_token"),
@@ -60,7 +60,7 @@ export const account = pgTable(
 export const verification = pgTable(
   "verification",
   {
-    id: uuid("id").primaryKey(),
+    id: text("id").primaryKey(),
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
     expiresAt: timestamp("expires_at").notNull(),

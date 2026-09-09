@@ -19,7 +19,7 @@ const initialState: AuthState = {
   status: "idle",
 };
 
-export const fetchSession = createAsyncThunk("auth/fetchSession", async () => {
+export const fetchSession = createAsyncThunk("auth/fetchSession", async ():Promise<AuthUser | null> => {
   const { data } = await authClient.getSession();
   const user = data?.user ?? null;
   return user ? { id: user.id, name: user.name, email: user.email } : null;
