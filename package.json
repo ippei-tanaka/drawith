@@ -13,12 +13,19 @@
     "auth:migrate": "auth migrate"
   },
   "dependencies": {
+    "@apollo/server": "^5.5.1",
+    "@as-integrations/next": "^4.1.0",
+    "@pothos/core": "^4.13.1",
+    "@pothos/plugin-drizzle": "^0.18.1",
     "@reduxjs/toolkit": "^2.12.0",
     "better-auth": "^1.7.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
+    "graphql": "^16.14.2",
+    "graphql-tag": "^2.12.7",
     "next": "16.3.4",
     "pg": "^8.23.0",
+    "pothos-drizzle-generator": "^0.2.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-redux": "^9.3.0"

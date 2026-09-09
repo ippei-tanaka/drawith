@@ -1,10 +1,6 @@
 "use server";
 
-// import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
-import { userProfile } from "@/src/schema";
-// import { db } from "@/src/db";
-import { authClient } from "@/lib/auth/client";
 import { auth } from "@/lib/auth/server";
 
 export type AuthActionState = { error: string } | null;
@@ -43,30 +39,11 @@ export async function signUpWithEmail(
     return { error: "Please agree to the terms and privacy policy." };
   }
 
-  let authResult;
   try {
-    // const authResult = await authClient.signUp.email({ email, name: `${firstName} ${lastName}`, password });
-    authResult = await auth.api.signUpEmail({body: { email, name: `${firstName} ${lastName}`, password }});
+    await auth.api.signUpEmail({body: { email, name: `${firstName} ${lastName}`, password }});
   } catch (error) {
     return { error: (error as Error).message || "Unable to create your account. Please try again." };
   }
-    console.log("Auth result:", authResult);
-
-
-  // if (authResult) {
-  //   console.log("Auth result:", authResult);
-  //   //return { error: authResult.error.message || "Unable to create your account. Please try again." };
-  // }
-
-  // try {
-  //   await db.insert(userProfile).values({
-  //     userId: "", // authResult.data.user.id,
-  //     firstName,
-  //     lastName
-  //   });
-  // } catch (error) {
-  //   return { error: "Unable to create your profile. Please try again." };
-  // }
 
   redirect("/");
 }
