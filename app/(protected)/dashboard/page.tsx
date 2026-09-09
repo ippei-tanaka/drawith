@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { signOut } from "../../(public)/sign-out/actions";
-// import { auth } from "@/lib/auth/server";
+import { signOut } from "@/lib/store/authSlice";
+import { useAppDispatch } from "@/lib/store/hooks";
 
 const recentBoards = [
   { title: "Friday brainstorm", detail: "Edited 12 minutes ago", members: "3 people", color: "coral", preview: "↗" },
@@ -10,6 +12,8 @@ const recentBoards = [
 
 export default function DashboardPage() 
 {
+  const dispatch = useAppDispatch();
+
   // const { data: session } = await auth.getSession();
 
   return (
@@ -17,7 +21,7 @@ export default function DashboardPage()
       <header className="dashboard-topbar">
         <Link className="dashboard-brand" href="/" aria-label="Drawith home"><span className="dashboard-brand-mark">D</span><span>drawith</span></Link>
         <nav className="dashboard-nav" aria-label="Main navigation"><Link className="dashboard-nav-active" href="/dashboard">Your boards</Link><a href="#templates">Templates</a></nav>
-        <div className="dashboard-account"><button className="dashboard-help" aria-label="Help" title="Help">?</button><form action={signOut}><button className="dashboard-sign-out" type="submit">Sign out</button></form><button className="dashboard-avatar" aria-label="Open account menu">YO</button></div>
+        <div className="dashboard-account"><button className="dashboard-help" aria-label="Help" title="Help">?</button><button className="dashboard-sign-out" type="button" onClick={() => dispatch(signOut())}>Sign out</button><button className="dashboard-avatar" aria-label="Open account menu">YO</button></div>
       </header>
 
       <div className="dashboard-content">

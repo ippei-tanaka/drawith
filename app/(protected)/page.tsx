@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { fetchSession, signOut } from "@/lib/store/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 
-
 export default function Home()
 {
   const dispatch = useAppDispatch();
