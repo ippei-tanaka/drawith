@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { drawingBoard } from "@/src/schema";
 
 type Tool = "pen" | "marker" | "eraser";
 
@@ -11,7 +10,7 @@ const collaborators = [
   { name: "You", initials: "YO", color: "#4f7cf7", status: "Editing" },
 ];
 
-export default function Home() 
+export default function BoardCanvas({ boardTitle = "Friday brainstorm" }: { boardTitle?: string }) 
 {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
@@ -93,7 +92,7 @@ export default function Home()
   return <main className="drawith-app">
     <header className="topbar">
       <div className="brand"><span className="brand-mark">D</span><span>drawith</span></div>
-      <div className="room-title"><span className="room-dot" /><span>Friday brainstorm</span><button className="icon-button" aria-label="Rename board" title="Rename board">&#9998;</button></div>
+      <div className="room-title"><span className="room-dot" /><span>{boardTitle}</span><button className="icon-button" aria-label="Rename board" title="Rename board">&#9998;</button></div>
       <div className="top-actions"><button className="share-button">Share board</button><button className="avatar avatar-you" aria-label="Your profile">YO</button></div>
     </header>
     <section className="workspace">

@@ -163,6 +163,124 @@
   margin-bottom: 65px;
 }
 
+.active-boards-section {
+  margin-bottom: 58px;
+}
+
+.active-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #55a493;
+  box-shadow: 0 0 0 4px rgba(85, 164, 147, 0.14);
+}
+
+.active-boards-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.active-board {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid #d9dfdd;
+  border-radius: 7px;
+  background: #fffefb;
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 5px 14px rgba(45, 61, 69, 0.045);
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.active-board:hover {
+  border-color: #aebdb9;
+  transform: translateY(-2px);
+}
+
+.active-board-preview {
+  flex: 0 0 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: #fbe8df;
+}
+
+.active-board-preview span {
+  width: 17px;
+  height: 17px;
+  border: 2px solid #e17c61;
+  border-radius: 50%;
+}
+
+.active-board-blue .active-board-preview { background: #e2eff0; }
+.active-board-blue .active-board-preview span { border-color: #4a9995; border-radius: 3px; }
+.active-board-yellow .active-board-preview { background: #f8f0d4; }
+.active-board-yellow .active-board-preview span { border-color: #b99b43; transform: rotate(45deg); }
+
+.active-board-copy {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.active-board-copy strong,
+.active-board-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.active-board-copy strong {
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.active-board-copy span,
+.active-board-people {
+  color: #899596;
+  font-size: 10px;
+}
+
+.active-board-people {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.presence-dots {
+  display: flex;
+}
+
+.presence-dots i {
+  width: 7px;
+  height: 7px;
+  margin-left: -2px;
+  border: 1px solid #fffefb;
+  border-radius: 50%;
+  background: #f17c63;
+}
+
+.presence-dots i:first-child { margin-left: 0; background: #4f7cf7; }
+.presence-dots i:last-child { background: #55a493; }
+
+.active-board-arrow {
+  color: #a4acab;
+  font-size: 17px;
+}
+
 .section-heading {
   display: flex;
   align-items: center;
@@ -357,6 +475,10 @@
   .dashboard-topbar {
     padding: 0 20px;
     gap: 24px;
+  }
+
+  .active-boards-list {
+    grid-template-columns: 1fr;
   }
 
   .dashboard-nav {

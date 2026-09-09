@@ -1,0 +1,231 @@
+.home-page {
+  min-height: 100vh;
+  background: #f6f5f1;
+  background-image: radial-gradient(#d9dfdc 0.8px, transparent 0.8px);
+  background-size: 20px 20px;
+}
+
+.home-topbar {
+  height: 72px;
+  padding: 0 6vw;
+  display: flex;
+  align-items: center;
+  gap: 64px;
+  background: rgba(255, 254, 251, 0.92);
+  border-bottom: 1px solid #dde2df;
+}
+
+.home-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 730;
+  text-decoration: none;
+}
+
+.home-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  background: var(--coral);
+  color: white;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 21px;
+}
+
+.home-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 68px 32px 100px;
+}
+
+.home-welcome {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 68px;
+}
+
+.home-eyebrow {
+  margin: 0 0 12px;
+  color: #9a7064;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-welcome h1 {
+  margin: 0;
+  color: #24324a;
+  font-family: Georgia, serif;
+  font-size: clamp(32px, 4vw, 49px);
+  font-weight: 400;
+  letter-spacing: -1px;
+}
+
+.home-subtitle {
+  margin: 11px 0 0;
+  color: #7c878d;
+  font-size: 15px;
+}
+
+.home-active-boards {
+  margin-bottom: 58px;
+}
+
+.home-active-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-live-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #55a493;
+  box-shadow: 0 0 0 4px rgba(85, 164, 147, 0.14);
+}
+
+.home-active-boards-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.home-active-board {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid #d9dfdd;
+  border-radius: 7px;
+  background: #fffefb;
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 5px 14px rgba(45, 61, 69, 0.045);
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.home-active-board:hover {
+  border-color: #aebdb9;
+  transform: translateY(-2px);
+}
+
+.home-active-board-preview {
+  flex: 0 0 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: #fbe8df;
+}
+
+.home-active-board-preview span {
+  width: 17px;
+  height: 17px;
+  border: 2px solid #e17c61;
+  border-radius: 50%;
+}
+
+.home-active-board-blue .home-active-board-preview { background: #e2eff0; }
+.home-active-board-blue .home-active-board-preview span { border-color: #4a9995; border-radius: 3px; }
+.home-active-board-yellow .home-active-board-preview { background: #f8f0d4; }
+.home-active-board-yellow .home-active-board-preview span { border-color: #b99b43; transform: rotate(45deg); }
+
+.home-active-board-copy {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.home-active-board-copy strong,
+.home-active-board-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-active-board-copy strong {
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.home-active-board-copy span,
+.home-active-board-people,
+.home-section-note {
+  color: #899596;
+  font-size: 10px;
+}
+
+.home-active-board-people {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.home-presence-dots {
+  display: flex;
+}
+
+.home-presence-dots i {
+  width: 7px;
+  height: 7px;
+  margin-left: -2px;
+  border: 1px solid #fffefb;
+  border-radius: 50%;
+  background: #f17c63;
+}
+
+.home-presence-dots i:first-child { margin-left: 0; background: #4f7cf7; }
+.home-presence-dots i:last-child { background: #55a493; }
+
+.home-active-board-arrow {
+  color: #a4acab;
+  font-size: 17px;
+}
+
+.home-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.home-section-heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 750;
+}
+
+@media (max-width: 760px) {
+  .home-topbar {
+    padding: 0 20px;
+    gap: 24px;
+  }
+
+  .home-active-boards-list {
+    grid-template-columns: 1fr;
+  }
+
+  .home-content {
+    padding: 45px 20px 70px;
+  }
+
+  .home-welcome {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 27px;
+    margin-bottom: 48px;
+  }
+}

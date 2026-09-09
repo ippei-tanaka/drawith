@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./styles/dashboard.css";
+@import "./styles/home.css";
 @import "./styles/auth.css";
 @import "./styles/board.css";
 
