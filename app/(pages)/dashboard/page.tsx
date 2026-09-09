@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { signOut } from "@/lib/store/authSlice";
-import { useAppDispatch } from "@/lib/store/hooks";
 
 type ActiveBoard = {
   title: string;
@@ -26,7 +24,6 @@ const recentBoards = [
 
 export default function DashboardPage() 
 {
-  const dispatch = useAppDispatch();
   const [activeBoards, setActiveBoards] = useState(initialActiveBoards);
   const [lastUpdated, setLastUpdated] = useState("just now");
 
@@ -54,7 +51,16 @@ export default function DashboardPage()
       <header className="dashboard-topbar">
         <Link className="dashboard-brand" href="/" aria-label="Drawith home"><span className="dashboard-brand-mark">D</span><span>drawith</span></Link>
         <nav className="dashboard-nav" aria-label="Main navigation"><Link className="dashboard-nav-active" href="/dashboard">Your boards</Link><a href="#templates">Templates</a></nav>
-        <div className="dashboard-account"><button className="dashboard-help" aria-label="Help" title="Help">?</button><button className="dashboard-sign-out" type="button" onClick={() => dispatch(signOut())}>Sign out</button><button className="dashboard-avatar" aria-label="Open account menu">YO</button></div>
+        <div className="dashboard-account">
+          <button className="dashboard-help" aria-label="Help" title="Help">?</button>
+          <details className="dashboard-account-menu">
+            <summary className="dashboard-avatar" aria-label="Open account menu">YO</summary>
+            <div className="dashboard-menu" role="menu">
+              <Link href="/profile" role="menuitem">Profile</Link>
+              <Link href="/sign-out" role="menuitem">Sign out</Link>
+            </div>
+          </details>
+        </div>
       </header>
 
       <div className="dashboard-content">

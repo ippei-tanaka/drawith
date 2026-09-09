@@ -1,0 +1,39 @@
+import { redirect } from "next/navigation";
+import { randomUUID } from "crypto";
+import { eq } from "drizzle-orm";
+import { getUser } from "@/app/(pages)/actions/auth";
+import { db } from "@/lib/db/db";
+import { userProfile } from "@/lib/db/schema";
+import ProfileForm from "./ProfileForm";
+
+export default async function UserProfilePage() {
+
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const [existingProfile] = await db
+    .select()
+    .from(userProfile)
+    .where(eq(userProfile.userId, user.id));
+
+  // Every user gets a profile the first time they visit this page.
+  const profile =
+    existingProfile ??
+    (
+      await db
+        .insert(userProfile)
+        .values({
+          id: randomUUID(),
+          username: user.id,
+          userId: user.id,
+          firstName: user.name,
+          lastName: "",
+        })
+        .returning()
+    )[0];
+
+  return <ProfileForm profile={profile} />;
+}

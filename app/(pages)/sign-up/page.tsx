@@ -61,8 +61,10 @@ export default function SignUpPage() {
             <input id="sign-up-first-name" name="firstName" type="text" autoComplete="given-name" placeholder="First name" value={firstName} onChange={(event) => setFirstName(event.target.value)} required />
             <label htmlFor="sign-up-last-name">Last name</label>
             <input id="sign-up-last-name" name="lastName" type="text" autoComplete="family-name" placeholder="Last name" value={lastName} onChange={(event) => setLastName(event.target.value)} required />
+            
             <label htmlFor="sign-up-email">Email address</label>
             <input id="sign-up-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            
             <label htmlFor="sign-up-password">Create a password</label>
             <input id="sign-up-password" name="password" type="password" autoComplete="new-password" placeholder="At least 8 characters" minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} required />
             <label className="consent-label" htmlFor="terms">

@@ -2,6 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
+import { db } from "@/lib/db/db";
+import { userProfile } from "@/lib/db/schema";
+import { randomUUID } from "crypto";
 
 export type AuthActionState = { error: string } | null;
 
@@ -40,7 +43,14 @@ export async function signUpWithEmail(
   }
 
   try {
-    await auth.api.signUpEmail({body: { email, name: `${firstName} ${lastName}`, password }});
+    const result = await auth.api.signUpEmail({body: { email, name: `${firstName} ${lastName}`, password }});
+    await db.insert(userProfile).values({
+      id: randomUUID(),
+      firstName,
+      lastName,
+      username: `${firstName.toLowerCase()}-${lastName.toLowerCase()}-${result.user.id}`,
+      userId: result.user.id
+    });
   } catch (error) {
     return { error: (error as Error).message || "Unable to create your account. Please try again." };
   }

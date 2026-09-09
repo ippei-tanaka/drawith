@@ -76,7 +76,7 @@ export const verification = pgTable(
 
 export const userProfile = pgTable('user_profile', {
   id: text('id').notNull().primaryKey(),
-  name: text('name').notNull().unique(),
+  username: text('username').notNull().unique(),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: "cascade" }),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
@@ -88,7 +88,7 @@ export const drawingBoard = pgTable('drawing_board', {
   id: text('id').notNull().primaryKey(),
   name: text('name').notNull().unique(),
   ownerId: text("owner_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  displaeyName: text('display_name').notNull(),
+  displayName: text('display_name').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
 });

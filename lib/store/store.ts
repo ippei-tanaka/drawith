@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./authSlice";
+// import authReducer from "./authSlice";
 import boardReducer from "./boardSlice";
 
 // Create a new store per request/provider instance (App Router best practice).
 export const makeStore = () =>
   configureStore({
     reducer: {
-      auth: authReducer,
+      // auth: authReducer,
       board: boardReducer,
     },
   });
