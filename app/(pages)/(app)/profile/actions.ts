@@ -53,5 +53,5 @@ export async function updateProfile(
     return { error: (error as Error).message || "Unable to update your profile. Please try again." };
   }
 
-  redirect(`/profile`);
+  redirect(`/dashboard`);
 }

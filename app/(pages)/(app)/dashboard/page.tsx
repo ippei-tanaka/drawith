@@ -3,7 +3,6 @@ import BoardList from "./BoardList";
 import { getUser } from "@/lib/auth/actions";
 import { redirect } from "next/navigation";
 
-
 export default async function DashboardPage() {
 
   const user = await getUser();
