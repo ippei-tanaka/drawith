@@ -1,0 +1,57 @@
+"use client";
+
+import { useState } from "react";
+import { gql } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
+import { v4 as uuidv4 } from 'uuid';
+
+
+const CREATE_NEW_BOARD = gql`
+  mutation Mutation($input: drawing_boardCreate!) {
+    createOnedrawing_board(input: $input) {
+      id
+      name
+      display_name
+    }
+  }
+`;
+
+export default function NewBoardForm({user}: {user: {id: string}}) {
+
+  const [name, setName] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [mutate, { data, loading, error }] = useMutation(CREATE_NEW_BOARD);
+  // console.log("MUTATE222", data, error);
+// console.log("USER_ID", user.id);
+  return (
+    <form className="new-board-form" onSubmit={async (e) => {
+      console.log("DISPlA", displayName, user.id);
+      e.preventDefault();
+      console.log(mutate);
+      const result = await mutate({
+        variables: {
+          input: {
+            id: uuidv4(),
+            name: name,
+            display_name: displayName,
+            owner_id: user.id
+          }
+        }
+      }).catch((err) => {
+        console.error("MUTATION ERROR", err);
+      });
+      console.log("RESULT", result);
+    }}>
+      <label htmlFor="board-display-name">Board Display Name</label>
+      <input id="board-display-name" name="displayName" type="text" placeholder="e.g. Friday brainstorm" maxLength={120} autoFocus required value={displayName} 
+        onChange={(e) => {
+          setDisplayName(e.target.value);
+          setName(e.target.value.trim().replace(/[^a-zA-Z0-9\s]+/g, "").replace(/\s+/g, "-").toLocaleLowerCase());
+        }} />
+      <label htmlFor="board-name">Board Identifier</label>
+      <input id="board-name" name="name" type="text" placeholder="e.g. friday-brainstorm" maxLength={120} autoFocus required value={name} onChange={(e) => setName(e.target.value)} />
+      {error && <p className="new-board-error" role="alert">{error.message}</p>}
+      <button className="new-board-submit" type="submit">Create board</button>
+    </form>
+  );
+}

@@ -1,19 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getUser } from "@/app/actions/auth";
-import { createBoard } from "./actions";
+import { getUser } from "@/lib/auth/actions";
+import NewBoardForm from "./NewBoardForm";
 
-export default async function NewBoardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
+export default async function NewBoardPage() {
   const user = await getUser();
   if (!user) {
     redirect("/sign-in");
   }
-
-  const { error } = await searchParams;
 
   return (
     <main className="new-board-page">
@@ -21,12 +15,7 @@ export default async function NewBoardPage({
         <p className="new-board-kicker">A fresh canvas</p>
         <h1 id="new-board-heading">Make room for a new idea.</h1>
         <p className="new-board-description">Name your board, then bring people in when you are ready. You can always rename it later.</p>
-        <form className="new-board-form" action={createBoard}>
-          <label htmlFor="board-display-name">Board name</label>
-          <input id="board-display-name" name="displayName" type="text" placeholder="e.g. Friday brainstorm" maxLength={120} autoFocus required />
-          {error && <p className="new-board-error" role="alert">{error}</p>}
-          <button className="new-board-submit" type="submit">Create board</button>
-        </form>
+        <NewBoardForm user={user} />
         <Link className="back-link" href="/dashboard">Back to your boards</Link>
       </section>
     </main>

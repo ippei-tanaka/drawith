@@ -1,6 +1,6 @@
 import BoardCanvas from "../../_page";
 import { and, eq } from "drizzle-orm";
-import { getUser } from "@/app/actions/auth";
+import { getUser } from "@/lib/auth/actions";
 import { db } from "@/lib/db/db";
 import { drawingBoard } from "@/lib/db/schema";
 

@@ -19,7 +19,7 @@ const builder = new SchemaBuilder<PothosTypes>({
   drizzle: {
     client: () => db,
     relations,
-    getTableConfig,
+    getTableConfig
   },
   pothosDrizzleGenerator: {
     // Define your global and model-specific rules here
@@ -27,5 +27,7 @@ const builder = new SchemaBuilder<PothosTypes>({
 });
 
 const schema = builder.toSchema();
+
+console.log(schema);
 
 export const server = new ApolloServer({schema});

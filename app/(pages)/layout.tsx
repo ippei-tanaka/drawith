@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import StoreProvider from "../components/StoreProvider";
+import StoreProvider from "@/app/components/StoreProvider";
+import ApolloClientProvider from "@/app/components/ApolloClientProvider";
 import "../styles/globals.css";
 
 const geistSans = Geist({
@@ -25,10 +26,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <StoreProvider>
-          {children}
-        </StoreProvider>
+        <ApolloClientProvider>
+          <StoreProvider>
+            {children}
+          </StoreProvider>
+        </ApolloClientProvider>
       </body>
     </html>
   );
-}
+};

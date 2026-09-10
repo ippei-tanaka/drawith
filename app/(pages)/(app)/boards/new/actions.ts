@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db/db";
-import { getUser } from "@/app/actions/auth";
+import { getUser } from "@/lib/auth/actions";
 import { drawingBoard } from "@/lib/db/schema";
 
 const getValue = (formData: FormData, name: string) => {
