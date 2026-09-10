@@ -1,10 +1,11 @@
 @import "tailwindcss";
-@import "./styles/dashboard.css";
-@import "./styles/home.css";
-@import "./styles/auth.css";
-@import "./styles/board.css";
-@import "./styles/profile.css";
-@import "./styles/components.css";
+@import "./dashboard.css";
+@import "./home.css";
+@import "./auth.css";
+@import "./board.css";
+@import "./new-board.css";
+@import "./profile.css";
+@import "./components.css";
 
 :root {
   --ink: #24324a;

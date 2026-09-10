@@ -12,8 +12,6 @@ export default async function Header()
                 <span className="header-brand-mark">D</span>
                 <span>drawith</span>
             </Link>
-            {/* {user && <span className="header-user-name">Hello, {user.name}</span>} */}
-            <span className="header-section-note">Live boards</span>
             <HeaderMenu loggedIn={!!user} />
         </header>
     );

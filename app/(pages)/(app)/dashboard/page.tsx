@@ -22,8 +22,7 @@ const recentBoards = [
   { title: "Untitled canvas", detail: "Edited 3 days ago", members: "Only you", color: "yellow", preview: "✦" },
 ];
 
-export default function DashboardPage() 
-{
+export default function DashboardPage() {
   const [activeBoards, setActiveBoards] = useState(initialActiveBoards);
   const [lastUpdated, setLastUpdated] = useState("just now");
 
@@ -48,23 +47,9 @@ export default function DashboardPage()
 
   return (
     <main className="dashboard-page">
-      <header className="dashboard-topbar">
-        <Link className="dashboard-brand" href="/" aria-label="Drawith home"><span className="dashboard-brand-mark">D</span><span>drawith</span></Link>
-        <nav className="dashboard-nav" aria-label="Main navigation"><Link className="dashboard-nav-active" href="/dashboard">Your boards</Link><a href="#templates">Templates</a></nav>
-        <div className="dashboard-account">
-          <button className="dashboard-help" aria-label="Help" title="Help">?</button>
-          <details className="dashboard-account-menu">
-            <summary className="dashboard-avatar" aria-label="Open account menu">YO</summary>
-            <div className="dashboard-menu" role="menu">
-              <Link href="/profile" role="menuitem">Profile</Link>
-              <Link href="/sign-out" role="menuitem">Sign out</Link>
-            </div>
-          </details>
-        </div>
-      </header>
 
       <div className="dashboard-content">
-        <section className="dashboard-welcome"><div><p className="dashboard-eyebrow">Wednesday, September 2</p><h1>Good morning, Yuki.</h1><p className="dashboard-subtitle">What are you making space for today?</p></div><Link className="new-board-button" href="/dashboard/new"><span aria-hidden="true">+</span> New board</Link></section>
+        <section className="dashboard-welcome"><div><p className="dashboard-eyebrow">Wednesday, September 2</p><h1>Good morning, Yuki.</h1><p className="dashboard-subtitle">What are you making space for today?</p></div><Link className="new-board-button" href="/boards/new"><span aria-hidden="true">+</span> New board</Link></section>
 
         <section className="active-boards-section" aria-labelledby="active-heading">
           <div className="section-heading"><div className="active-heading"><span className="live-indicator" aria-hidden="true" /><h2 id="active-heading">Active right now</h2></div><span className="section-note">Updated {lastUpdated}</span></div>
@@ -76,7 +61,7 @@ export default function DashboardPage()
         <section className="dashboard-section" aria-labelledby="recent-heading">
           <div className="section-heading"><h2 id="recent-heading">Your boards</h2><button className="sort-button" type="button">Recently edited <span aria-hidden="true">⌄</span></button></div>
           <div className="board-grid">
-            <Link className="new-board-card" href="/dashboard/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
+            <Link className="new-board-card" href="/boards/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
             {recentBoards.map((board) => <Link className={`board-card board-card-${board.color}`} href="/" key={board.title}><div className="board-preview" aria-hidden="true"><span>{board.preview}</span></div><div className="board-card-info"><div><strong>{board.title}</strong><span>{board.detail}</span></div><small>{board.members}</small></div></Link>)}
           </div>
         </section>

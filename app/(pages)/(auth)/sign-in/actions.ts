@@ -28,8 +28,5 @@ export async function signInWithEmail(
     return { error: (error as Error).message || "Unable to sign in. Check your details and try again." };
   }
 
-    console.log("Sign In result:", authResult);
-
-
   redirect("/");
 }
