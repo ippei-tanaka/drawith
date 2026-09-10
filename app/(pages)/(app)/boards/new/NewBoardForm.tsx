@@ -4,7 +4,7 @@ import { useState } from "react";
 import { gql } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import { v4 as uuidv4 } from 'uuid';
-
+import { redirect } from "next/navigation";
 
 const CREATE_NEW_BOARD = gql`
   mutation Mutation($input: drawing_boardCreate!) {
@@ -21,14 +21,11 @@ export default function NewBoardForm({user}: {user: {id: string}}) {
   const [name, setName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [mutate, { data, loading, error }] = useMutation(CREATE_NEW_BOARD);
-  // console.log("MUTATE222", data, error);
-// console.log("USER_ID", user.id);
+
   return (
     <form className="new-board-form" onSubmit={async (e) => {
-      console.log("DISPlA", displayName, user.id);
       e.preventDefault();
-      console.log(mutate);
-      const result = await mutate({
+      await mutate({
         variables: {
           input: {
             id: uuidv4(),
@@ -37,10 +34,11 @@ export default function NewBoardForm({user}: {user: {id: string}}) {
             owner_id: user.id
           }
         }
+      }).then(() => {
+        redirect("/dashboard");
       }).catch((err) => {
         console.error("MUTATION ERROR", err);
       });
-      console.log("RESULT", result);
     }}>
       <label htmlFor="board-display-name">Board Display Name</label>
       <input id="board-display-name" name="displayName" type="text" placeholder="e.g. Friday brainstorm" maxLength={120} autoFocus required value={displayName} 

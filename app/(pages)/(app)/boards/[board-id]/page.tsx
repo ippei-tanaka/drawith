@@ -19,11 +19,11 @@ export default async function BoardPage({ params }: { params: Promise<{ 'board-i
     const user = await getUser();
     if (user) {
       const [board] = await db
-        .select({ displayName: drawingBoard.displayName })
+        .select({ display_name: drawingBoard.display_name })
         .from(drawingBoard)
-        .where(and(eq(drawingBoard.id, _params["board-id"]), eq(drawingBoard.ownerId, user.id)))
+        .where(and(eq(drawingBoard.id, _params["board-id"]), eq(drawingBoard.owner_id, user.id)))
         .limit(1);
-      boardTitle = board?.displayName ?? boardTitle;
+      boardTitle = board?.display_name ?? boardTitle;
     }
   }
 

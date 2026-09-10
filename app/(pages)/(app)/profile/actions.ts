@@ -42,8 +42,8 @@ export async function updateProfile(
   try {
     await db
       .update(userProfileSchema)
-      .set({ username, firstName, lastName })
-      .where(eq(userProfileSchema.userId, user.id));
+      .set({ username, first_name: firstName, last_name: lastName })
+      .where(eq(userProfileSchema.user_id, user.id));
     await db
       .update(userSchema)
       .set({ name: `${firstName} ${lastName}` })

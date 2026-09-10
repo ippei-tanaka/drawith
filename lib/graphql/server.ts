@@ -3,7 +3,7 @@ import { db } from '../db/db';
 import { relations } from '../db/schema';
 import SchemaBuilder from "@pothos/core";
 import DrizzlePlugin from "@pothos/plugin-drizzle";
-import PothosDrizzleGeneratorPlugin from "pothos-drizzle-generator";
+import PothosDrizzleGeneratorPlugin, { isOperation } from "pothos-drizzle-generator";
 import { getTableConfig } from "drizzle-orm/pg-core";
 
 export interface PothosTypes {
@@ -22,12 +22,26 @@ const builder = new SchemaBuilder<PothosTypes>({
     getTableConfig
   },
   pothosDrizzleGenerator: {
-    // Define your global and model-specific rules here
+    all: {
+      // Mutations require an authenticated user; reads remain public.
+      executable: ({ ctx, operation }) =>
+        isOperation("mutation", operation) ? Boolean(ctx.userId) : true,
+    },
+    models: {
+      drawingBoard: {
+        // Force the owner to the authenticated user; client-supplied owner_id is ignored.
+        inputData: ({ ctx, operation }) =>
+          isOperation("mutation", operation) ? { owner_id: ctx.userId } : undefined,
+      },
+      userProfile: {
+        // Force the profile owner to the authenticated user; client-supplied user_id is ignored.
+        inputData: ({ ctx, operation }) =>
+          isOperation("mutation", operation) ? { user_id: ctx.userId } : undefined,
+      },
+    },
   },
 });
 
 const schema = builder.toSchema();
-
-console.log(schema);
 
 export const server = new ApolloServer({schema});

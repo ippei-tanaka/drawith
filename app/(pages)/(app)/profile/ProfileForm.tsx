@@ -5,8 +5,8 @@ import { updateProfile } from "./actions";
 
 type Profile = {
   username: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
 };
 
 export default function ProfileForm({ profile }: { profile: Profile }) {
@@ -19,10 +19,10 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         <p>Edit how you show up across your boards.</p>
         <form className="profile-form" action={formAction}>
           <label htmlFor="profile-first-name">First name</label>
-          <input id="profile-first-name" name="firstName" defaultValue={profile.firstName} required />
+          <input id="profile-first-name" name="firstName" defaultValue={profile.first_name} required />
 
           <label htmlFor="profile-last-name">Last name</label>
-          <input id="profile-last-name" name="lastName" defaultValue={profile.lastName} required />
+          <input id="profile-last-name" name="lastName" defaultValue={profile.last_name} required />
 
           <label htmlFor="profile-name">Username</label>
           <input id="profile-name" name="username" defaultValue={profile.username} required />

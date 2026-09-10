@@ -46,10 +46,10 @@ export async function signUpWithEmail(
     const result = await auth.api.signUpEmail({body: { email, name: `${firstName} ${lastName}`, password }});
     await db.insert(userProfile).values({
       id: randomUUID(),
-      firstName,
-      lastName,
+      first_name: firstName,
+      last_name: lastName,
       username: `${firstName.toLowerCase()}-${lastName.toLowerCase()}-${result.user.id}`,
-      userId: result.user.id
+      user_id: result.user.id
     });
   } catch (error) {
     return { error: (error as Error).message || "Unable to create your account. Please try again." };

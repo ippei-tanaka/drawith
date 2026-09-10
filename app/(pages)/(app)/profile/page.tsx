@@ -17,7 +17,7 @@ export default async function UserProfilePage() {
   const [existingProfile] = await db
     .select()
     .from(userProfile)
-    .where(eq(userProfile.userId, user.id));
+    .where(eq(userProfile.user_id, user.id));
 
   // Every user gets a profile the first time they visit this page.
   const profile =
@@ -28,9 +28,9 @@ export default async function UserProfilePage() {
         .values({
           id: randomUUID(),
           username: user.id,
-          userId: user.id,
-          firstName: user.name,
-          lastName: "",
+          user_id: user.id,
+          first_name: user.name,
+          last_name: "",
         })
         .returning()
     )[0];
