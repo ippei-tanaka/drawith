@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
-import { getUser } from "@/app/(pages)/actions/auth";
+import { getUser } from "@/app/actions/auth";
 import { db } from "@/lib/db/db";
 import { userProfile } from "@/lib/db/schema";
 import ProfileForm from "./ProfileForm";

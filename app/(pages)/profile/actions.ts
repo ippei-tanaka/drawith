@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { getUser } from "@/app/(pages)/actions/auth";
+import { getUser } from "@/app/actions/auth";
 import { db } from "@/lib/db/db";
 import { user as userSchema, userProfile as userProfileSchema } from "@/lib/db/schema";
 

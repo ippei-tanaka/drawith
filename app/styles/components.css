@@ -1,0 +1,43 @@
+
+.header-topbar {
+  height: 72px;
+  padding: 0 6vw;
+  display: flex;
+  align-items: center;
+  gap: 64px;
+  background: rgba(255, 254, 251, 0.92);
+  border-bottom: 1px solid #dde2df;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 730;
+  text-decoration: none;
+}
+
+.header-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  background: var(--coral);
+  color: white;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 21px;
+}
+
+.header-user-name {
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.header-section-note {
+  color: #899596;
+  font-size: 10px;
+}
