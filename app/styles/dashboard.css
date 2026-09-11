@@ -439,6 +439,42 @@
   white-space: nowrap;
 }
 
+.board-list-status {
+  margin: 16px 0 0;
+  color: #778487;
+  font-size: 12px;
+}
+
+.board-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  color: #778487;
+  font-size: 12px;
+}
+
+.board-pagination button {
+  padding: 8px 12px;
+  border: 1px solid #cdd6d3;
+  border-radius: 5px;
+  background: #fffefb;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.board-pagination button:hover:not(:disabled) {
+  border-color: #8da09a;
+}
+
+.board-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .section-note {
   color: #a0a8a7;
   font-size: 11px;

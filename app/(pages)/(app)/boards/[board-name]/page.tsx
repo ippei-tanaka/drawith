@@ -3,6 +3,7 @@ import { getUser } from "@/lib/auth/actions";
 import { client } from "@/lib/graphql/client";
 import { notFound, redirect } from "next/navigation";
 import { BoardCanvas } from "./BoardCanvas";
+import "../../../../styles/board.css";
 
 const FIND_BOARD = gql`
   query FindFirstdrawing_board($where: drawing_boardWhere) {

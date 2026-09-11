@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "@apollo/client/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { gql } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
+
+const BOARDS_PER_PAGE = 7;
 
 const SELECT_BOARDS = gql`
   query Query($limit: Int, $offset: Int, $orderBy: [drawing_boardOrderBy!], $ownerId: String) {
@@ -22,35 +24,29 @@ type Board = {
 };
 
 type GetBoardVariables = {
-  owner_id: string;
-  limit?: number;
-  offset?: number;
-  orderBy?: [string];
-}
+  ownerId: string;
+  limit: number;
+  offset: number;
+};
 
 type GetBoardData = {
   findManydrawing_board: Board[] | null;
-}
+};
 
-export default function BoardList({user}: {user: {id: string}}) {
-  
-  const { loading, error, data } = useQuery<GetBoardData, GetBoardVariables>(SELECT_BOARDS, {
+export default function BoardList({ user }: { user: { id: string } }) {
+  const [offset, setOffset] = useState(0);
+  const { data, error, loading } = useQuery<GetBoardData, GetBoardVariables>(SELECT_BOARDS, {
     variables: {
-      owner_id: user.id,
-      // limit: 0,
-      // offset: 0,
-      // orderBy: ["created_at_DESC"]
+      ownerId: user.id,
+      limit: BOARDS_PER_PAGE + 1,
+      offset,
     },
-    fetchPolicy: 'cache-and-network'
   });
 
-  const [boards, setBoards] = useState<Board[]>([]);
-
-  useEffect(() => {
-    if (data) {
-      setBoards(data['findManydrawing_board'] || []);
-    }
-  }, [data]);
+  const boards = data?.findManydrawing_board ?? [];
+  const hasNextPage = boards.length > BOARDS_PER_PAGE;
+  const pageBoards = boards.slice(0, BOARDS_PER_PAGE);
+  const pageNumber = Math.floor(offset / BOARDS_PER_PAGE) + 1;
 
   return (
     <section className="dashboard-section" aria-labelledby="recent-heading">
@@ -59,7 +55,7 @@ export default function BoardList({user}: {user: {id: string}}) {
       </div>
       <div className="board-grid">
         <Link className="new-board-card" href="/boards/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
-        {boards.map((board) => 
+        {pageBoards.map((board) => 
           <Link className={`board-card board-card-red`} href={`/boards/${board.name}`} key={board.id}>
             <div className="board-preview" aria-hidden="true">
               <span>{board.display_name}</span>
@@ -72,6 +68,31 @@ export default function BoardList({user}: {user: {id: string}}) {
             </div>
           </Link>)}
       </div>
+      {error ? <p className="board-list-status" role="alert">Unable to load boards.</p> : null}
+      {loading ? <p className="board-list-status" aria-live="polite">Loading boards...</p> : null}
+      <nav className="board-pagination" aria-label="Board pages">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            setOffset((currentOffset) => currentOffset - BOARDS_PER_PAGE)
+          }}
+          disabled={loading || offset === 0}
+        >
+          Previous
+        </button>
+        <span aria-live="polite">Page {pageNumber}</span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            setOffset((currentOffset) => currentOffset + BOARDS_PER_PAGE)
+          }}
+          disabled={loading || !hasNextPage}
+        >
+          Next
+        </button>
+      </nav>
     </section>
   );
 }

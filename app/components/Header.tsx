@@ -1,6 +1,7 @@
 import Link from "next/link";
 import HeaderMenu from "./HeaderMenu";
 import { getUser } from "../../lib/auth/actions";
+import "../styles/components.css";
 
 export default async function Header() 
 {

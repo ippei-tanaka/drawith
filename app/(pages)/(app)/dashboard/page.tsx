@@ -2,6 +2,7 @@ import Link from "next/link";
 import BoardList from "./BoardList";
 import { getUser } from "@/lib/auth/actions";
 import { redirect } from "next/navigation";
+import "../../../styles/dashboard.css";
 
 export default async function DashboardPage() {
 

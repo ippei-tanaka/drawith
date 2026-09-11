@@ -5,6 +5,7 @@ import { getUser } from "@/lib/auth/actions";
 import { db } from "@/lib/db/db";
 import { userProfile } from "@/lib/db/schema";
 import ProfileForm from "./ProfileForm";
+import "../../../styles/profile.css";
 
 export default async function UserProfilePage() {
 
