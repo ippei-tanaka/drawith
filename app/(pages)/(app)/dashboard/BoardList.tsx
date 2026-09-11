@@ -48,7 +48,6 @@ export default function BoardList({user}: {user: {id: string}}) {
 
   useEffect(() => {
     if (data) {
-    console.log(data['findManydrawing_board']);
       setBoards(data['findManydrawing_board'] || []);
     }
   }, [data]);
@@ -61,7 +60,7 @@ export default function BoardList({user}: {user: {id: string}}) {
       <div className="board-grid">
         <Link className="new-board-card" href="/boards/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
         {boards.map((board) => 
-          <Link className={`board-card board-card-red`} href={`/boards/${board.id}`} key={board.id}>
+          <Link className={`board-card board-card-red`} href={`/boards/${board.name}`} key={board.id}>
             <div className="board-preview" aria-hidden="true">
               <span>{board.display_name}</span>
             </div>

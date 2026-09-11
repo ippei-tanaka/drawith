@@ -10,7 +10,7 @@ const collaborators = [
   { name: "You", initials: "YO", color: "#4f7cf7", status: "Editing" },
 ];
 
-export default function BoardCanvas({ boardTitle = "Friday brainstorm" }: { boardTitle?: string }) 
+export function BoardCanvas({ boardTitle = "Friday brainstorm" }: { boardTitle?: string }) 
 {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);

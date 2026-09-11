@@ -31,6 +31,7 @@ services:
       DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
       BETTER_AUTH_URL: $BETTER_AUTH_URL
       BETTER_AUTH_SECRET: $BETTER_AUTH_SECRET
+      GRAPHQL_URI: $GRAPHQL_URI
       NODE_ENV: development
     ports:
       - "3000:3000"
