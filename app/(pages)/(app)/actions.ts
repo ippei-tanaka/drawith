@@ -17,10 +17,19 @@ const FIND_MANY_BOARDS = gql`
   }
 `;
 
+type BoardOrderBy = {
+  id?: "Asc" | "Desc";
+  name?: "Asc" | "Desc";
+  display_name?: "Asc" | "Desc";
+  created_at?: "Asc" | "Desc";
+  updated_at?: "Asc" | "Desc";
+};
+
 type FindManyBoardVariables = {
   ownerId: string;
   limit?: number;
   offset?: number;
+  orderBy?: BoardOrderBy;
 };
 
 type FindManyBoardData = {
