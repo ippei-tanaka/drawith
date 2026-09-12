@@ -1,49 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { gql } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
+import { findManyBoards, Board } from "@/app/(pages)/(app)/actions";
 
 const BOARDS_PER_PAGE = 7;
 
-const SELECT_BOARDS = gql`
-  query Query($limit: Int, $offset: Int, $orderBy: [drawing_boardOrderBy!], $ownerId: String) {
-    findManydrawing_board(limit: $limit, offset: $offset, orderBy: $orderBy, where:  {
-      owner_id: { eq: $ownerId }
-    }) {
-      id, name, display_name
-    }
-  }
-`;
-
-type Board = {
-  id: string;
-  name: string;
-  display_name: string;
-};
-
-type GetBoardVariables = {
-  ownerId: string;
-  limit: number;
-  offset: number;
-};
-
-type GetBoardData = {
-  findManydrawing_board: Board[] | null;
-};
-
 export default function BoardList({ user }: { user: { id: string } }) {
   const [offset, setOffset] = useState(0);
-  const { data, error, loading } = useQuery<GetBoardData, GetBoardVariables>(SELECT_BOARDS, {
-    variables: {
-      ownerId: user.id,
-      limit: BOARDS_PER_PAGE + 1,
-      offset,
-    },
-  });
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const boards = data?.findManydrawing_board ?? [];
+  useEffect(() => {
+    setLoading(true);
+    findManyBoards({
+    ownerId: user.id,
+    limit: BOARDS_PER_PAGE + 1,
+    offset,
+    })
+      .then((result) => {
+        setBoards(result ?? []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+      });
+  }, [user.id, offset]);
+
+  useEffect(() => {
+    setOffset(0);
+  }, [user.id]);  
+
   const hasNextPage = boards.length > BOARDS_PER_PAGE;
   const pageBoards = boards.slice(0, BOARDS_PER_PAGE);
   const pageNumber = Math.floor(offset / BOARDS_PER_PAGE) + 1;

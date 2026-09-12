@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BoardCanvasHeader } from "./BoardCanvasHeader";
 
 type Tool = "pen" | "marker" | "eraser";
 
@@ -10,7 +11,18 @@ const collaborators = [
   { name: "You", initials: "YO", color: "#4f7cf7", status: "Editing" },
 ];
 
-export function BoardCanvas({ boardTitle = "Friday brainstorm" }: { boardTitle?: string }) 
+type Board = {
+  id: string;
+  name: string;
+  display_name: string;
+};
+
+type User = {
+  id: string;
+  name: string;
+};
+
+export function BoardCanvas({ board, user }: { board: Board, user: User }) 
 {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
@@ -90,11 +102,7 @@ export function BoardCanvas({ boardTitle = "Friday brainstorm" }: { boardTitle?:
   };
 
   return <main className="drawith-app">
-    <header className="topbar">
-      <div className="brand"><span className="brand-mark">D</span><span>drawith</span></div>
-      <div className="room-title"><span className="room-dot" /><span>{boardTitle}</span><button className="icon-button" aria-label="Rename board" title="Rename board">&#9998;</button></div>
-      <div className="top-actions"><button className="share-button">Share board</button><button className="avatar avatar-you" aria-label="Your profile">YO</button></div>
-    </header>
+    <BoardCanvasHeader board={board} />
     <section className="workspace">
       <aside className="toolbar" aria-label="Drawing tools">
         <button className={`tool-button ${tool === "pen" ? "selected" : ""}`} onClick={() => setTool("pen")} aria-label="Pen" title="Pen">&#9998;</button>
