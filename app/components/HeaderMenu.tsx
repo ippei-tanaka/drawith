@@ -1,11 +1,23 @@
 "use client";
 
 import Link from "next/link";   
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function HeaderMenu({ loggedIn }: { loggedIn: boolean }) {
 
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        const handleOutsideClick = (event: MouseEvent) => {
+            if (!(event.target as HTMLElement).closest(".header-menu")) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("click", handleOutsideClick);
+        return () => {
+            document.removeEventListener("click", handleOutsideClick);
+        };
+    }, []); 
 
     return (
         <div className="header-menu">
