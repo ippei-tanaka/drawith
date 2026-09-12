@@ -130,14 +130,14 @@
 .dashboard-content {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 68px 32px 100px;
+  padding: 30px 30px 100px;
 }
 
 .dashboard-welcome {
   display: flex;
   align-items: end;
   justify-content: space-between;
-  margin-bottom: 68px;
+  margin-bottom: 30px;
 }
 
 .dashboard-eyebrow {
@@ -153,7 +153,7 @@
   margin: 0;
   color: #24324a;
   font-family: Georgia, serif;
-  font-size: clamp(32px, 4vw, 49px);
+  font-size: clamp(20px, 4vw, 28px);
   font-weight: 400;
   letter-spacing: -1px;
 }
@@ -445,12 +445,18 @@
   font-size: 12px;
 }
 
+.board-list-pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
 .board-pagination {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 20px;
   color: #778487;
   font-size: 12px;
 }

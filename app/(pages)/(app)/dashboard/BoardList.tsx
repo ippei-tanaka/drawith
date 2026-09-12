@@ -44,6 +44,33 @@ export default function BoardList({ user }: { user: { id: string } }) {
       <div className="section-heading">
         <h2 id="recent-heading">Your boards</h2>
       </div>
+      <div className="board-list-pagination-container">
+        {error ? <p className="board-list-status" role="alert">Unable to load boards.</p> : null}
+        {loading ? <p className="board-list-status" aria-live="polite">Loading boards...</p> : null}
+        <nav className="board-pagination" aria-label="Board pages">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              setOffset((currentOffset) => currentOffset - BOARDS_PER_PAGE)
+            }}
+            disabled={loading || offset === 0}
+          >
+            Previous
+          </button>
+          <span aria-live="polite">Page {pageNumber}</span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              setOffset((currentOffset) => currentOffset + BOARDS_PER_PAGE)
+            }}
+            disabled={loading || !hasNextPage}
+          >
+            Next
+          </button>
+        </nav>
+      </div>
       <div className="board-grid">
         <Link className="new-board-card" href="/boards/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
         {pageBoards.map((board) => 
@@ -59,31 +86,6 @@ export default function BoardList({ user }: { user: { id: string } }) {
             </div>
           </Link>)}
       </div>
-      {error ? <p className="board-list-status" role="alert">Unable to load boards.</p> : null}
-      {loading ? <p className="board-list-status" aria-live="polite">Loading boards...</p> : null}
-      <nav className="board-pagination" aria-label="Board pages">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            setOffset((currentOffset) => currentOffset - BOARDS_PER_PAGE)
-          }}
-          disabled={loading || offset === 0}
-        >
-          Previous
-        </button>
-        <span aria-live="polite">Page {pageNumber}</span>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            setOffset((currentOffset) => currentOffset + BOARDS_PER_PAGE)
-          }}
-          disabled={loading || !hasNextPage}
-        >
-          Next
-        </button>
-      </nav>
     </section>
   );
 }
