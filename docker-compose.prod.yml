@@ -37,11 +37,14 @@ services:
       dockerfile: Dockerfile.prod
     container_name: drawith-app-prod
     environment:
-      DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
       BETTER_AUTH_URL: $BETTER_AUTH_URL
       BETTER_AUTH_SECRET: $BETTER_AUTH_SECRET
       GRAPHQL_URI: $GRAPHQL_URI
-      NODE_ENV: production
+      POSTGRES_HOST: $POSTGRES_HOST
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      NODE_ENV: $NODE_ENVs
     ports:
       - "3000:3000"
     depends_on:

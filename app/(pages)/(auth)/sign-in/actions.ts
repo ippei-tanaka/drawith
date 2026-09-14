@@ -25,6 +25,7 @@ export async function signInWithEmail(
   try {
     authResult = await auth.api.signInEmail({body: {email, password}});
   } catch (error) {
+    console.log(error);
     return { error: (error as Error).message || "Unable to sign in. Check your details and try again." };
   }
 
