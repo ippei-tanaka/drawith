@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { defineRelations } from "drizzle-orm";
 
 export const user = pgTable("user", {
@@ -73,7 +73,6 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-
 export const userProfile = pgTable('user_profile', {
   id: text('id').notNull().primaryKey(),
   username: text('username').notNull().unique(),
@@ -93,8 +92,18 @@ export const drawingBoard = pgTable('drawing_board', {
   updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
+export const drawingBoardInvite = pgTable('drawing_board_invite', {
+  id: text('id').notNull().primaryKey(),
+  drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
+  invitee_id: text('invitee_id').notNull().references(() => user.id, { onDelete: "cascade" }),
+  created_at: timestamp('created_at').notNull().defaultNow(),
+  updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+}, (table) => {
+  return [uniqueIndex('drawing_board_invite_unique').on(table.drawing_board_id, table.invitee_id)];
+});
+
 export const relations = defineRelations(
-  { user, session, account, verification, userProfile, drawingBoard },
+  { user, session, account, verification, userProfile, drawingBoard, drawingBoardInvite },
   (r) => ({
     user: {
       sessions: r.many.session(),
@@ -124,6 +133,22 @@ export const relations = defineRelations(
         to: r.user.id,
         optional: false
       }),
-    }
+      invites: r.many.drawingBoardInvite({
+        from: r.drawingBoard.id,
+        to: r.drawingBoardInvite.drawing_board_id
+      }),
+    },
+    drawingBoardInvite: {
+      drawingBoard: r.one.drawingBoard({
+        from: r.drawingBoardInvite.drawing_board_id,
+        to: r.drawingBoard.id,
+        optional: false
+      }),
+      invitee: r.one.user({
+        from: r.drawingBoardInvite.invitee_id,
+        to: r.user.id,
+        optional: false
+      }),
+    },
   }),
 );
