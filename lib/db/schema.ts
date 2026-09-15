@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, pgEnum, text, timestamp, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { defineRelations } from "drizzle-orm";
 
 export const user = pgTable("user", {
@@ -92,7 +92,19 @@ export const drawingBoard = pgTable('drawing_board', {
   updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-export const drawingBoardInvite = pgTable('drawing_board_invite', {
+export const drawingBoardMember = pgTable('drawing_board_member', {
+  id: text('id').notNull().primaryKey(),
+  drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
+  member_id: text('member_id').notNull().references(() => user.id, { onDelete: "cascade" }),
+  created_at: timestamp('created_at').notNull().defaultNow(),
+  updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+}, (table) => {
+  return [uniqueIndex('drawing_board_member_unique').on(table.drawing_board_id, table.member_id)];
+});
+
+export const invitationState = pgEnum('invitation_state', ['pending', 'accepted', 'rejected']);
+
+export const drawingBoardInvitation = pgTable('drawing_board_invitation', {
   id: text('id').notNull().primaryKey(),
   drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
   invitee_id: text('invitee_id').notNull().references(() => user.id, { onDelete: "cascade" }),
@@ -103,7 +115,7 @@ export const drawingBoardInvite = pgTable('drawing_board_invite', {
 });
 
 export const relations = defineRelations(
-  { user, session, account, verification, userProfile, drawingBoard, drawingBoardInvite },
+  { user, session, account, verification, userProfile, drawingBoard, drawingBoardMember, drawingBoardInvitation },
   (r) => ({
     user: {
       sessions: r.many.session(),
@@ -133,19 +145,31 @@ export const relations = defineRelations(
         to: r.user.id,
         optional: false
       }),
-      invites: r.many.drawingBoardInvite({
+      members: r.many.drawingBoardMember({
         from: r.drawingBoard.id,
-        to: r.drawingBoardInvite.drawing_board_id
+        to: r.drawingBoardMember.drawing_board_id
       }),
     },
-    drawingBoardInvite: {
+    drawingBoardMember: {
       drawingBoard: r.one.drawingBoard({
-        from: r.drawingBoardInvite.drawing_board_id,
+        from: r.drawingBoardMember.drawing_board_id,
+        to: r.drawingBoard.id,
+        optional: false
+      }),
+      member: r.one.user({
+        from: r.drawingBoardMember.member_id,
+        to: r.user.id,
+        optional: false
+      }),
+    },
+    drawingBoardInvitation: {
+      drawingBoard: r.one.drawingBoard({
+        from: r.drawingBoardInvitation.drawing_board_id,
         to: r.drawingBoard.id,
         optional: false
       }),
       invitee: r.one.user({
-        from: r.drawingBoardInvite.invitee_id,
+        from: r.drawingBoardInvitation.invitee_id,
         to: r.user.id,
         optional: false
       }),

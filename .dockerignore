@@ -7,6 +7,7 @@ README.md
 .env.local
 .env
 .DS_Store
+.playwright-results
 dist
 build
 coverage

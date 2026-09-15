@@ -38,6 +38,11 @@ const builder = new SchemaBuilder<PothosTypes>({
         inputData: ({ ctx, operation }) =>
           isOperation("mutation", operation) ? { user_id: ctx.userId } : undefined,
       },
+      drawingBoardMember: {
+        // Force the member to the authenticated user; client-supplied member_id is ignored.
+        inputData: ({ ctx, operation }) =>
+          isOperation("mutation", operation) ? { member_id: ctx.userId } : undefined,
+      }
     },
   },
 });
