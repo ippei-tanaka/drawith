@@ -1,0 +1,81 @@
+# docker compose --env-file .env.docker.test -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
+#
+# Ephemeral environment for automated (Playwright) permission tests.
+# Unlike docker-compose.dev.yml/docker-compose.prod.yml, no volumes are used:
+# both the database and the app are torn down/recreated from scratch on every run,
+# a fixed set of test users (see tests/fixtures/users.ts) is seeded on startup,
+# and the "tests" service runs the Playwright suite against the app once it's healthy.
+
+name: drawith-test
+
+networks:
+  test-net: {}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: drawith-postgres-test
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: $POSTGRES_DB
+    networks:
+      test-net:
+        aliases:
+          - drawith-postgres
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: drawith-app-test
+    environment:
+      BETTER_AUTH_URL: $BETTER_AUTH_URL
+      BETTER_AUTH_SECRET: $BETTER_AUTH_SECRET
+      GRAPHQL_URI: $GRAPHQL_URI
+      POSTGRES_HOST: $POSTGRES_HOST
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      NODE_ENV: $NODE_ENV
+    networks:
+      test-net:
+        aliases:
+          - drawith-app
+    ports:
+      - "3100:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npm run db:migrate && npm run test:seed && npm run dev"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: drawith-tests
+    environment:
+      APP_URL: $APP_URL
+    depends_on:
+      app:
+        condition: service_healthy
+    # command: sh -c "echo APP_URL=$APP_URL && wget -S -O - $APP_URL && npm test"
+    networks:
+      test-net:
+        aliases:
+          - drawith-tests

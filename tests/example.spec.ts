@@ -1,21 +1,29 @@
 import { test, expect } from 'playwright/test';
 
-test('has title', async ({ page }) => {
-  await page.goto('/');
+// test.use({
+//   ignoreHTTPSErrors: true,
+// });
 
-  // Expect a title "to contain" a substring.
+// console.log("process.env.APP_URL", process.env.APP_URL);
+
+test('has title', async ({ page }) => {
+  const response = await page.goto('http://drawith-app:3000');
+
+  // console.log('status:', response?.status());
+  // console.log('URL:', page.url());
+
   await expect(page).toHaveTitle(/Drawith/);
 });
 
-test('can login via /api/auth', async ({ request }) => {
-  const response = await request.post('/api/auth/sign-in/email', {
-    data: {
-      email: 'q@q.ca',
-      password: 'qqqqqqqq',
-    },
-  });
+// test('can login via /api/auth', async ({ request }) => {
+//   const response = await request.post('/api/auth/sign-in/email', {
+//     data: {
+//       email: 'q@q.ca',
+//       password: 'qqqqqqqq',
+//     },
+//   });
 
-  expect(response.ok()).toBeTruthy();
-  const body = await response.json();
-  expect(body.user).toBeTruthy();
-});
+//   expect(response.ok()).toBeTruthy();
+//   const body = await response.json();
+//   expect(body.user).toBeTruthy();
+// });

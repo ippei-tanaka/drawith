@@ -6,5 +6,5 @@ const databaseURL = `postgresql://${process.env.POSTGRES_USER}:${process.env.POS
 export const db = drizzle({
   connection: databaseURL,
   relations,
-  logger: true,
+  // logger: true,
 });

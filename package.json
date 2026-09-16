@@ -11,7 +11,10 @@
     "db:migrate": "drizzle-kit migrate",
     "auth:generate": "auth generate",
     "auth:migrate": "auth migrate",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:seed": "tsx scripts/seed-test-users.ts",
+    "test:docker": "docker compose --env-file .env.docker.test -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests",
+    "test:docker2": "docker compose --env-file .env.docker.test -f docker-compose.test.yml up --build"
   },
   "dependencies": {
     "@apollo/client": "^4.2.12",

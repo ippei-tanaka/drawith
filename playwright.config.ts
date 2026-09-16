@@ -1,16 +1,21 @@
-import { defineConfig } from 'playwright/test';
-import dotenv from 'dotenv';
-import path from 'path';
+// import { defineConfig } from 'playwright/test';
 
-// Read from ".env" file in the root directory
-dotenv.config({ path: path.resolve(__dirname, '.env.local') });
+// console.log("process.env.APP_URL", process.env.APP_URL);
+
+// export default defineConfig({
+//   use: {
+//     baseURL: process.env.APP_URL,
+//     ignoreHTTPSErrors: true,
+//   },
+//   reporter: 'line',
+//   outputDir: './.playwright-results',
+// });
+
+
+import { defineConfig } from 'playwright/test';
 
 export default defineConfig({
   use: {
-    // Access variables using process.env
-    // baseURL: process.env.STAGING === '1' ? 'https://example.com' : 'https://example.com',
-    baseURL: process.env.APP_URL,
+    baseURL: 'http://app:3000',
   },
-  reporter: 'line',
-  outputDir: './.playwright-results',
 });

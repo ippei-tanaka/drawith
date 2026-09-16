@@ -28,20 +28,20 @@ const builder = new SchemaBuilder<PothosTypes>({
         isOperation("mutation", operation) ? Boolean(ctx.userId) : true,
     },
     models: {
-      drawingBoard: {
-        // Force the owner to the authenticated user; client-supplied owner_id is ignored.
-        inputData: ({ ctx, operation }) =>
-          isOperation("mutation", operation) ? { owner_id: ctx.userId } : undefined,
-      },
       userProfile: {
         // Force the profile owner to the authenticated user; client-supplied user_id is ignored.
         inputData: ({ ctx, operation }) =>
           isOperation("mutation", operation) ? { user_id: ctx.userId } : undefined,
       },
-      drawingBoardMember: {
-        // Force the member to the authenticated user; client-supplied member_id is ignored.
+      drawingBoard: {
+        // Force the owner to the authenticated user; client-supplied owner_id is ignored.
         inputData: ({ ctx, operation }) =>
-          isOperation("mutation", operation) ? { member_id: ctx.userId } : undefined,
+          isOperation("mutation", operation) ? { owner_id: ctx.userId } : undefined,
+      },
+      drawingBoardMember: {
+        // Only the board owner can create, update, or delete membership rows.
+        inputData: ({ ctx, operation }) =>
+          isOperation("mutation", operation) ? { drawingBoard: { owner_id: ctx.userId } } : undefined,
       }
     },
   },
