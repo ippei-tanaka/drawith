@@ -33,17 +33,21 @@ async function getOwnerProfile(context: APIRequestContext) {
   return result.data?.findFirstuser_profile ?? null;
 }
 
+
+
 test.describe("user profile permissions", () => {
+
+  
   test("allows the owner to update their own profile", async () => {
     const before = await getOwnerProfile(owner);
     expect(before).not.toBeNull();
 
     const result = await graphql<{
-      updateuserProfile: { id: string; user_id: string; first_name: string };
+      updateuser_profile: Array<{ id: string; user_id: string; first_name: string }>;
     }>(
       owner,
-      `mutation($where: userProfileWhere, $input: userProfileUpdate!) {
-        updateuserProfile(where: $where, input: $input) { id user_id first_name }
+      `mutation($where: user_profileWhere, $input: user_profileUpdate!) {
+        updateuser_profile(where: $where, input: $input) { id user_id first_name }
       }`,
       {
         where: { user_id: { eq: ownerId } },
@@ -52,13 +56,13 @@ test.describe("user profile permissions", () => {
     );
 
     expect(result.errors).toBeUndefined();
-    expect(result.data?.updateuserProfile?.user_id).toBe(ownerId);
-    expect(result.data?.updateuserProfile?.first_name).toBe("Updated owner");
+    expect(result.data?.updateuser_profile[0].user_id).toBe(ownerId);
+    expect(result.data?.updateuser_profile[0].first_name).toBe("Updated owner");
 
     await graphql(
       owner,
-      `mutation($where: userProfileWhere, $input: userProfileUpdate!) {
-        updateuserProfile(where: $where, input: $input) { id }
+      `mutation($where: user_profileWhere, $input: user_profileUpdate!) {
+        updateuser_profile(where: $where, input: $input) { id }
       }`,
       {
         where: { user_id: { eq: ownerId } },
@@ -67,14 +71,18 @@ test.describe("user profile permissions", () => {
     );
   });
 
+
+
   test("does not allow another user to update the owner's profile", async () => {
     const before = await getOwnerProfile(owner);
     expect(before).not.toBeNull();
 
-    const result = await graphql(
+    const result = await graphql<{
+      updateuser_profile: Array<{ id: string; first_name: string }>;
+    }>(
       intruder,
-      `mutation($where: userProfileWhere, $input: userProfileUpdate!) {
-        updateuserProfile(where: $where, input: $input) { id first_name }
+      `mutation($where: user_profileWhere, $input: user_profileUpdate!) {
+        updateuser_profile(where: $where, input: $input) { id first_name }
       }`,
       {
         where: { user_id: { eq: ownerId } },
@@ -82,15 +90,20 @@ test.describe("user profile permissions", () => {
       },
     );
 
-    expect(result.errors?.length).toBeGreaterThan(0);
-    await expect.poll(() => getOwnerProfile(owner)).toEqual(before);
+    expect(result.errors).toBeUndefined();
+    expect(result.data?.updateuser_profile).toEqual([]);
+    expect(await getOwnerProfile(owner)).toEqual(before);
   });
 
+
+
   test("does not allow the owner to create a second profile", async () => {
-    const result = await graphql(
+    const result = await graphql<{
+      createOneuser_profile: null;
+    }>(
       owner,
-      `mutation($input: userProfileCreate!) {
-        createOneuserProfile(input: $input) { id user_id username }
+      `mutation($input: user_profileCreate!) {
+        createOneuser_profile(input: $input) { id user_id username }
       }`,
       {
         input: {
@@ -102,8 +115,10 @@ test.describe("user profile permissions", () => {
         },
       },
     );
-
-    expect(result.errors?.length).toBeGreaterThan(0);
+    expect(result.data).toBeNull();
+    expect(result.errors).toHaveLength(1);
+    // expect(result.errors?.[0].message).toMatch(/unique|duplicate/i);
+    expect(await getOwnerProfile(owner)).not.toBeNull();
   });
 
   test("does not allow duplicate profile usernames", async () => {
@@ -111,21 +126,22 @@ test.describe("user profile permissions", () => {
     expect(ownerProfile).not.toBeNull();
 
     const intruderProfile = await graphql<{
-      findFirstuserProfile: { id: string; username: string } | null;
+      findFirstuser_profile: { id: string; username: string } | null;
     }>(
       intruder,
       `query($userId: String!) {
-        findFirstuserProfile(where: { user_id: { eq: $userId } }) { id username }
+        findFirstuser_profile(where: { user_id: { eq: $userId } }) { id username }
       }`,
       { userId: await getSessionUserId(intruder) },
     );
-    const profile = intruderProfile.data?.findFirstuserProfile;
-    expect(profile).not.toBeNull();
+    const profile = intruderProfile.data?.findFirstuser_profile;
 
-    const result = await graphql(
+    const result = await graphql<{
+      updateuser_profile: Array<{ id: string; username: string }>;
+    }>(
       intruder,
-      `mutation($where: userProfileWhere, $input: userProfileUpdate!) {
-        updateuserProfile(where: $where, input: $input) { id username }
+      `mutation($where: user_profileWhere, $input: user_profileUpdate!) {
+        updateuser_profile(where: $where, input: $input) { id username }
       }`,
       {
         where: { id: { eq: profile!.id } },
@@ -133,6 +149,16 @@ test.describe("user profile permissions", () => {
       },
     );
 
-    expect(result.errors?.length).toBeGreaterThan(0);
+    expect(result.data).toBeNull();
+    expect(result.errors).toHaveLength(1);
+    expect(await graphql(
+      intruder,
+      `query($userId: String!) {
+        findFirstuser_profile(where: { user_id: { eq: $userId } }) { id username }
+      }`,
+      { userId: await getSessionUserId(intruder) },
+    )).toMatchObject({
+      data: { findFirstuser_profile: profile },
+    });
   });
 });

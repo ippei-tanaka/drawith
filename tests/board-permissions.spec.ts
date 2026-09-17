@@ -54,7 +54,12 @@ async function getBoardById(context: APIRequestContext, id: string) {
   return result.data?.findFirstdrawing_board ?? null;
 }
 
+
+
+
 test.describe("board ownership", () => {
+
+
   test("a non-owner cannot rename another user's board", async () => {
     const board = await createBoard(owner);
 
@@ -70,6 +75,8 @@ test.describe("board ownership", () => {
     expect(stillOwnedBoard?.display_name).toBe("Original name");
   });
 
+
+
   test("a non-owner cannot delete another user's board", async () => {
     const board = await createBoard(owner);
 
@@ -82,8 +89,9 @@ test.describe("board ownership", () => {
     );
 
     const stillExists = await getBoardById(owner, board.id);
-    expect(stillExists).not.toBeNull();
+    expect(stillExists?.id).toBe(board.id);
   });
+
 });
 
 /*

@@ -45,7 +45,7 @@ const builder = new SchemaBuilder<PothosTypes>({
             ? { user_id: ctx.userId }
             : {},
         inputData: ({ ctx, operation }) =>
-          isOperation(["createOne", "createMany"], operation)
+          isOperation(["createOne"], operation)
             ? { user_id: ctx.userId }
             : undefined,
       },

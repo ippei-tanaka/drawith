@@ -76,15 +76,21 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const userProfile = pgTable('user_profile', {
-  id: text('id').notNull().primaryKey(),
-  username: text('username').notNull().unique(),
-  user_id: text('user_id').notNull().references(() => user.id, { onDelete: "cascade" }),
-  first_name: text('first_name').notNull(),
-  last_name: text('last_name').notNull(),
-  created_at: timestamp('created_at').notNull().defaultNow(),
-  updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
-});
+export const userProfile = pgTable(
+  'user_profile', 
+  {
+    id: text('id').notNull().primaryKey(),
+    username: text('username').notNull().unique(),
+    user_id: text('user_id').notNull().references(() => user.id, { onDelete: "cascade" }),
+    first_name: text('first_name').notNull(),
+    last_name: text('last_name').notNull(),
+    created_at: timestamp('created_at').notNull().defaultNow(),
+    updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+  }, 
+  (table) => [
+    uniqueIndex("user_profile_user_id_unique").on(table.user_id)
+  ]
+);
 
 export const drawingBoard = pgTable('drawing_board', {
   id: text('id').notNull().primaryKey(),
