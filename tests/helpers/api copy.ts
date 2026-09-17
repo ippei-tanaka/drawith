@@ -32,18 +32,18 @@ export async function graphql<T = unknown>(
   return response.json();
 }
 
-type BetterAuthSessionResponse = {
-  user?: { id: string } | null;
-  session?: unknown | null;
-};
-
-/** Gets the authenticated user id from Better Auth for this request context. */
-export async function getSessionUserId(context: APIRequestContext): Promise<string> {
-  const response = await context.get("/api/auth/get-session");
-  const result = (await response.json()) as BetterAuthSessionResponse | null;
-  const id = result?.user?.id;
-  if (!response.ok() || !id) {
-    throw new Error(`Could not get the authenticated Better Auth user: ${response.status()} ${JSON.stringify(result)}`);
+/** Looks up a seeded test user's internal id by email (public read, no auth needed). */
+export async function findUserIdByEmail(context: APIRequestContext, email: string): Promise<string> {
+  const result = await graphql<{ findFirstuser: { id: string } | null }>(
+    context,
+    `query($email: String!) {
+      findFirstuser(where: { email: { eq: $email } }) { id }
+    }`,
+    { email },
+  );
+  const id = result.data?.findFirstuser?.id;
+  if (!id) {
+    throw new Error(`Could not find seeded user with email ${email}: ${JSON.stringify(result.errors)}`);
   }
   return id;
 }

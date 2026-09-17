@@ -70,11 +70,11 @@ services:
       dockerfile: Dockerfile.test
     container_name: drawith-tests
     environment:
-      APP_URL: $APP_URL
+      TEST_APP_URL: $TEST_APP_URL
     depends_on:
       app:
         condition: service_healthy
-    # command: sh -c "echo APP_URL=$APP_URL && wget -S -O - $APP_URL && npm test"
+    command: sh -c 'npx playwright test'
     networks:
       test-net:
         aliases:

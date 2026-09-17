@@ -1,10 +1,10 @@
 // import { defineConfig } from 'playwright/test';
 
-// console.log("process.env.APP_URL", process.env.APP_URL);
+// console.log("process.env.TEST_APP_URL", process.env.TEST_APP_URL);
 
 // export default defineConfig({
 //   use: {
-//     baseURL: process.env.APP_URL,
+//     baseURL: process.env.TEST_APP_URL,
 //     ignoreHTTPSErrors: true,
 //   },
 //   reporter: 'line',
@@ -16,6 +16,8 @@ import { defineConfig } from 'playwright/test';
 
 export default defineConfig({
   use: {
-    baseURL: 'http://app:3000',
+    baseURL: process.env.TEST_APP_URL,
   },
+  reporter: 'line',
+  outputDir: './.playwright-results',
 });

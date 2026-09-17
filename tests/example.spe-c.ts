@@ -4,10 +4,10 @@ import { test, expect } from 'playwright/test';
 //   ignoreHTTPSErrors: true,
 // });
 
-// console.log("process.env.APP_URL", process.env.APP_URL);
+// console.log("process.env.TEST_APP_URL", process.env.TEST_APP_URL);
 
 test('has title', async ({ page }) => {
-  const response = await page.goto('http://drawith-app:3000');
+  const response = await page.goto('/');
 
   // console.log('status:', response?.status());
   // console.log('URL:', page.url());

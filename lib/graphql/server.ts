@@ -22,21 +22,43 @@ const builder = new SchemaBuilder<PothosTypes>({
     getTableConfig
   },
   pothosDrizzleGenerator: {
+    use: { 
+      exclude: [
+        "account", 
+        "session", 
+        "verification"
+      ]
+    },
     all: {
-      // Mutations require an authenticated user; reads remain public.
-      executable: ({ ctx, operation }) =>
+      executable: ({ ctx, operation }) => 
         isOperation("mutation", operation) ? Boolean(ctx.userId) : true,
     },
     models: {
+      user: {
+        operations: () => ({ exclude: ["mutation", "createOne", "createMany"] }),
+        where: ({ ctx, operation }) => ({ id: ctx.userId })
+      },
       userProfile: {
-        // Force the profile owner to the authenticated user; client-supplied user_id is ignored.
+        operations: () => ({ exclude: ["createMany"] }),
+        where: ({ ctx, operation }) =>
+          isOperation(["update", "delete"], operation)
+            ? { user_id: ctx.userId }
+            : {},
         inputData: ({ ctx, operation }) =>
-          isOperation("mutation", operation) ? { user_id: ctx.userId } : undefined,
+          isOperation(["createOne", "createMany"], operation)
+            ? { user_id: ctx.userId }
+            : undefined,
       },
       drawingBoard: {
-        // Force the owner to the authenticated user; client-supplied owner_id is ignored.
+        where: ({ ctx, operation }) => {
+          if (isOperation("mutation", operation)) {
+            return { owner_id: ctx.userId };
+          }
+        },
         inputData: ({ ctx, operation }) =>
-          isOperation("mutation", operation) ? { owner_id: ctx.userId } : undefined,
+          isOperation("mutation", operation)
+            ? { owner_id: ctx.userId }
+            : undefined,
       },
       drawingBoardMember: {
         // Only the board owner can create, update, or delete membership rows.
