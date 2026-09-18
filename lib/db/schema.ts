@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, text, timestamp, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, pgEnum, text, timestamp, boolean, index, unique } from 'drizzle-orm/pg-core';
 import { defineRelations } from "drizzle-orm";
 
 export const user = pgTable(
@@ -81,50 +81,58 @@ export const userProfile = pgTable(
   {
     id: text('id').notNull().primaryKey(),
     username: text('username').notNull().unique(),
-    user_id: text('user_id').notNull().references(() => user.id, { onDelete: "cascade" }),
+    user_id: text('user_id').notNull().unique().references(() => user.id, { onDelete: "cascade" }),
     first_name: text('first_name').notNull(),
     last_name: text('last_name').notNull(),
     created_at: timestamp('created_at').notNull().defaultNow(),
     updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
-  }, 
-  (table) => [
-    uniqueIndex("user_profile_user_id_unique").on(table.user_id)
-  ]
+  }
 );
 
-export const drawingBoard = pgTable('drawing_board', {
-  id: text('id').notNull().primaryKey(),
-  name: text('name').notNull().unique(),
-  owner_id: text("owner_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  display_name: text('display_name').notNull(),
-  created_at: timestamp('created_at').notNull().defaultNow(),
-  updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
-});
+export const drawingBoard = pgTable(
+  'drawing_board', 
+  {
+    id: text('id').notNull().primaryKey(),
+    name: text('name').notNull().unique(),
+    owner_id: text("owner_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+    display_name: text('display_name').notNull(),
+    created_at: timestamp('created_at').notNull().defaultNow(),
+    updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+  }
+);
 
-export const drawingBoardMember = pgTable('drawing_board_member', {
-  id: text('id').notNull().primaryKey(),
-  drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
-  member_id: text('member_id').notNull().references(() => user.id, { onDelete: "cascade" }),
-  created_at: timestamp('created_at').notNull().defaultNow(),
-  updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
-}, (table) => {
-  return [uniqueIndex('drawing_board_member_unique').on(table.drawing_board_id, table.member_id)];
-});
+export const drawingBoardMembership = pgTable(
+  'drawing_board_membership', 
+  {
+    id: text('id').notNull().primaryKey(),
+    drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
+    member_id: text('member_id').notNull().references(() => user.id, { onDelete: "cascade" }),
+    created_at: timestamp('created_at').notNull().defaultNow(),
+    updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+  }, 
+  (table) => {
+    return [unique('drawing_board_member_unique').on(table.drawing_board_id, table.member_id)];
+  }
+);
 
 export const invitationState = pgEnum('invitation_state', ['pending', 'accepted', 'rejected']);
 
-export const drawingBoardInvitation = pgTable('drawing_board_invitation', {
-  id: text('id').notNull().primaryKey(),
-  drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
-  invitee_id: text('invitee_id').notNull().references(() => user.id, { onDelete: "cascade" }),
-  created_at: timestamp('created_at').notNull().defaultNow(),
-  updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
-}, (table) => {
-  return [uniqueIndex('drawing_board_invite_unique').on(table.drawing_board_id, table.invitee_id)];
-});
+export const drawingBoardInvitation = pgTable(
+  'drawing_board_invitation', 
+  {
+    id: text('id').notNull().primaryKey(),
+    drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
+    invitee_id: text('invitee_id').notNull().references(() => user.id, { onDelete: "cascade" }),
+    created_at: timestamp('created_at').notNull().defaultNow(),
+    updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return [unique('drawing_board_invite_unique').on(table.drawing_board_id, table.invitee_id)];
+  }
+);
 
 export const relations = defineRelations(
-  { user, session, account, verification, userProfile, drawingBoard, drawingBoardMember, drawingBoardInvitation },
+  { user, session, account, verification, userProfile, drawingBoard, drawingBoardMembership, drawingBoardInvitation },
   (r) => ({
     user: {
       sessions: r.many.session(),
@@ -154,19 +162,19 @@ export const relations = defineRelations(
         to: r.user.id,
         optional: false
       }),
-      members: r.many.drawingBoardMember({
+      memberships: r.many.drawingBoardMembership({
         from: r.drawingBoard.id,
-        to: r.drawingBoardMember.drawing_board_id
+        to: r.drawingBoardMembership.drawing_board_id
       }),
     },
-    drawingBoardMember: {
+    drawingBoardMembership: {
       drawingBoard: r.one.drawingBoard({
-        from: r.drawingBoardMember.drawing_board_id,
+        from: r.drawingBoardMembership.drawing_board_id,
         to: r.drawingBoard.id,
         optional: false
       }),
       member: r.one.user({
-        from: r.drawingBoardMember.member_id,
+        from: r.drawingBoardMembership.member_id,
         to: r.user.id,
         optional: false
       }),
