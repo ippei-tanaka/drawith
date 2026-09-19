@@ -28,7 +28,6 @@ export default function NewBoardForm({user}: {user: {id: string}}) {
         await mutate({
           variables: {
             input: {
-              id: crypto.randomUUID(),
               name: name,
               display_name: displayName,
               owner_id: user.id

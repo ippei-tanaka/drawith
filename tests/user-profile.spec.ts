@@ -1,6 +1,8 @@
 import { test, expect, type APIRequestContext } from "playwright/test";
 import { testUsers } from "./fixtures/users";
-import { loginAs, graphql, getSessionUserId } from "./helpers/api";
+import { graphql } from "./helpers/api";
+import { loginAs, getSessionUserId } from "./helpers/auth";
+import { findUserProfileById } from "./helpers/utilities";
 
 let owner: APIRequestContext;
 let intruder: APIRequestContext;
@@ -16,29 +18,12 @@ test.afterAll(async () => {
   await Promise.all([owner.dispose(), intruder.dispose()]);
 });
 
-async function getOwnerProfile(context: APIRequestContext) {
-  const result = await graphql<{
-    findFirstuser_profile: { id: string; user_id: string; username: string; first_name: string; last_name: string } | null;
-  }>(
-    context,
-    `query($userId: String!) {
-      findFirstuser_profile(where: { user_id: { eq: $userId } }) {
-        id user_id username first_name last_name
-      }
-    }`,
-    { userId: ownerId },
-  );
-  if (result.errors?.length) throw new Error(`Failed to query user profile: ${JSON.stringify(result.errors)}`);
-  return result.data?.findFirstuser_profile ?? null;
-}
-
-
 
 test.describe("user profile permissions", () => {
 
   
   test("allows the owner to update their own profile", async () => {
-    const before = await getOwnerProfile(owner);
+    const before = await findUserProfileById(owner, ownerId);
     expect(before).not.toBeNull();
 
     const result = await graphql<{
@@ -73,7 +58,7 @@ test.describe("user profile permissions", () => {
 
 
   test("does not allow another user to update the owner's profile", async () => {
-    const before = await getOwnerProfile(owner);
+    const before = await findUserProfileById(owner, ownerId);
     expect(before).not.toBeNull();
 
     const result = await graphql<{
@@ -91,7 +76,7 @@ test.describe("user profile permissions", () => {
 
     expect(result.errors).toBeUndefined();
     expect(result.data?.updateuser_profile).toEqual([]);
-    expect(await getOwnerProfile(owner)).toEqual(before);
+    expect(await findUserProfileById(owner, ownerId)).toEqual(before);
   });
 
 
@@ -106,8 +91,7 @@ test.describe("user profile permissions", () => {
       }`,
       {
         input: {
-          id: crypto.randomUUID(),
-          username: `second-owner-profile-${crypto.randomUUID()}`,
+          username: `second-owner-profile-${crypto.getRandomValues(new Uint32Array(1))[0]}`,
           user_id: ownerId,
           first_name: "Second",
           last_name: "Profile",
@@ -117,11 +101,11 @@ test.describe("user profile permissions", () => {
     expect(result.data).toBeNull();
     expect(result.errors).toHaveLength(1);
     // expect(result.errors?.[0].message).toMatch(/unique|duplicate/i);
-    expect(await getOwnerProfile(owner)).not.toBeNull();
+    expect(await findUserProfileById(owner, ownerId)).not.toBeNull();
   });
 
   test("does not allow duplicate profile usernames", async () => {
-    const ownerProfile = await getOwnerProfile(owner);
+    const ownerProfile = await findUserProfileById(owner, ownerId);
     expect(ownerProfile).not.toBeNull();
 
     const intruderProfile = await graphql<{

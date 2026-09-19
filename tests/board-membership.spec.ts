@@ -1,6 +1,8 @@
 import { test, expect, type APIRequestContext } from "playwright/test";
 import { testUsers } from "./fixtures/users";
-import { loginAs, graphql, getSessionUserId } from "./helpers/api";
+import { graphql } from "./helpers/api";
+import { loginAs, getSessionUserId } from "./helpers/auth";
+import { createBoard } from "./helpers/utilities";
 
 let owner: APIRequestContext;
 let intruder: APIRequestContext;
@@ -20,26 +22,8 @@ test.afterAll(async () => {
   await Promise.all([owner.dispose(), intruder.dispose(), invitee.dispose()]);
 });
 
-async function createBoard(ownerContext: APIRequestContext) {
-  const id = crypto.randomUUID();
-  const name = `board-${id}`;
-  const result = await graphql<{ createOnedrawing_board: { id: string; name: string; display_name: string } }>(
-    ownerContext,
-    `mutation($input: drawing_boardCreate!) {
-      createOnedrawing_board(input: $input) { id name display_name }
-    }`,
-    { input: { id, name, display_name: "Original name", owner_id: ownerId } },
-  );
-  const board = result.data?.createOnedrawing_board;
-  if (!board) throw new Error(`Failed to create board: ${JSON.stringify(result.errors)}`);
-  return board;
-}
-
-
 
 test.describe("board member ownership", () => {
-
-
 
   test("a owner can remove a board membership", async () => {
     const board = await createBoard(owner);

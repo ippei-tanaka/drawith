@@ -79,7 +79,7 @@ export const verification = pgTable(
 export const userProfile = pgTable(
   'user_profile', 
   {
-    id: text('id').notNull().primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     username: text('username').notNull().unique(),
     user_id: text('user_id').notNull().unique().references(() => user.id, { onDelete: "cascade" }),
     first_name: text('first_name').notNull(),
@@ -92,7 +92,7 @@ export const userProfile = pgTable(
 export const drawingBoard = pgTable(
   'drawing_board', 
   {
-    id: text('id').notNull().primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     name: text('name').notNull().unique(),
     owner_id: text("owner_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     display_name: text('display_name').notNull(),
@@ -104,7 +104,7 @@ export const drawingBoard = pgTable(
 export const drawingBoardMembership = pgTable(
   'drawing_board_membership', 
   {
-    id: text('id').notNull().primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
     member_id: text('member_id').notNull().references(() => user.id, { onDelete: "cascade" }),
     created_at: timestamp('created_at').notNull().defaultNow(),
@@ -120,7 +120,7 @@ export const invitationState = pgEnum('invitation_state', ['pending', 'accepted'
 export const drawingBoardInvitation = pgTable(
   'drawing_board_invitation', 
   {
-    id: text('id').notNull().primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     drawing_board_id: text('drawing_board_id').notNull().references(() => drawingBoard.id, { onDelete: "cascade" }),
     invitee_id: text('invitee_id').notNull().references(() => user.id, { onDelete: "cascade" }),
     created_at: timestamp('created_at').notNull().defaultNow(),

@@ -1,6 +1,7 @@
 import { test, expect, type APIRequestContext } from "playwright/test";
 import { testUsers } from "./fixtures/users";
-import { loginAs, graphql, getSessionUserId } from "./helpers/api";
+import { graphql } from "./helpers/api";
+import { loginAs, getSessionUserId } from "./helpers/auth";
 
 let owner: APIRequestContext;
 let intruder: APIRequestContext;
