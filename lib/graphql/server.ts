@@ -55,13 +55,13 @@ const builder = new SchemaBuilder<PothosTypes>({
             : undefined,
       },
       drawingBoard: {
-        where: ({ ctx, operation }) => {
-          if (isOperation("mutation", operation)) {
-            return { owner_id: ctx.userId };
-          }
-        },
+        operations: () => ({ exclude: ["createMany"] }),
+        where: ({ ctx, operation }) =>
+          isOperation(["update", "delete"], operation)
+            ? { owner_id: ctx.userId }
+            : {},
         inputData: ({ ctx, operation }) =>
-          isOperation("mutation", operation)
+          isOperation("createOne", operation)
             ? { owner_id: ctx.userId }
             : undefined,
       },
