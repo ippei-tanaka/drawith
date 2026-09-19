@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { test, expect, type APIRequestContext } from "playwright/test";
 import { testUsers } from "./fixtures/users";
 import { loginAs, graphql, getSessionUserId } from "./helpers/api";
@@ -22,7 +21,7 @@ test.afterAll(async () => {
 });
 
 async function createBoard(ownerContext: APIRequestContext) {
-  const id = randomUUID();
+  const id = crypto.randomUUID();
   const name = `board-${id}`;
   const result = await graphql<{ createOnedrawing_board: { id: string; name: string; display_name: string } }>(
     ownerContext,

@@ -6,7 +6,6 @@
  *
  * Safe to run multiple times: existing users are skipped.
  */
-import { randomUUID } from "crypto";
 import { auth } from "../lib/auth/server";
 import { db } from "../lib/db/db";
 import { userProfile } from "../lib/db/schema";
@@ -22,7 +21,7 @@ async function seedUser(user: (typeof testUsers)[keyof typeof testUsers]) {
   });
 
   await db.insert(userProfile).values({
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     first_name: user.firstName,
     last_name: user.lastName,
     username: `${user.firstName.toLowerCase()}-${user.lastName.toLowerCase()}`,

@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db/db";
 import { userProfile } from "@/lib/db/schema";
-import { randomUUID } from "crypto";
 
 export type AuthActionState = { error: string } | null;
 
@@ -45,7 +44,7 @@ export async function signUpWithEmail(
   try {
     const result = await auth.api.signUpEmail({body: { email, name: `${firstName} ${lastName}`, password }});
     await db.insert(userProfile).values({
-      id: randomUUID(),
+      id: crypto.randomUUID(),
       first_name: firstName,
       last_name: lastName,
       username: `${firstName.toLowerCase()}-${lastName.toLowerCase()}-${result.user.id}`,

@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { getUser } from "@/lib/auth/actions";
 import { db } from "@/lib/db/db";
@@ -27,7 +26,7 @@ export default async function UserProfilePage() {
       await db
         .insert(userProfile)
         .values({
-          id: randomUUID(),
+          id: crypto.randomUUID(),
           username: user.id,
           user_id: user.id,
           first_name: user.name,

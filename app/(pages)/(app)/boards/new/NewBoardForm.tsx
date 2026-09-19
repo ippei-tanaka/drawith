@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { gql } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
-import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from "next/navigation";
 
 const CREATE_NEW_BOARD = gql`
@@ -29,7 +28,7 @@ export default function NewBoardForm({user}: {user: {id: string}}) {
         await mutate({
           variables: {
             input: {
-              id: uuidv4(),
+              id: crypto.randomUUID(),
               name: name,
               display_name: displayName,
               owner_id: user.id

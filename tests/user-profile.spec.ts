@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { test, expect, type APIRequestContext } from "playwright/test";
 import { testUsers } from "./fixtures/users";
 import { loginAs, graphql, getSessionUserId } from "./helpers/api";
@@ -107,8 +106,8 @@ test.describe("user profile permissions", () => {
       }`,
       {
         input: {
-          id: randomUUID(),
-          username: `second-owner-profile-${randomUUID()}`,
+          id: crypto.randomUUID(),
+          username: `second-owner-profile-${crypto.randomUUID()}`,
           user_id: ownerId,
           first_name: "Second",
           last_name: "Profile",
