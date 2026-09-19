@@ -1,6 +1,6 @@
 import { ApolloServer } from '@apollo/server';
 import { db } from '../db/db';
-import { relations, drawingBoard, drawingBoardMembership } from '../db/schema';
+import { relations, drawingBoard, drawingBoardMembership, drawingBoardInvitation } from '../db/schema';
 import SchemaBuilder from "@pothos/core";
 import DrizzlePlugin from "@pothos/plugin-drizzle";
 import PothosDrizzleGeneratorPlugin, { isOperation } from "pothos-drizzle-generator";
@@ -11,7 +11,8 @@ export interface PothosTypes {
   DrizzleRelations: typeof relations;
   Context: { userId?: string };
   Objects: { 
-    DrawingBoardMembership: typeof drawingBoardMembership.$inferSelect
+    DrawingBoardMembership: typeof drawingBoardMembership.$inferSelect,
+    DrawingBoardInvitation: typeof drawingBoardInvitation.$inferSelect
   };
 }
 
@@ -66,6 +67,9 @@ const builder = new SchemaBuilder<PothosTypes>({
       },
       drawingBoardMembership: {
         operations: () => ({ include: ["query"] })
+      },
+      drawingBoardInvitation: {
+        operations: () => ({ include: ["query"] })
       }
     },
   },
@@ -83,6 +87,22 @@ builder.objectType("DrawingBoardMembership", {
     updated_at: t.field({
       type: "String",
       resolve: (membership) => membership.updated_at.toISOString(),
+    }),
+  }),
+});
+
+builder.objectType("DrawingBoardInvitation", {
+  fields: (t) => ({
+    id: t.exposeString("id"),
+    drawing_board_id: t.exposeString("drawing_board_id"),
+    invitee_id: t.exposeString("invitee_id"),
+    created_at: t.field({
+      type: "String",
+      resolve: (invitation) => invitation.created_at.toISOString(),
+    }),
+    updated_at: t.field({
+      type: "String",
+      resolve: (invitation) => invitation.updated_at.toISOString(),
     }),
   }),
 });
@@ -146,7 +166,7 @@ builder.mutationType({
                 eq(drawingBoardMembership.member_id, ctx.userId),
               ),
               and(
-                eq(drawingBoard.id, drawingBoardMembership.drawing_board_id),
+                eq(drawingBoardMembership.id, args.id),
                 eq(drawingBoard.owner_id, ctx.userId),
               ),
             ),
@@ -165,8 +185,85 @@ builder.mutationType({
         return deletedMembership;
       },
     }),
+
+    createDrawingBoardInvitation: t.field({
+      type: "DrawingBoardInvitation",
+      args: {
+        drawingBoardId: t.arg.string({ required: true }),
+        inviteeId: t.arg.string({ required: true }),
+      },
+      resolve: async (_root, args, ctx) => {
+        if (!ctx.userId) {
+          throw new Error("Authentication required");
+        }
+        const [ownedBoard] = await db
+          .select({ id: drawingBoard.id })
+          .from(drawingBoard)
+          .where(
+            and(
+              eq(drawingBoard.id, args.drawingBoardId),
+              eq(drawingBoard.owner_id, ctx.userId),
+            ),
+          )
+          .limit(1);
+        if (!ownedBoard) {
+          throw new Error("Only the board owner can create invitations");
+        }
+        const [invitation] = await db
+          .insert(drawingBoardInvitation)
+          .values({
+            id: crypto.randomUUID(),
+            drawing_board_id: args.drawingBoardId,
+            invitee_id: args.inviteeId,
+          })
+          .returning();
+        return invitation;
+      },
+    }),
+
+    deleteDrawingBoardInvitation: t.field({
+      type: "DrawingBoardInvitation",
+      args: {
+        id: t.arg.string({ required: true }),
+      },
+      resolve: async (_root, args, ctx) => {
+        if (!ctx.userId) {
+          throw new Error("Authentication required");
+        }
+
+        const [invitation] = await db
+          .select({ id: drawingBoardInvitation.id })
+          .from(drawingBoardInvitation)
+          .leftJoin(drawingBoard, eq(drawingBoard.id, drawingBoardInvitation.drawing_board_id))
+          .where(
+            or(
+              and(
+                eq(drawingBoardInvitation.id, args.id),
+                eq(drawingBoardInvitation.invitee_id, ctx.userId),
+              ),
+              and(
+                eq(drawingBoardInvitation.id, args.id),
+                eq(drawingBoard.owner_id, ctx.userId),
+              ),
+            ),
+          )
+          .limit(1);
+
+        if (!invitation) {
+          throw new Error("Invitation not found or you do not have permission to delete it");
+        }
+
+        const [deletedInvitation] = await db
+          .delete(drawingBoardInvitation)
+          .where(eq(drawingBoardInvitation.id, invitation.id))
+          .returning();
+
+        return deletedInvitation;
+      },
+    }),
   }),
 });
+
 
 const schema = builder.toSchema();
 
