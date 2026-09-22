@@ -31,6 +31,7 @@
     "graphql-tag": "^2.12.7",
     "next": "16.3.4",
     "pg": "^8.23.0",
+    "pixi.js": "^8.21.0",
     "playwright": "^1.63.0",
     "pothos-drizzle-generator": "^0.2.0",
     "react": "19.2.8",
