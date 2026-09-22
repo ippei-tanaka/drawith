@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signInWithEmail } from "./actions";
-import "../../../styles/auth.css";
+import "@/styles/auth.css";
 
 export default function SignInPage() {
   const [state, formAction, isPending] = useActionState(signInWithEmail, null);

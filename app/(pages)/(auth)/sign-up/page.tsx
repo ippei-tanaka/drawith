@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { signUpWithEmail } from "./actions";
-import "../../../styles/auth.css";
+import "@/styles/auth.css";
 
 const randomFirstNames = ["Alex", "Jordan", "Taylor", "Riley", "Casey", "Morgan"];
 const randomLastNames = ["Morgan", "Parker", "Reed", "Hayes", "Brooks", "Quinn"];

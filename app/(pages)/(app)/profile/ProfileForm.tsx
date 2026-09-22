@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateProfile } from "./actions";
+import { updateProfile } from "@/actions/actions";
 
 type Profile = {
   username: string;

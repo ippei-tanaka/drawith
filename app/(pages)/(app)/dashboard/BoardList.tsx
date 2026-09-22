@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { gql } from "@apollo/client";
-import { useQuery } from "@apollo/client/react";
-import { findManyBoards, Board } from "@/app/(pages)/(app)/actions";
+import { findManyBoards, Board } from "@/actions/board-actions";
 
 const BOARDS_PER_PAGE = 7;
 

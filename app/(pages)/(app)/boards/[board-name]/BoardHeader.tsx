@@ -3,9 +3,9 @@
 // import { router } from "better-auth/api";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { changeBoardNamebyId } from "../../actions";
+import { changeBoardNamebyId } from "@/actions/board-actions";
 import { useRouter } from "next/navigation";
-import { Board, deleteBoardById } from "../../actions";
+import { Board, deleteBoardById } from "@/actions/board-actions";
 
 export function BoardHeader({ board }: { board: Board })
 {

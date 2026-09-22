@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/actions";
 import NewBoardForm from "./NewBoardForm";
-import "../../../../styles/new-board.css";
+import "@/styles/new-board.css";
 
 export default async function NewBoardPage() {
   const user = await getUser();
