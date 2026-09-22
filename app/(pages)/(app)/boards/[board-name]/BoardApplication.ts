@@ -16,7 +16,7 @@ export class BoardApplication extends Application<Renderer> {
     this.viewport.addChild(this.grid);
     store.subscribe(() => {
       const state = store.getState();
-      this.zoom(state.board.zoom);
+      this.zoom(state.board.zoom / 100);
     });
   }
 
@@ -72,7 +72,7 @@ export class BoardApplication extends Application<Renderer> {
       const screenY = event.clientY - rect.top;
       store.dispatch(setZoomPosition({ x: screenX, y: screenY }));
       const zoom = store.getState().board.zoom;
-      const delta = event.deltaY > 0 ? -0.1 : 0.1;
+      const delta = event.deltaY > 0 ? -10 : 10;
       store.dispatch(setZoom(zoom + delta));
 
     }, { passive: false });

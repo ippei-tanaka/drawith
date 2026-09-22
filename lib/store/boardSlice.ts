@@ -29,7 +29,7 @@ const initialState: BoardState = {
   tool: "pen",
   color: "#000000",
   size: 5,
-  zoom: 1,
+  zoom: 100,
   zoomPosition: { x: 0, y: 0 },
   strokes: [],
 };
@@ -49,7 +49,7 @@ const boardSlice = createSlice({
     },
     setZoom(state, action: PayloadAction<number>) {
       if (Number.isFinite(action.payload)) {
-        state.zoom = Math.min(4, Math.max(0.1, action.payload));
+        state.zoom = Math.min(400, Math.max(10, action.payload));
       }
     },
     setZoomPosition(state, action: PayloadAction<{ x: number; y: number }>) {

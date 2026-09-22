@@ -253,9 +253,15 @@
   background: var(--ink);
 }
 
+.zoom-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .zoom-input {
   box-sizing: border-box;
-  width: 39px;
+  width: 50px;
   height: 30px;
   padding: 4px 3px;
   border: 1px solid #d7dfe3;
@@ -271,6 +277,10 @@
   outline: 2px solid #f0c0b3;
   outline-offset: 1px;
   border-color: #d8614b;
+}
+
+.zoom-input-unit {
+  font-size: 12px;
 }
 
 .canvas-area {
