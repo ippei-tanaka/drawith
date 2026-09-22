@@ -1,7 +1,7 @@
 import { getUser } from "@/lib/auth/actions";
 import { notFound, redirect } from "next/navigation";
 import { findBoardByName } from "../../actions";
-import { BoardCanvas } from "./BoardCanvas";
+import { Board } from "./Board";
 import "../../../../styles/board.css";
 
 export default async function BoardPage({ params }: { params: Promise<{ 'board-name': string }> }) {
@@ -18,5 +18,5 @@ export default async function BoardPage({ params }: { params: Promise<{ 'board-n
     notFound();
   };
 
-  return <BoardCanvas board={board} user={user} />;
+  return <Board board={board} user={user} />;
 }

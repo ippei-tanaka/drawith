@@ -1,6 +1,6 @@
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 
-export type BoardTool = "pen" | "eraser";
+export type BoardTool = "pen" | "marker" | "eraser";
 
 export interface Point
 {
@@ -19,12 +19,14 @@ interface BoardState
 {
   tool: BoardTool;
   color: string;
+  size: number;
   strokes: Stroke[];
 }
 
 const initialState: BoardState = {
   tool: "pen",
   color: "#000000",
+  size: 5,
   strokes: [],
 };
 
@@ -37,6 +39,9 @@ const boardSlice = createSlice({
     },
     setColor(state, action: PayloadAction<string>) {
       state.color = action.payload;
+    },
+    setSize(state, action: PayloadAction<number>) {
+      state.size = action.payload;
     },
     addStroke: {
       reducer(state, action: PayloadAction<Stroke>) {
@@ -52,5 +57,5 @@ const boardSlice = createSlice({
   },
 });
 
-export const { setTool, setColor, addStroke, clearBoard } = boardSlice.actions;
+export const { setTool, setColor, setSize, addStroke, clearBoard } = boardSlice.actions;
 export default boardSlice.reducer;

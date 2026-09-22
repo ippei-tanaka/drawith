@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BoardCanvasHeader } from "./BoardCanvasHeader";
+import { BoardHeader } from "./BoardHeader";
 import { User } from "better-auth";
-
 import { Application, Assets, Container, Sprite, Rectangle, Graphics, GraphicsContext, FederatedPointerEvent } from 'pixi.js';
+import { BoardToolBox } from "./BoardToolBox";
 
-
-type Tool = "pen" | "marker" | "eraser";
+import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 
 type Board = {
   id: string;
@@ -25,9 +24,10 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
   // const drawingRef = useRef(false);
   // const lastPoint = useRef<{ x: number; y: number } | null>(null);
   // const historyRef = useRef<ImageData[]>([]);
-  const [tool, setTool] = useState<Tool>("pen");
-  const [color, setColor] = useState("#24324a");
-  const [size, setSize] = useState(5);
+  const tool = useAppSelector(state => state.board.tool);
+  const color = useAppSelector(state => state.board.color);
+  const size = useAppSelector(state => state.board.size);
+  const dispatch = useAppDispatch();
 
   /*
   useEffect(() => {
@@ -103,6 +103,7 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
     if (isDrawing) {
       // console.log(12);
       graphic?.lineTo(event.global.x, event.global.y);
+
       if (tool === "eraser") {
         // console.log(12313221);
         graphic?.stroke({ width: size }).cut();
@@ -126,7 +127,7 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
       container?.off('pointermove', onPointerMove);
       container?.off('pointerup', onPointerUp);
     };
-  }, [color, tool, container, graphic, isDrawing]);
+  }, [container, graphic, isDrawing]);
 
   /*
   const pointForEvent = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -180,27 +181,6 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
   */
 
   return (
-    <main className="drawith-app">
-      <BoardCanvasHeader board={board} />
-      <section className="workspace">
-
-        <aside className="toolbar" aria-label="Drawing tools">
-          <button className={`tool-button ${tool === "pen" ? "selected" : ""}`} onClick={() => setTool("pen")} aria-label="Pen" title="Pen">&#9998;</button>
-          <button className={`tool-button marker-tool ${tool === "marker" ? "selected" : ""}`} onClick={() => setTool("marker")} aria-label="Highlighter" title="Highlighter">&#9644;</button>
-          <button className={`tool-button ${tool === "eraser" ? "selected" : ""}`} onClick={() => setTool("eraser")} aria-label="Eraser" title="Eraser">&#9003;</button><span className="tool-divider" />
-          <label className="color-button" title="Ink color"><span style={{ backgroundColor: color }} /><input aria-label="Ink color" type="color" value={color} onChange={(event) => setColor(event.target.value)} /></label>
-          <label className="size-control" title="Stroke size"><span className="size-dot" style={{ width: size + 3, height: size + 3 }} /><input aria-label="Stroke size" type="range" min="2" max="14" value={size} onChange={(event) => setSize(Number(event.target.value))} /></label><span className="tool-divider" />
-          {/* <button className="tool-button" onClick={undo} aria-label="Undo" title="Undo">&#8629;</button><button className="tool-button" onClick={clearCanvas} aria-label="Clear canvas" title="Clear canvas">&#128465;</button> */}
-        </aside>
-
-        <div className="canvas-area">
-          {/* <div className="canvas-label">Everyone&apos;s ideas land here.</div> */}
-          <canvas ref={canvasRef} className="drawing-canvas" aria-label="Collaborative drawing canvas" />
-          {/* <canvas ref={canvasRef} className="drawing-canvas" onPointerDown={beginDrawing} onPointerMove={draw} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} aria-label="Collaborative drawing canvas" /> */}
-          {/* <div className="remote-cursor maya-cursor"><span>Maya</span><i /></div><div className="remote-cursor noah-cursor"><span>Noah</span><i /></div> */}
-          {/* <div className="canvas-footer"><span>Synced just now</span><span>100%</span></div> */}
-        </div>
-      </section>
-    </main>
+    <canvas ref={canvasRef} className="drawing-canvas" aria-label="Collaborative drawing canvas" />
   );
 }

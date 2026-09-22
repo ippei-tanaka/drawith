@@ -7,7 +7,7 @@ import { changeBoardNamebyId } from "../../actions";
 import { useRouter } from "next/navigation";
 import { Board, deleteBoardById } from "../../actions";
 
-export function BoardCanvasHeader({ board }: { board: Board })
+export function BoardHeader({ board }: { board: Board })
 {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
