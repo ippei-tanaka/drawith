@@ -74,8 +74,47 @@ export class BoardApplication extends Application<Renderer> {
       const zoom = store.getState().board.zoom;
       const delta = event.deltaY > 0 ? -10 : 10;
       store.dispatch(setZoom(zoom + delta));
-
     }, { passive: false });
+
+
+    let startDistance = 0;
+    
+    this.canvas.addEventListener('touchstart', event => {
+      if (event.touches.length === 2) {
+        event.preventDefault(); // Stop default scrolling/zooming
+        dragging = false;
+        startDistance = getTouchDistance(event.touches);
+      }
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchmove', event => {
+      if (event.touches.length !== 2 || startDistance <= 0) return;
+
+      event.preventDefault();
+      
+      const currentDistance = getTouchDistance(event.touches);
+      const zoomRatio = currentDistance / startDistance;
+      const center = getTouchCenter(event.touches);
+      const rect = this.canvas.getBoundingClientRect();
+
+      store.dispatch(setZoomPosition({
+        x: center.x - rect.left,
+        y: center.y - rect.top,
+      }));
+
+      const zoom = store.getState().board.zoom;
+      store.dispatch(setZoom(zoom * zoomRatio));
+
+      // Update start distance for the next move tick
+      startDistance = currentDistance;
+    }, { passive: false });
+
+    const resetPinch = () => {
+      startDistance = 0;
+    };
+
+    this.canvas.addEventListener('touchend', resetPinch);
+    this.canvas.addEventListener('touchcancel', resetPinch);
   }
 
   private zoom (factor: number) {
@@ -111,4 +150,17 @@ class Grid extends Graphics
       color: 0xcccccc,
     });
   }
+}
+
+function getTouchDistance(touches: TouchList) {
+  const dx = touches[0].pageX - touches[1].pageX;
+  const dy = touches[0].pageY - touches[1].pageY;
+  return Math.hypot(dx, dy);
+}
+
+function getTouchCenter(touches: TouchList) {
+  return {
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2,
+  };
 }
