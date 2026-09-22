@@ -1,4 +1,6 @@
 import { Application, Container, Graphics, Renderer } from 'pixi.js';
+import { store } from '@/lib/store/store';
+import { setZoom, setZoomPosition } from '@/lib/store/boardSlice';
 
 export class BoardApplication extends Application<Renderer> {
 
@@ -12,6 +14,10 @@ export class BoardApplication extends Application<Renderer> {
     this.grid = new Grid();
     this.stage.addChild(this.viewport);
     this.viewport.addChild(this.grid);
+    store.subscribe(() => {
+      const state = store.getState();
+      this.zoom(state.board.zoom);
+    });
   }
 
   override async init({resizeTo}:{resizeTo: HTMLElement}) 
@@ -61,20 +67,26 @@ export class BoardApplication extends Application<Renderer> {
       event.preventDefault();
       event.stopPropagation();
 
-      const delta = event.deltaY > 0 ? 1.1 : 0.9;
       const rect = this.canvas.getBoundingClientRect();
       const screenX = event.clientX - rect.left;
       const screenY = event.clientY - rect.top;
-      const before = this.viewport.toLocal({ x: screenX, y: screenY });
+      store.dispatch(setZoomPosition({ x: screenX, y: screenY }));
+      const zoom = store.getState().board.zoom;
+      const delta = event.deltaY > 0 ? -0.1 : 0.1;
+      store.dispatch(setZoom(zoom + delta));
 
-      this.viewport.scale.x *= delta;
-      this.viewport.scale.y *= delta;
-
-      const after = this.viewport.toLocal({ x: screenX, y: screenY });
-      this.viewport.x += (after.x - before.x) * this.viewport.scale.x;
-      this.viewport.y += (after.y - before.y) * this.viewport.scale.y;
     }, { passive: false });
-    
+  }
+
+  private zoom (factor: number) {
+    if (!Number.isFinite(factor)) return;
+
+    const { x: screenX, y: screenY } = store.getState().board.zoomPosition;
+    const before = this.viewport.toLocal({ x: screenX, y: screenY });
+    this.viewport.scale.set(factor);
+    const after = this.viewport.toLocal({ x: screenX, y: screenY });
+    this.viewport.x += (after.x - before.x) * factor;
+    this.viewport.y += (after.y - before.y) * factor;
   }
 }
 
