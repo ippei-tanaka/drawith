@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { BoardHeader } from "./BoardHeader";
+import { useEffect, useRef } from "react";
 import { User } from "better-auth";
 import { Application, Assets, Container, Sprite, Rectangle, Graphics, GraphicsContext, FederatedPointerEvent } from 'pixi.js';
-import { BoardToolBox } from "./BoardToolBox";
 
-import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
+// import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
+import { store } from "@/lib/store/store";
+
 
 type Board = {
   id: string;
@@ -18,16 +18,17 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
 {
   const app = new Application();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [container, setContainer] = useState<Container | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [graphic, setGraphic] = useState<Graphics | null>(null);
+  const containerRef = useRef<Container | null>(null);
+  const graphicsRef = useRef<Graphics | null>(null);
+  const isDrawingRef = useRef(false);
+
   // const drawingRef = useRef(false);
   // const lastPoint = useRef<{ x: number; y: number } | null>(null);
   // const historyRef = useRef<ImageData[]>([]);
-  const tool = useAppSelector(state => state.board.tool);
-  const color = useAppSelector(state => state.board.color);
-  const size = useAppSelector(state => state.board.size);
-  const dispatch = useAppDispatch();
+  // const tool = useAppSelector(state => state.board.tool);
+  // const color = useAppSelector(state => state.board.color);
+  // const size = useAppSelector(state => state.board.size);
+  // const dispatch = useAppDispatch();
 
   /*
   useEffect(() => {
@@ -57,29 +58,59 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
     console.log("Window resized");
   };
 
-  let _graphics: Graphics;
+  const onPointerDown = function (event: FederatedPointerEvent) {
+    // console.log(graphic);
+    // console.log("Pointer down at:", event.global.x, event.global.y);
+    isDrawingRef.current = true;
+    graphicsRef.current?.moveTo(event.global.x, event.global.y);
+  };
+
+  const onPointerMove = (event: FederatedPointerEvent) => {
+    if (isDrawingRef.current) {
+      // console.log(12);
+      const { tool, size, color } = store.getState().board;
+      const g = graphicsRef.current;
+      g?.stroke({ 
+        width: size, 
+        color: color 
+      }).lineTo(event.global.x, event.global.y);
+
+      if (tool === "eraser") {
+        g?.moveTo(event.global.x, event.global.y)
+        .circle(event.global.x, event.global.y, size * 10)
+      }
+    }
+  };
+
+  const onPointerUp = (event: FederatedPointerEvent) => {
+    // graphicsRef.current?.lineTo(event.global.x, event.global.y);
+    isDrawingRef.current = false;
+  };
 
   useEffect(() => {
 
-    const canvas = canvasRef.current;
-    if (!canvas) throw new Error("Canvas element not found");
+    if (!canvasRef.current) 
+      throw new Error("Canvas element not found");
 
     app.init({
-      canvas,
+      canvas: canvasRef.current,
       width: 800,
       height: 600,
-      backgroundColor: 0xffffff
+      backgroundColor: 0xdddddd
     }).then(() => {
-      const _container = new Container();
-      _container.setSize(800, 600);
-      _container.position.set(0, 0);
-      _container.interactive = true;
-      _container.hitArea = new Rectangle(0, 0, 800, 600);
-      app.stage.addChild(_container);
-      setContainer(_container);
-      const newGraphic = new Graphics();
-      setGraphic(newGraphic);
-      _container.addChild(newGraphic);
+      containerRef.current = new Container();
+      app.stage.addChild(containerRef.current);
+      containerRef.current.setSize(800, 600);
+      containerRef.current.position.set(0, 0);
+      containerRef.current.interactive = true;
+      containerRef.current.hitArea = new Rectangle(0, 0, 800, 600);
+      containerRef.current.on('pointerdown', onPointerDown);
+      containerRef.current.on('pointermove', onPointerMove);
+      containerRef.current.on('pointerup', onPointerUp);
+
+      graphicsRef.current = new Graphics();
+      containerRef.current.addChild(graphicsRef.current);
+      
       window.addEventListener("resize", handleResize);
     });
 
@@ -88,46 +119,9 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
         app.destroy(true);
         canvasRef.current = null;
       }
-      setContainer(null);
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  const onPointerDown = (event: FederatedPointerEvent) => {
-    // console.log(graphic);
-    setIsDrawing(true);
-    graphic?.moveTo(event.global.x, event.global.y);
-  };
-
-  const onPointerMove = (event: FederatedPointerEvent) => {
-    if (isDrawing) {
-      // console.log(12);
-      graphic?.lineTo(event.global.x, event.global.y);
-
-      if (tool === "eraser") {
-        // console.log(12313221);
-        graphic?.stroke({ width: size }).cut();
-      } else {
-        graphic?.stroke({ width: size, color });
-      }
-    }
-  };
-
-  const onPointerUp = (event: FederatedPointerEvent) => {
-    graphic?.lineTo(event.global.x, event.global.y);
-    setIsDrawing(false);
-  };
-
-  useEffect(() => {
-    container?.on('pointerdown', onPointerDown);
-    container?.on('pointermove', onPointerMove);
-    container?.on('pointerup', onPointerUp);
-    return () => {
-      container?.off('pointerdown', onPointerDown);
-      container?.off('pointermove', onPointerMove);
-      container?.off('pointerup', onPointerUp);
-    };
-  }, [container, graphic, isDrawing]);
 
   /*
   const pointForEvent = (event: React.PointerEvent<HTMLCanvasElement>) => {
