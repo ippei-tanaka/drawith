@@ -44,7 +44,7 @@ type ListenerRecord = {
   }
 }[EventType];
 
-export class InputManager<S extends (Record<string, any> | undefined)>
+export class InputEventManager<S extends (Record<string, any> | undefined)>
 {
   private _state: S;
   private record: Record<string, ListenerRecord> = {};
@@ -81,10 +81,6 @@ export class InputManager<S extends (Record<string, any> | undefined)>
       isOn: false,
     } as ListenerRecord;
   }
-
-  // get state() {
-  //   return this._state;
-  // }
 
   activateListener(listenerName: string) {
     const record = this.record[listenerName];
