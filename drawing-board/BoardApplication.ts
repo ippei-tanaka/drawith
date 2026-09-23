@@ -1,30 +1,29 @@
 import { Application, Graphics, Renderer } from 'pixi.js';
 import { BasicBrush } from './drawing/BasicBrush';
 import { store } from '@/lib/store/store';
-import { setTool } from '@/lib/store/boardSlice';
+import { addLayer, setTool } from '@/lib/store/boardSlice';
 import { Grid } from './viewport/Grid';
 import { Viewport } from './viewport/Viewport';
 import { StrokeController } from './input/StrokeController';
 import { ZoomController } from './input/ZoomController';
 import { PanController } from './input/PanController';
+import { LayerManager } from './viewport/LayerManager';
 
 export class BoardApplication extends Application<Renderer> {
 
   private viewport = new Viewport();
   private grid = new Grid(); 
-  
+  private layerManager = new LayerManager();
   private brush = new BasicBrush({
     size: 10,
     color: 0x000000,
     opacity: 1,
   });
-
   private panController: PanController | null = null;
   private zoomController: ZoomController | null = null;
   private strokeController: StrokeController | null = null;
-
-  private graphics = new Graphics();
   private unsubscribeStore: (() => void) | null = null;
+  private previousStoreState: ReturnType<typeof store.getState> | null = null;
 
   constructor () 
   {
@@ -40,13 +39,13 @@ export class BoardApplication extends Application<Renderer> {
     });
 
     this.stage.addChild(this.viewport);
+    this.stage.eventMode = 'static';
+    this.stage.hitArea = this.screen;
+
     this.viewport.addChild(this.grid);
-    this.viewport.addChild(this.graphics);
-    this.unsubscribeStore = store.subscribe(this.onStoreStateUpdated.bind(this));
+    this.viewport.addChild(this.layerManager);
     
-    const stage = this.stage;
-    stage.eventMode = 'static';
-    stage.hitArea = this.screen;
+    this.unsubscribeStore = store.subscribe(this.reflectStoreState);
 
     this.panController = new PanController(
       this.stage,
@@ -63,12 +62,12 @@ export class BoardApplication extends Application<Renderer> {
     this.strokeController = new StrokeController(
       this.stage,
       this.viewport,
-      this.graphics,
+      new Graphics(),
       this.brush
     );
     this.strokeController.init();
 
-    store.dispatch(setTool("pen"));
+    this.reflectStoreState();
   }
 
   override destroy(...params: any[]) {
@@ -82,7 +81,7 @@ export class BoardApplication extends Application<Renderer> {
     this.strokeController?.clear();
   }
 
-  private onStoreStateUpdated () 
+  reflectStoreState = () =>
   {
     const state = store.getState();
 
@@ -100,5 +99,14 @@ export class BoardApplication extends Application<Renderer> {
     } else {
       this.strokeController?.deactivate();
     }
+
+    if (state.board.layers === this.previousStoreState?.board.layers) {
+      // Layers have not changed
+      console.log("Layers have not changed");
+    }
+
+    // console.log(state.board);
+
+    this.previousStoreState = state;
   }
 }

@@ -7,7 +7,6 @@ export class StrokeController
 {
   private drawing = false;
   private currentStroke: Stroke | null = null;
-  // private strokes: Stroke[] = [];
 
   constructor(
     private stage: Container,
@@ -38,6 +37,10 @@ export class StrokeController
     this.stage.off("pointerup", this.pointerUp);
     this.stage.off("pointerupoutside", this.pointerUp);
   };
+
+  setGraphics(graphics: Graphics) {
+    this.graphics = graphics;
+  }
 
   private pointerDown = (event: FederatedPointerEvent) => {
     if (event.button !== 0) return;
