@@ -1,62 +1,94 @@
-import { FederatedPointerEvent } from "pixi.js";
+import { FederatedPointerEvent, Container } from "pixi.js";
 
-export type PointerSample = {
-  pressure: number;
-  tiltX?: number;
-  tiltY?: number;
-};
+export type EventType = "pointer" | "wheel" | "touch";
 
-export class InputManager<T extends (Record<string, any> | undefined)>
+type EventFor<T extends EventType> =
+  T extends "pointer" ? FederatedPointerEvent :
+  T extends "wheel" ? WheelEvent :
+  T extends "touch" ? TouchEvent : never;
+
+type TargetFor<T extends EventType> =
+  T extends "pointer" ? Container :
+  T extends "wheel" ? HTMLElement :
+  T extends "touch" ? HTMLElement : never;
+
+type ListenerRecord = {
+  [T in EventType]: {
+    target: TargetFor<T>;
+    eventName: string;
+    callback: (event: EventFor<T>) => void;
+  }
+}[EventType];
+
+export class InputManager<S extends (Record<string, any> | undefined)>
 {
-  private _state: T;
+  private _state: S;
+  private record: ListenerRecord[] = [];
 
-  constructor(private state?: T) 
+  constructor(private state?: S) 
   {
-    this._state = state || (undefined as T);
+    this._state = state || (undefined as S);
   }
 
-  pointerEventListener(callback: ({ state, event }: { state: T; event: FederatedPointerEvent }) => void) 
-  {
-    return (event: FederatedPointerEvent) => {
+  addListener<E extends EventType> (
+    target: TargetFor<E>, 
+    eventName: string, 
+    callback: ({ state, event }: { state: S; event: EventFor<E> }) => void
+  ) {
+    
+    const wrappedCallback = (event: EventFor<E>) => {
       callback({ 
         state: this._state,
         event
       });
     };
+
+    this.record.push({
+      target,
+      eventName,
+      callback: wrappedCallback,
+    } as ListenerRecord);
   }
 
-  wheelEventListener(callback: ({ state, event }: { state: T; event: WheelEvent }) => void) 
-  {
-    return (event: WheelEvent) => {
-      callback({ 
-        state: this._state,
-        event
-      });
-    };
+  turnOnListener(target: TargetFor<EventType>, eventName: string) {
+    for (const { target: recTarget, eventName: recEventName, callback } of this.record) {
+      if (recEventName !== eventName || recTarget !== target) continue;
+      if (recTarget instanceof Container) {
+        recTarget.on(recEventName, callback);
+      } else if (recTarget instanceof HTMLElement) {
+        recTarget.addEventListener(recEventName, callback as EventListener);
+      }
+    }
   }
 
-  touchEventListener(callback: ({ state, event, distance, center }: { state: T; event: TouchEvent; distance?: number; center?: { x: number; y: number } }) => void) 
-  {
-    return (event: TouchEvent) => {
-      callback({ 
-        state: this._state,
-        event,
-        distance: event.touches.length === 2 ? getTouchDistance(event.touches) : undefined,
-        center: event.touches.length === 2 ? getTouchCenter(event.touches) : undefined,
-      });
-    };
+  turnOnListeners() {
+    for (const { target, eventName, callback } of this.record) {
+      if (target instanceof Container) {
+        target.on(eventName, callback);
+      } else if (target instanceof HTMLElement) {
+        target.addEventListener(eventName, callback as EventListener);
+      }
+    }
   }
-}
 
-function getTouchDistance(touches: TouchList) {
-  const dx = touches[0].pageX - touches[1].pageX;
-  const dy = touches[0].pageY - touches[1].pageY;
-  return Math.hypot(dx, dy);
-}
+  turnOffListener(target: TargetFor<EventType>, eventName: string) {
+    for (const { target: recTarget, eventName: recEventName, callback } of this.record) {
+      if (recEventName !== eventName || recTarget !== target) continue;
+      if (recTarget instanceof Container) {
+        recTarget.off(recEventName, callback);
+      } else if (recTarget instanceof HTMLElement) {
+        recTarget.removeEventListener(recEventName, callback as EventListener);
+      }
+    }
+  }
 
-function getTouchCenter(touches: TouchList) {
-  return {
-    x: (touches[0].clientX + touches[1].clientX) / 2,
-    y: (touches[0].clientY + touches[1].clientY) / 2,
-  };
+  turnOffListeners() {
+    for (const { target, eventName, callback } of this.record) {
+      if (target instanceof Container) {
+        target.off(eventName, callback);
+      } else if (target instanceof HTMLElement) {
+        target.removeEventListener(eventName, callback as EventListener);
+      }
+    }
+  }
 }

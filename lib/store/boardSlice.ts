@@ -1,6 +1,6 @@
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 
-export type BoardTool = "pen" | "marker" | "eraser";
+export type BoardTool = "pen" | "marker" | "eraser" | "pan";
 
 export interface Point
 {

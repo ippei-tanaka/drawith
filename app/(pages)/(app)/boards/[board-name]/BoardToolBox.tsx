@@ -16,6 +16,7 @@ export function BoardToolBox()
 
   return (
     <>
+      <button className={`tool-button ${tool === "pan" ? "selected" : ""}`} onClick={() => dispatch(setTool("pan"))} aria-label="Pan" title="Pan">🖐️</button>
       <button className={`tool-button ${tool === "pen" ? "selected" : ""}`} onClick={() => dispatch(setTool("pen"))} aria-label="Pen" title="Pen">&#9998;</button>
       <button className={`tool-button marker-tool ${tool === "marker" ? "selected" : ""}`} onClick={() => dispatch(setTool("marker"))} aria-label="Highlighter" title="Highlighter">&#9644;</button>
       <button className={`tool-button ${tool === "eraser" ? "selected" : ""}`} onClick={() => dispatch(setTool("eraser"))} aria-label="Eraser" title="Eraser">&#9003;</button><span className="tool-divider" />
