@@ -1,6 +1,7 @@
 import { Application, Container, Graphics, Renderer } from 'pixi.js';
 import { store } from '@/lib/store/store';
 import { setZoom, setZoomPosition } from '@/lib/store/boardSlice';
+import { InputManager } from './InputManager';
 
 export class BoardApplication extends Application<Renderer> {
 
@@ -28,42 +29,39 @@ export class BoardApplication extends Application<Renderer> {
       antialias: true,
     });
 
-    let dragging = false;
-    let lastX = 0;
-    let lastY = 0;
-
     const stage = this.stage;
     stage.eventMode = 'static';
     stage.hitArea = this.screen;
 
-    stage.on("pointerdown", event => {
-      dragging = true;
-      lastX = event.clientX;
-      lastY = event.clientY;
+    const panInputManager = new InputManager({
+      dragging: false
     });
 
-    stage.on("pointermove", event => {
-      if (!dragging) return;
+    stage.on("pointerdown", panInputManager.pointerEventListener(({ state }) => {
+      state.dragging = true;
+    }));
 
-      const dx = event.clientX - lastX;
-      const dy = event.clientY - lastY;
+    stage.on("pointermove", panInputManager.pointerEventListener(({ state, event }) => {
+      if (!state.dragging) return;
 
-      this.viewport.x += dx;
-      this.viewport.y += dy;
+      this.viewport.x += event.movementX;
+      this.viewport.y += event.movementY;
+    }));
 
-      lastX = event.clientX;
-      lastY = event.clientY;
+    stage.on("pointerup", panInputManager.pointerEventListener(({ state }) => {
+      state.dragging = false;
+    }));
+
+    stage.on("pointerupoutside", panInputManager.pointerEventListener(({ state }) => {
+      state.dragging = false;
+    }));
+
+    const zoomInputManager = new InputManager({
+      dragging: false,
+      startDistance: 0
     });
-    
-    stage.on("pointerup", () => {
-      dragging = false;
-    });
 
-    stage.on("pointerupoutside", () => {
-      dragging = false;
-    });
-
-    this.canvas.addEventListener('wheel', event => {
+    this.canvas.addEventListener('wheel', zoomInputManager.wheelEventListener(({ event }) => {
       event.preventDefault();
       event.stopPropagation();
 
@@ -74,27 +72,20 @@ export class BoardApplication extends Application<Renderer> {
       const zoom = store.getState().board.zoom;
       const delta = event.deltaY > 0 ? -10 : 10;
       store.dispatch(setZoom(zoom + delta));
-    }, { passive: false });
+    }), { passive: false });
 
-
-    let startDistance = 0;
-    
-    this.canvas.addEventListener('touchstart', event => {
-      if (event.touches.length === 2) {
-        event.preventDefault(); // Stop default scrolling/zooming
-        dragging = false;
-        startDistance = getTouchDistance(event.touches);
-      }
-    }, { passive: false });
-
-    this.canvas.addEventListener('touchmove', event => {
-      if (event.touches.length !== 2 || startDistance <= 0) return;
+    this.canvas.addEventListener('touchstart', zoomInputManager.touchEventListener(({ state, event, distance }) => {
+      if (event.touches.length !== 2 || !distance) return;
 
       event.preventDefault();
-      
-      const currentDistance = getTouchDistance(event.touches);
-      const zoomRatio = currentDistance / startDistance;
-      const center = getTouchCenter(event.touches);
+      state.dragging = false;
+      state.startDistance = distance;
+    }), { passive: false });
+
+    this.canvas.addEventListener('touchmove', zoomInputManager.touchEventListener(({ state, event, distance, center }) => {
+      if (event.touches.length !== 2 || !distance || !center || state.startDistance <= 0) return;
+
+      event.preventDefault();
       const rect = this.canvas.getBoundingClientRect();
 
       store.dispatch(setZoomPosition({
@@ -103,18 +94,17 @@ export class BoardApplication extends Application<Renderer> {
       }));
 
       const zoom = store.getState().board.zoom;
-      store.dispatch(setZoom(zoom * zoomRatio));
+      store.dispatch(setZoom(zoom * (distance / state.startDistance)));
+      state.startDistance = distance;
+    }), { passive: false });
 
-      // Update start distance for the next move tick
-      startDistance = currentDistance;
-    }, { passive: false });
+    this.canvas.addEventListener('touchend', zoomInputManager.touchEventListener(({ state }) => {
+      state.startDistance = 0;
+    }));
 
-    const resetPinch = () => {
-      startDistance = 0;
-    };
-
-    this.canvas.addEventListener('touchend', resetPinch);
-    this.canvas.addEventListener('touchcancel', resetPinch);
+    this.canvas.addEventListener('touchcancel', zoomInputManager.touchEventListener(({ state }) => {
+      state.startDistance = 0;
+    }));
   }
 
   private zoom (factor: number) {
@@ -150,17 +140,4 @@ class Grid extends Graphics
       color: 0xcccccc,
     });
   }
-}
-
-function getTouchDistance(touches: TouchList) {
-  const dx = touches[0].pageX - touches[1].pageX;
-  const dy = touches[0].pageY - touches[1].pageY;
-  return Math.hypot(dx, dy);
-}
-
-function getTouchCenter(touches: TouchList) {
-  return {
-    x: (touches[0].clientX + touches[1].clientX) / 2,
-    y: (touches[0].clientY + touches[1].clientY) / 2,
-  };
 }
