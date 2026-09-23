@@ -1,13 +1,17 @@
 import { Application, Container, Graphics, Renderer } from 'pixi.js';
-import { BasicBrush, Stroke } from './Brush';
+import { BasicBrush, Stroke } from './drawing/BasicBrush';
 import { store } from '@/lib/store/store';
 import { setZoom, setZoomPosition, setTool, type BoardTool } from '@/lib/store/boardSlice';
 import { InputEventManager } from './InputEventManager';
+import { Grid } from './viewport/Grid';
+import { Viewport } from './viewport/Viewport';
+import { StrokeController } from './input/StrokeController';
+import { ZoomController } from './input/ZoomController';
+import { PanController } from './input/PanController';
 
 export class BoardApplication extends Application<Renderer> {
 
-  private viewport = new Container();
-  
+  private viewport = new Viewport();
   private grid = new Grid(); 
   
   private brush = new BasicBrush({
@@ -15,24 +19,31 @@ export class BoardApplication extends Application<Renderer> {
     color: 0x000000,
     opacity: 1,
   });
-  
+
+  private panController: PanController | null = null;
+
+  private zoomController: ZoomController | null = null;
+
+  private strokeController: StrokeController | null = null;
+
+
   private strokes: Stroke[] = [];
   
-  private panIEM = new InputEventManager({
-    dragging: false,
-    originalTool: null as (BoardTool | null)
-  });
+  // private panIEM = new InputEventManager({
+  //   dragging: false,
+  //   originalTool: null as (BoardTool | null)
+  // });
 
-  private zoomIEM = new InputEventManager({
-    dragging: false,
-    startDistance: 0
-  });
+  // private zoomIEM = new InputEventManager({
+  //   dragging: false,
+  //   startDistance: 0
+  // });
 
-  private strokeIEM = new InputEventManager({
-    drawing: false,
-    startPoint: { x: 0, y: 0 },
-    currentStroke: null as (Stroke | null)
-  });
+  // private strokeIEM = new InputEventManager({
+  //   drawing: false,
+  //   startPoint: { x: 0, y: 0 },
+  //   currentStroke: null as (Stroke | null)
+  // });
 
   private graphics = new Graphics();
 
@@ -60,9 +71,25 @@ export class BoardApplication extends Application<Renderer> {
     stage.eventMode = 'static';
     stage.hitArea = this.screen;
 
-    this.setupPan();
-    this.setupZoom();
-    this.setupStroke();
+    this.panController = new PanController(
+      this.stage,
+      this.viewport
+    );
+    this.panController.init();
+
+    this.zoomController = new ZoomController(
+      this.canvas,
+      this.viewport
+    );
+    this.zoomController.init();
+
+    this.strokeController = new StrokeController(
+      this.stage,
+      this.viewport,
+      this.graphics,
+      this.brush
+    );
+    this.strokeController.init();
 
     store.dispatch(setTool("pen"));
   }
@@ -73,29 +100,32 @@ export class BoardApplication extends Application<Renderer> {
       this.unsubscribeStore();
       this.unsubscribeStore = null;
     }
-    this.panIEM.deactivateAllListeners();
-    this.zoomIEM.deactivateAllListeners();
-    this.strokeIEM.deactivateAllListeners();
+    this.panController?.clear();
+    this.zoomController?.clear();
+    this.strokeController?.clear();
+    // this.strokeIEM.deactivateAllListeners();
   }
 
   private onStoreStateUpdated () 
   {
     const state = store.getState();
-    this.zoom(state.board.zoom / 100);
+
+    const { x: screenX, y: screenY } = state.board.zoomPosition;
+    this.viewport.zoomAt(screenX, screenY, state.board.zoom / 100);
 
     if (state.board.tool === "pan") {
-      this.activatePan();
+      this.panController?.activate();
     } else {
-      this.deactivatePan();
+      this.panController?.deactivate();
     }
 
     if (state.board.tool === "pen") {
-      this.activateStroke();
+      this.strokeController?.init();
     } else {
-      this.deactivateStroke();
+      this.strokeController?.clear();
     }
   }
-
+  /*
   private setupPan () 
   {
     const p = this.panIEM;
@@ -139,8 +169,10 @@ export class BoardApplication extends Application<Renderer> {
     p.addListener("pointermove", stage, "pointermove", ({ state, event }) => {
       if (!state.dragging || store.getState().board.tool !== "pan") return;
       this.stage.cursor = "grabbing";
-      this.viewport.x += event.movementX;
-      this.viewport.y += event.movementY;
+      this.viewport.panBy(
+        event.movementX,
+        event.movementY,
+      );
     });
 
     p.addListener("pointerup", stage, "pointerup", ({ state }) => {
@@ -174,7 +206,9 @@ export class BoardApplication extends Application<Renderer> {
     this.panIEM.deactivateListener("pointerup");
     this.panIEM.deactivateListener("pointerupoutside");
   }
+    */
 
+  /*
   private setupZoom () {
 
     const canvas = this.canvas;
@@ -243,19 +277,9 @@ export class BoardApplication extends Application<Renderer> {
 
     z.activateAllListeners();
   }
+    */
 
-  private zoom (factor: number) 
-  {
-    if (!Number.isFinite(factor)) return;
-
-    const { x: screenX, y: screenY } = store.getState().board.zoomPosition;
-    const before = this.viewport.toLocal({ x: screenX, y: screenY });
-    this.viewport.scale.set(factor);
-    const after = this.viewport.toLocal({ x: screenX, y: screenY });
-    this.viewport.x += (after.x - before.x) * factor;
-    this.viewport.y += (after.y - before.y) * factor;
-  }
-
+  /*
   private setupStroke () 
   {
     const st = this.strokeIEM;
@@ -265,7 +289,7 @@ export class BoardApplication extends Application<Renderer> {
       if (event.button !== 0) return;
 
       state.drawing = true;
-      const localPos = this.viewport.toLocal({ x: event.screenX, y: event.screenY });
+      const localPos = this.viewport.documentPoint(event.screenX, event.screenY);
       const point = {
         x: localPos.x,
         y: localPos.y,
@@ -281,7 +305,7 @@ export class BoardApplication extends Application<Renderer> {
 
     st.addListener("pointermove", stage, "pointermove", ({ state, event }) => {
       if (!state.drawing || !state.currentStroke) return;
-      const localPos = this.viewport.toLocal({ x: event.screenX, y: event.screenY });
+      const localPos = this.viewport.documentPoint(event.screenX, event.screenY);
       const point = {
         x: localPos.x,
         y: localPos.y,
@@ -319,30 +343,9 @@ export class BoardApplication extends Application<Renderer> {
   {
     this.strokeIEM.deactivateAllListeners();
   }
+    */
 }
 
-class Grid extends Graphics 
-{
-  constructor() 
-  {
-    super();
-  
-    for (let x = 0; x <= 2000; x += 100) {
-      this.moveTo(x, 0);
-      this.lineTo(x, 1500);
-    }
-
-    for (let y = 0; y <= 1500; y += 100) {
-      this.moveTo(0, y);
-      this.lineTo(2000, y);
-    }
-
-    this.stroke({
-      width: 1,
-      color: 0xcccccc,
-    });
-  }
-}
 
 type Point = {
   x: number;
