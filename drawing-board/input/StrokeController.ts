@@ -24,6 +24,14 @@ export class StrokeController
     this.stage.on("pointerupoutside", this.pointerUp);
   }
 
+  activate() {
+    this.init();
+  }
+
+  deactivate() {
+    this.clear();
+  }
+
   clear() {
     this.stage.off("pointerdown", this.pointerDown);
     this.stage.off("pointermove", this.pointerMove);

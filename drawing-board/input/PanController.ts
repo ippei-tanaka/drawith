@@ -1,7 +1,7 @@
-import { Container, FederatedPointerEvent, Graphics } from "pixi.js";
+import { Container, FederatedPointerEvent } from "pixi.js";
 import { Viewport } from "../viewport/Viewport";
 import { store } from "@/lib/store/store";
-import { BoardTool, setTool, setZoom, setZoomPosition } from "@/lib/store/boardSlice";
+import { BoardTool, setTool } from "@/lib/store/boardSlice";
 
 export class PanController 
 {

@@ -1,6 +1,3 @@
-import { Container, FederatedPointerEvent, Graphics } from "pixi.js";
-import { BasicBrush, Stroke } from "../drawing/BasicBrush";
-import { iterateSegment } from "../drawing/iterateSegment";
 import { Viewport } from "../viewport/Viewport";
 import { store } from "@/lib/store/store";
 import { setZoom, setZoomPosition } from "@/lib/store/boardSlice";
