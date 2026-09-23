@@ -51,8 +51,8 @@ export class BoardApplication extends Application<Renderer> {
     stage.eventMode = 'static';
     stage.hitArea = this.screen;
 
-    this.setupPanEventListeners();
-    this.setupZoomEventListeners();
+    this.setupPanInputManager();
+    this.setupZoomInputManager();
     // this.setupStrokeEventListeners();
   }
 
@@ -62,6 +62,8 @@ export class BoardApplication extends Application<Renderer> {
       this.unsubscribeStore();
       this.unsubscribeStore = null;
     }
+    this.panInputManager.deactivateAllListeners();
+    this.zoomInputManager.deactivateAllListeners();
   }
 
   private onStoreStateUpdated () 
@@ -69,13 +71,10 @@ export class BoardApplication extends Application<Renderer> {
     const state = store.getState();
     this.zoom(state.board.zoom / 100);
 
-    switch (state.board.tool) {
-      case "pan":
-        this.turnOnPanEventListeners();
-        break;
-      default:
-        this.turnOffPanEventListeners();
-        break;
+    if (state.board.tool === "pan") {
+      this.activatePan();
+    } else {
+      this.deactivatePan();
     }
   }
 
@@ -91,80 +90,86 @@ export class BoardApplication extends Application<Renderer> {
     this.viewport.y += (after.y - before.y) * factor;
   }
 
-  setupPanEventListeners () 
+  private setupPanInputManager () 
   {
     const pIM = this.panInputManager;
     const stage = this.stage;
     
-    pIM.addListener<"pointer">(stage, "mousedown", ({ state, event }) => {
+    pIM.addListener("mousedown", stage, "mousedown", ({ state, event }) => {
       if (event.button === 1) {
         state.originalTool = store.getState().board.tool;
         store.dispatch(setTool("pan"));
         state.dragging = true;
+        pIM.activateListener("mouseup");
+        pIM.activateListener("mouseupoutside");
       }
     });
 
-    pIM.addListener<"pointer">(stage, "mouseup", ({ state, event }) => {
-      if (event.button === 1 && state.originalTool) {
-        store.dispatch(setTool(state.originalTool));
+    pIM.addListener("mouseup", stage, "mouseup", ({ state, event }) => {
+      if (event.button === 1) {
+        pIM.deactivateListener("mouseup");
+        pIM.deactivateListener("mouseupoutside");
+        state.originalTool && store.dispatch(setTool(state.originalTool));
         state.originalTool = null;
       }
     });
 
-    pIM.addListener<"pointer">(stage, "mouseupoutside", ({ state, event }) => {
-      if (event.button === 1 && state.originalTool) {
-        store.dispatch(setTool(state.originalTool));
+    pIM.addListener("mouseupoutside", stage, "mouseupoutside", ({ state, event }) => {
+      if (event.button === 1) {
+        pIM.deactivateListener("mouseup");
+        pIM.deactivateListener("mouseupoutside");
+        state.originalTool && store.dispatch(setTool(state.originalTool));
         state.originalTool = null;
       }
     });
 
-    pIM.addListener<"pointer">(stage, "pointerdown", ({ state }) => {
+    pIM.activateListener("mousedown");
+
+    pIM.addListener("pointerdown", stage, "pointerdown", ({ state }) => {
       state.dragging = true;
+      this.stage.cursor = "grabbing";
     });
 
-    pIM.addListener<"pointer">(stage, "pointermove", ({ state, event }) => {
+    pIM.addListener("pointermove", stage, "pointermove", ({ state, event }) => {
       if (!state.dragging || store.getState().board.tool !== "pan") return;
+      this.stage.cursor = "grabbing";
       this.viewport.x += event.movementX;
       this.viewport.y += event.movementY;
     });
 
-    pIM.addListener<"pointer">(stage, "pointerup", ({ state }) => {
+    pIM.addListener("pointerup", stage, "pointerup", ({ state }) => {
       state.dragging = false;
+      this.stage.cursor = "grab";
     });
 
-    pIM.addListener<"pointer">(stage, "pointerupoutside", ({ state }) => {
+    pIM.addListener("pointercancel", stage, "pointercancel", ({ state }) => {
       state.dragging = false;
+      this.stage.cursor = "grab";
     });
 
-    pIM.turnOnListener(stage, "mousedown");
-    pIM.turnOnListener(stage, "mouseup");
-    pIM.turnOnListener(stage, "mouseupoutside");
+    pIM.addListener("pointerupoutside", stage, "pointerupoutside", ({ state }) => {
+      state.dragging = false;
+      this.stage.cursor = "grab";
+    });
   }
 
-  turnOnPanEventListeners () {
-    const stage = this.stage;
-    const pIM = this.panInputManager;
-    pIM.turnOnListener(stage, "pointerdown");
-    pIM.turnOnListener(stage, "pointermove");
-    pIM.turnOnListener(stage, "pointerup");
-    pIM.turnOnListener(stage, "pointerupoutside");
+  private activatePan () {
+    this.stage.cursor = "grab";
+    this.panInputManager.activateListener("pointerdown");
+    this.panInputManager.activateListener("pointermove");
+    this.panInputManager.activateListener("pointerup");
+    this.panInputManager.activateListener("pointerupoutside");
   }
 
-  turnOffPanEventListeners () {
-    const stage = this.stage;
-    const pIM = this.panInputManager;
-    pIM.turnOffListener(stage, "pointerdown");
-    pIM.turnOffListener(stage, "pointermove");
-    pIM.turnOffListener(stage, "pointerup");
-    pIM.turnOffListener(stage, "pointerupoutside");
+  private deactivatePan () {
+    this.stage.cursor = "default";
+    this.panInputManager.deactivateListener("pointerdown");
+    this.panInputManager.deactivateListener("pointermove");
+    this.panInputManager.deactivateListener("pointerup");
+    this.panInputManager.deactivateListener("pointerupoutside");
   }
 
-  removePanEventListeners () {
-    const pIM = this.panInputManager;
-    pIM.turnOffListeners()
-  }
-
-  setupZoomEventListeners () {
+  private setupZoomInputManager () {
 
     const canvas = this.canvas;
     const zIM = this.zoomInputManager;
@@ -182,7 +187,7 @@ export class BoardApplication extends Application<Renderer> {
       };
     };
 
-    zIM.addListener<"wheel">(canvas, "wheel", ({ state, event }) => {
+    zIM.addListener("wheel", canvas, "wheel", ({ state, event }) => {
       event.preventDefault();
       event.stopPropagation();
 
@@ -194,8 +199,8 @@ export class BoardApplication extends Application<Renderer> {
       const delta = event.deltaY > 0 ? -10 : 10;
       store.dispatch(setZoom(zoom + delta));
     });
-
-    zIM.addListener<"touch">(canvas, "touchstart", ({ state, event }) => {
+    
+    zIM.addListener("touchstart", canvas, "touchstart", ({ state, event }) => {
       if (event.touches.length !== 2) return;
       event.preventDefault();
       event.stopPropagation();
@@ -203,7 +208,7 @@ export class BoardApplication extends Application<Renderer> {
       state.startDistance = getTouchDistance(event.touches);
     });
 
-    zIM.addListener<"touch">(canvas, "touchmove", ({ state, event }) => {
+    zIM.addListener("touchmove", canvas, "touchmove", ({ state, event }) => {
       if (event.touches.length !== 2) return;
       event.preventDefault();
       event.stopPropagation();
@@ -222,15 +227,15 @@ export class BoardApplication extends Application<Renderer> {
       state.startDistance = distance;
     });
 
-    zIM.addListener<"touch">(canvas, "touchend", ({ state, event }) => {
+    zIM.addListener("touchend", canvas, "touchend", ({ state, event }) => {
       state.startDistance = 0;
     });
 
-    zIM.addListener<"touch">(canvas, "touchcancel", ({ state, event }) => {
+    zIM.addListener("touchcancel", canvas, "touchcancel", ({ state, event }) => {
       state.startDistance = 0;
     });
 
-    zIM.turnOnListeners();
+    zIM.activateAllListeners();
   }
 
   /*

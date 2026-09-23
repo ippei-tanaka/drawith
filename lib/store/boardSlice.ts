@@ -49,7 +49,7 @@ const boardSlice = createSlice({
     },
     setZoom(state, action: PayloadAction<number>) {
       if (Number.isFinite(action.payload)) {
-        state.zoom = Math.min(400, Math.max(10, action.payload));
+        state.zoom = Math.round(Math.min(400, Math.max(10, action.payload)));
       }
     },
     setZoomPosition(state, action: PayloadAction<{ x: number; y: number }>) {
