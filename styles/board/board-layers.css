@@ -22,11 +22,7 @@
 	font-weight: 700;
 }
 
-.bly-layers-add-button,
-.bly-layer-drag-handle,
-.bly-layer-visibility,
-.bly-layer-rename,
-.bly-layer-delete {
+.bly-layers-add-button {
 	border: 0;
 	background: transparent;
 	color: #687681;
@@ -42,9 +38,7 @@
 	line-height: 1;
 }
 
-.bly-layers-add-button:hover,
-.bly-layer-rename:hover,
-.bly-layer-delete:hover {
+.bly-layers-add-button:hover {
 	color: #d8614b;
 }
 
@@ -59,13 +53,26 @@
 
 .bly-layer-item {
 	display: grid;
-	grid-template-columns: 18px 18px minmax(0, 1fr) 22px 22px;
+	grid-template-rows: auto;
+	grid-template-columns: auto auto auto;
 	gap: 4px;
 	align-items: center;
 	padding: 7px 6px;
 	border: 1px solid transparent;
 	border-radius: 6px;
 	color: var(--ink);
+	background: #edebe6;
+	cursor: grab;
+}
+
+.bly-layer-item.bly-layer-dragging {
+	border-color: #61cdd7;
+	background: #cdeaff;
+}
+
+.bly-layer-item.bly-layer-dragging.bly-layer-has-no-drop-target {
+	border-color: #ff5526;
+	background: #ff9898;
 }
 
 .bly-layer-item.bly-active {
@@ -73,30 +80,9 @@
 	background: #fff1ec;
 }
 
-.bly-layer-item.bly-dragging {
-	opacity: 0.45;
-}
-
-.bly-layer-drag-handle {
-	cursor: grab;
-	font-size: 12px;
-	letter-spacing: -2px;
-}
-
-.bly-layer-visibility {
-	font-size: 13px;
-}
-
-.bly-layer-select {
-	min-width: 0;
+.bly-layer-name {
+	flex: 1;
 	overflow: hidden;
-	padding: 3px 0;
-	border: 0;
-	background: transparent;
-	color: inherit;
-	cursor: pointer;
-	font: inherit;
-	text-align: left;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
@@ -111,17 +97,10 @@
 	font: inherit;
 }
 
-.bly-layer-opacity {
-	grid-column: 3 / -1;
-	display: flex;
-	align-items: center;
-	gap: 7px;
-	color: #7d8896;
-	font-size: 10px;
-}
-
-.bly-layer-opacity input {
-	min-width: 0;
-	flex: 1;
-	accent-color: #d8614b;
+.bly-layer-preview {
+	width: 34px;
+	height: 34px;
+	background: #ccc;
+	border-radius: 4px;
+	overflow: hidden;
 }

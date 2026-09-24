@@ -84,15 +84,16 @@ const boardSlice = createSlice({
     addLayer: 
     {
       reducer(state, action: PayloadAction<Layer>) {
+        action.payload.name = `Layer ${state.layers.length + 1}`;
         state.layers.push(action.payload);
         state.activeLayerId = action.payload.id;
       },
 
-      prepare(name: string) {
+      prepare() {
         return {
           payload: {
             id: nanoid(),
-            name,
+            name: "",
             // strokes: [],
             visible: true,
             opacity: 1,

@@ -116,6 +116,7 @@ export class BoardApplication extends Application<Renderer> {
     // }
 
     if (board.layers !== previousBoard?.layers) {
+      console.log("Layers changed");
       this.layerManager.update(board.layers);
     }
 

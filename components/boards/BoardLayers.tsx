@@ -1,50 +1,29 @@
 "use client";
 
-import { useState, type DragEvent, type KeyboardEvent } from "react";
+import { type KeyboardEvent } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import {
-	addLayer,
-	removeLayer,
-	renameLayer,
-	reorderLayers,
-	setActiveLayer,
-	setLayerOpacity,
-	setLayerVisibility,
-} from "@/lib/store/boardSlice";
+import { addLayer, removeLayer, reorderLayers} from "@/lib/store/boardSlice";
+import { BoardLayer } from './BoardLayer'
+import { DragDropProvider, type DragEndEvent } from '@dnd-kit/react';
+import { isSortable } from '@dnd-kit/react/sortable';
 
 export function BoardLayers() 
 {
 	const dispatch = useAppDispatch();
 	const layers = useAppSelector((state) => state.board.layers);
-	const activeLayerId = useAppSelector((state) => state.board.activeLayerId);
-	const [draggedLayerId, setDraggedLayerId] = useState<string | null>(null);
-	const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
 
 	const addNewLayer = () => {
-		dispatch(addLayer(`Layer ${layers.length + 1}`));
+		dispatch(addLayer());
 	};
 
-	const commitName = (layerId: string, name: string) => {
-		const nextName = name.trim();
-		if (nextName) dispatch(renameLayer({ id: layerId, name: nextName }));
-		setEditingLayerId(null);
-	};
-
-	const handleDrop = (event: DragEvent<HTMLLIElement>, targetLayerId: string) => {
-		event.preventDefault();
-		if (!draggedLayerId || draggedLayerId === targetLayerId) return;
-
-		const fromIndex = layers.findIndex((layer) => layer.id === draggedLayerId);
-		const toIndex = layers.findIndex((layer) => layer.id === targetLayerId);
-		dispatch(reorderLayers({ fromIndex, toIndex }));
-		setDraggedLayerId(null);
-	};
-
-	const handleRenameKeyDown = (
-		event: KeyboardEvent<HTMLInputElement>,
-	) => {
-		if (event.key === "Enter") event.currentTarget.blur();
-		if (event.key === "Escape") setEditingLayerId(null);
+	const reorderOrRemoveLayer = (event: DragEndEvent) => {
+		const {source} = event.operation;
+		if (event.canceled || !isSortable(source)) return;
+		if (source.data.hasDropTarget()) {
+			dispatch(reorderLayers({ fromIndex: source.initialIndex, toIndex: source.index }));
+		} else {
+			dispatch(removeLayer(String(source.id)));
+		}
 	};
 
 	return (
@@ -56,25 +35,77 @@ export function BoardLayers()
 				</button>
 			</div>
 
+			<DragDropProvider onDragEnd={reorderOrRemoveLayer}>
+				<div className="bly-layers-list">
+					{layers.map((layer, index) => (
+						<BoardLayer 
+						key={layer.id} 
+						id={layer.id}
+						index={index} 
+						name={layer.name} 
+						visible={layer.visible}
+						opacity={layer.opacity}
+						/>
+					))} 
+				</div>
+			</DragDropProvider>
+
+			{/* BoardLayer component can be used here if needed
 			<ul className="bly-layers-list">
-				{layers.map((layer) => (
+				{layers.map((layer, layerIndex) => (
 					<li
-						className={`bly-layer-item ${layer.id === activeLayerId ? "bly-active" : ""} ${draggedLayerId === layer.id ? "bly-dragging" : ""}`}
-						draggable
+						className={`bly-layer-item ${layer.id === activeLayerId ? "bly-active" : ""}`}
+						onPointerDown={(e) => {
+							e.preventDefault();
+							const timer = setTimeout(() => {
+								// executeHoldAction(layer.id);
+								console.log(`Hold action executed for layer: ${layer.id}`);
+							}, holdDuration);
+							holdTimers.set(layer.id, timer);
+						}}
+						onPointerUp={(e) => {
+							e.preventDefault();
+							const timer = holdTimers.get(layer.id);
+							if (timer) {
+								clearTimeout(timer);
+								holdTimers.delete(layer.id);
+								console.log(`Hold action cancelled for layer: ${layer.id}`);
+							}
+						}}
+						onPointerLeave={(e) => {
+							e.preventDefault();
+							const timer = holdTimers.get(layer.id);
+							if (timer) {
+								clearTimeout(timer);
+								holdTimers.delete(layer.id);
+								console.log(`Hold action cancelled for layer: ${layer.id}`);
+							}
+						}}
 						key={layer.id}
-						onDragStart={() => setDraggedLayerId(layer.id)}
-						onDragEnd={() => setDraggedLayerId(null)}
-						onDragOver={(event) => event.preventDefault()}
-						onDrop={(event) => handleDrop(event, layer.id)}
 					>
-						<button
-							className="bly-layer-drag-handle"
-							type="button"
-							aria-label={`Drag ${layer.name}`}
-							title="Drag to reorder"
-						>
-							::
-						</button>
+
+						<div className="bly-layer-order-controls" aria-label={`Reorder ${layer.name}`}>
+							<button
+								className="bly-layer-order-button"
+								type="button"
+								disabled={layerIndex === 0}
+								onClick={() => dispatch(reorderLayers({ fromIndex: layerIndex, toIndex: layerIndex - 1 }))}
+								aria-label={`Move ${layer.name} up`}
+								title="Move layer up"
+							>
+								^
+							</button>
+							<button
+								className="bly-layer-order-button"
+								type="button"
+								disabled={layerIndex === layers.length - 1}
+								onClick={() => dispatch(reorderLayers({ fromIndex: layerIndex, toIndex: layerIndex + 1 }))}
+								aria-label={`Move ${layer.name} down`}
+								title="Move layer down"
+							>
+								v
+							</button>
+						</div>
 
 						<button
 							className="bly-layer-visibility"
@@ -136,6 +167,7 @@ export function BoardLayers()
 					</li>
 				))}
 			</ul>
+			 */}
 		</aside>
 	);
 }
