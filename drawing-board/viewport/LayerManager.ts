@@ -10,7 +10,6 @@ type LayerUpdate = {
 export class LayerManager extends Container 
 {
   private layers: Layer[] = [];
-  private activeLayerId: string | null = null;
 
   constructor() {
     super();
@@ -56,12 +55,6 @@ export class LayerManager extends Container
  
   getLayerById(id: string): Layer | undefined {
     return this.layers.find(layer => layer.id === id);
-  }
-
-  setActiveLayer(id: string) {
-    if (this.getLayerById(id)) {
-      this.activeLayerId = id;
-    }
   }
 }
 
