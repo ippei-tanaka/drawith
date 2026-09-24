@@ -2,6 +2,7 @@ import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 
 export type BoardTool = "pen" | "marker" | "eraser" | "pan";
 
+/*
 export interface Point
 {
   x: number;
@@ -11,22 +12,23 @@ export interface Point
 export interface Stroke
 {
   id: string;
-  color: string;
+  color: number;
   points: Point[];
 }
+  */
 
 export interface Layer {
   id: string;
   name: string;
   visible: boolean;
   opacity: number;
-  strokes: Stroke[];
+  // strokes: Stroke[];
 }
 
 interface BoardState
 {
   tool: BoardTool;
-  color: string;
+  color: number;
   size: number;
   zoom: number;
   zoomPosition: { x: number; y: number };
@@ -38,7 +40,7 @@ const defaultLayerId = nanoid();
 
 const initialState: BoardState = {
   tool: "pen",
-  color: "#000000",
+  color: 0x000000,
   size: 5,
   zoom: 100,
   zoomPosition: { x: 0, y: 0 },
@@ -47,7 +49,7 @@ const initialState: BoardState = {
     name: "Layer 1",
     visible: true,
     opacity: 1,
-    strokes: [],
+    // strokes: [],
   }],
   activeLayerId: defaultLayerId,
 };
@@ -61,7 +63,7 @@ const boardSlice = createSlice({
       state.tool = action.payload;
     },
   
-    setColor(state, action: PayloadAction<string>) {
+    setColor(state, action: PayloadAction<number>) {
       state.color = action.payload;
     },
   
@@ -91,7 +93,7 @@ const boardSlice = createSlice({
           payload: {
             id: nanoid(),
             name,
-            strokes: [],
+            // strokes: [],
             visible: true,
             opacity: 1,
           },

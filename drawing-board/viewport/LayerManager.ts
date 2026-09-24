@@ -30,12 +30,15 @@ export class LayerManager extends Container
       }
     }
 
-    for (const update of updates) 
+    for (let i = 0; i < updates.length; i++)
     {
+      const update = updates[i];
       const layer = this.getLayerById(update.id);
-      
+      const zIndex = updates.length - i;
+
       if (layer) {
         layer.update(update);
+        layer.zIndex = zIndex;
       } else {
         const newLayer = new Layer(
           update.id,
@@ -43,6 +46,7 @@ export class LayerManager extends Container
           update.opacity,
           update.visible,
         );
+        newLayer.zIndex = zIndex;
 
         this.layers.push(newLayer);
         this.addChild(newLayer);
@@ -77,10 +81,12 @@ class Layer extends Container
     this.alpha = this.opacity;
   }
 
-  update(update: LayerUpdate) {
-    this.name = update.name;
-    this.opacity = update.opacity;
-    this.alpha = update.opacity;
-    this.visible = update.visible;
+  update(update: LayerUpdate) 
+  {
+    if (this.id === update.id) {
+      this.name = update.name;
+      this.alpha = update.opacity;
+      this.visible = update.visible;
+    }
   }
 }

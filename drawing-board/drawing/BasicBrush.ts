@@ -23,7 +23,7 @@ type BrushSettings = {
 
 export class BasicBrush 
 {
-  settings: BrushSettings;
+  private settings: BrushSettings;
 
   constructor(private brushSettings: BrushSettings) 
   {
@@ -44,5 +44,17 @@ export class BasicBrush
       color: this.settings.color,
       alpha: this.settings.opacity,
     });
+  }
+
+  setColor(color: number) {
+    this.settings.color = color;
+  }
+
+  setSize(size: number) {
+    this.settings.size = size;
+  }
+
+  setOpacity(opacity: number) {
+    this.settings.opacity = opacity;
   }
 }

@@ -102,6 +102,19 @@ export class BoardApplication extends Application<Renderer> {
       this.strokeController?.deactivate();
     }
 
+    if (board.color !== previousBoard?.color) {
+      this.brush.setColor(board.color);
+    }
+
+    if (board.size !== previousBoard?.size) {
+      console.log("Stroke size changed to", board.size);
+      this.brush.setSize(board.size);
+    }
+
+    // if (board.opacity !== previousBoard?.opacity) {
+    //   this.brush.setOpacity(board.opacity);
+    // }
+
     if (board.layers !== previousBoard?.layers) {
       this.layerManager.update(board.layers);
     }

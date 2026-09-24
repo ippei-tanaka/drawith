@@ -141,8 +141,7 @@
   background: #e7ebed;
 }
 
-.color-button,
-.size-control {
+.color-button {
   width: 39px;
   height: 39px;
   display: grid;
@@ -160,8 +159,7 @@
   box-shadow: 0 0 0 1px #b8c1c8;
 }
 
-.color-button input,
-.size-control input {
+.color-button input {
   opacity: 0;
   position: absolute;
   inset: 0;
@@ -169,12 +167,37 @@
   cursor: pointer;
 }
 
-.size-dot {
-  display: block;
-  max-width: 18px;
-  max-height: 18px;
-  border-radius: 50%;
-  background: var(--ink);
+.size-control {
+  width: 39px;
+  /* height: 39px; */
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  position: relative;
+  cursor: pointer;
+  grid-gap: 5px;
+}
+
+.size-control input[type="range"] {
+  /* opacity: 0; */
+  /* position: absolute; */
+  /* inset: 0; */
+  /* width: 100%; */
+  height: 50px;
+  cursor: pointer;
+  writing-mode: vertical-lr;
+  direction: rtl;
+}
+
+.size-control .size-text {
+  /* display: block; */
+  max-width: 38px;
+  max-height: 38px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 12px;
+  background: #f0f0f0
 }
 
 .zoom-control {
