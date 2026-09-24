@@ -48,18 +48,18 @@ export function BoardLayers()
 	};
 
 	return (
-		<aside className="layers-panel" aria-label="Layers">
-			<div className="layers-heading">
+		<aside className="bly-layers-panel" aria-label="Layers">
+			<div className="bly-layers-heading">
 				<h2>Layers</h2>
-				<button className="layers-add-button" type="button" onClick={addNewLayer} aria-label="Add layer" title="Add layer">
+				<button className="bly-layers-add-button" type="button" onClick={addNewLayer} aria-label="Add layer" title="Add layer">
 					+
 				</button>
 			</div>
 
-			<ul className="layers-list">
+			<ul className="bly-layers-list">
 				{layers.map((layer) => (
 					<li
-						className={`layer-item ${layer.id === activeLayerId ? "active" : ""} ${draggedLayerId === layer.id ? "dragging" : ""}`}
+						className={`bly-layer-item ${layer.id === activeLayerId ? "bly-active" : ""} ${draggedLayerId === layer.id ? "bly-dragging" : ""}`}
 						draggable
 						key={layer.id}
 						onDragStart={() => setDraggedLayerId(layer.id)}
@@ -68,7 +68,7 @@ export function BoardLayers()
 						onDrop={(event) => handleDrop(event, layer.id)}
 					>
 						<button
-							className="layer-drag-handle"
+							className="bly-layer-drag-handle"
 							type="button"
 							aria-label={`Drag ${layer.name}`}
 							title="Drag to reorder"
@@ -77,7 +77,7 @@ export function BoardLayers()
 						</button>
 
 						<button
-							className="layer-visibility"
+							className="bly-layer-visibility"
 							type="button"
 							onClick={() => dispatch(setLayerVisibility({ id: layer.id, visible: !layer.visible }))}
 							aria-label={layer.visible ? `Hide ${layer.name}` : `Show ${layer.name}`}
@@ -86,11 +86,11 @@ export function BoardLayers()
 							{layer.visible ? "●" : "○"}
 						</button>
 
-						<button className="layer-select" type="button" onClick={() => dispatch(setActiveLayer(layer.id))}>
+						<button className="bly-layer-select" type="button" onClick={() => dispatch(setActiveLayer(layer.id))}>
 							{editingLayerId === layer.id ? (
 								<input
 									autoFocus
-									className="layer-name-input"
+									className="bly-layer-name-input"
 									defaultValue={layer.name}
 									onBlur={(event) => commitName(layer.id, event.currentTarget.value)}
 									onClick={(event) => event.stopPropagation()}
@@ -103,7 +103,7 @@ export function BoardLayers()
 						</button>
 
 						<button
-							className="layer-rename"
+							className="bly-layer-rename"
 							type="button"
 							onClick={() => setEditingLayerId(layer.id)}
 							aria-label={`Rename ${layer.name}`}
@@ -113,7 +113,7 @@ export function BoardLayers()
 						</button>
 
 						<button
-							className="layer-delete"
+							className="bly-layer-delete"
 							type="button"
 							onClick={() => dispatch(removeLayer(layer.id))}
 							aria-label={`Delete ${layer.name}`}
@@ -122,7 +122,7 @@ export function BoardLayers()
 							x
 						</button>
 
-						<label className="layer-opacity" title={`${Math.round(layer.opacity * 100)}% opacity`}>
+							<label className="bly-layer-opacity" title={`${Math.round(layer.opacity * 100)}% opacity`}>
 							<input
 								type="range"
 								min="0"

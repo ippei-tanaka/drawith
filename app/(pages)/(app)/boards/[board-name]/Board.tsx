@@ -15,9 +15,9 @@ type Board = {
 export function Board({ board, user }: { board: Board, user: User }) 
 {
   return (
-    <main className="drawith-app">
+    <main className="bd-page-container">
       <BoardHeader board={board} />
-      <section className="workspace">
+      <section className="bd-main-workspace">
         <BoardToolBox />
         <BoardCanvas board={board} user={user} />
         <BoardLayers />

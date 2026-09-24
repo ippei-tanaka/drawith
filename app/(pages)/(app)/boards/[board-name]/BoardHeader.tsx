@@ -31,19 +31,19 @@ export function BoardHeader({ board }: { board: Board })
 
   return (
     <>
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark"></span>
+      <header className="bhd-topbar">
+        <div className="bhd-brand">
+          <span className="bhd-brand-mark"></span>
           <span></span>
         </div>
-        <div className="room-title">
-          <span className="room-dot" />
+        <div className="bhd-room-title">
+          <span className="bhd-room-dot" />
           <span>{board.display_name}</span>
         </div>
-        <div className="top-actions">
-          <div className="gear-menu" ref={menuRef}>
+        <div className="bhd-top-actions">
+          <div className="bhd-gear-menu" ref={menuRef}>
             <button
-              className="gear-button"
+              className="bhd-gear-button"
               aria-haspopup="true"
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen((open) => !open)}
@@ -51,9 +51,9 @@ export function BoardHeader({ board }: { board: Board })
             <Image src="/gear.svg" alt="Board options" width={20} height={20} />
             </button>
             {isMenuOpen && (
-              <div className="gear-dropdown" role="menu">
+              <div className="bhd-gear-dropdown" role="menu">
                 <button
-                  className="gear-dropdown-item"
+                  className="bhd-gear-dropdown-item"
                   role="menuitem"
                   onClick={(e) => {
                     e.preventDefault();
@@ -64,7 +64,7 @@ export function BoardHeader({ board }: { board: Board })
                   Change board name
                 </button>
                 {/* <button
-                  className="gear-dropdown-item"
+                  className="bhd-gear-dropdown-item"
                   role="menuitem"
                   onClick={(e) => {
                     e.preventDefault();
@@ -74,7 +74,7 @@ export function BoardHeader({ board }: { board: Board })
                   Share board
                 </button> */}
                 <button
-                  className="gear-dropdown-item gear-dropdown-item-danger"
+                  className="bhd-gear-dropdown-item bhd-gear-dropdown-item-danger"
                   role="menuitem"
                   onClick={(e) => {
                     e.preventDefault();
@@ -90,13 +90,13 @@ export function BoardHeader({ board }: { board: Board })
         </div>
       </header>
       {isDeletePopupOpen && (
-        <div className="popup-background">
-          <div className="popup">
-            <div className="board-form">
-              <p className="board-form-message">Are you sure you want to delete the board "<span className="text-bold">{board.display_name}</span>"?</p>
-              <div className="button-container">
-                <button className="cancel-button" onClick={() => setIsDeletePopupOpen(false)}>Cancel</button>
-                <button className="delete-button invite-button-danger" onClick={async () => { 
+        <div className="bhd-popup-background">
+          <div className="bhd-popup">
+            <div className="bhd-board-form">
+              <p className="bhd-board-form-message">Are you sure you want to delete the board "<span className="bhd-text-bold">{board.display_name}</span>"?</p>
+              <div className="bhd-button-container">
+                <button className="bhd-cancel-button" onClick={() => setIsDeletePopupOpen(false)}>Cancel</button>
+                <button className="bhd-delete-button bhd-invite-button-danger" onClick={async () => {
                   setIsDeletePopupOpen(false); 
                   await deleteBoardById(board.id);
                   router.push(`/dashboard`); 
@@ -107,19 +107,19 @@ export function BoardHeader({ board }: { board: Board })
         </div>
       )}
       {isChangeDisplayNamePopupOpen && (
-        <div className="popup-background">
-          <div className="popup">
-            <div className="board-form">
-              <p className="board-form-message">Change the display name of the board "<span className="text-bold">{board.display_name}</span>":</p>
+        <div className="bhd-popup-background">
+          <div className="bhd-popup">
+            <div className="bhd-board-form">
+              <p className="bhd-board-form-message">Change the display name of the board "<span className="bhd-text-bold">{board.display_name}</span>":</p>
               <input
                 type="text"
-                className="board-form-input"
+                className="bhd-board-form-input"
                 defaultValue={board.display_name}
                 onChange={(e) => setNewDisplayName(e.target.value)}
               />
-              <div className="button-container">
-                <button className="cancel-button" onClick={() => setIsChangeDisplayNamePopupOpen(false)}>Cancel</button>
-                <button className="save-button" onClick={async () => {
+              <div className="bhd-button-container">
+                <button className="bhd-cancel-button" onClick={() => setIsChangeDisplayNamePopupOpen(false)}>Cancel</button>
+                <button className="bhd-save-button" onClick={async () => {
                   setIsChangeDisplayNamePopupOpen(false);
                   await changeBoardNamebyId(board.id, newDisplayName);
                   router.refresh();

@@ -46,8 +46,8 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
   }, []);
 
   return (
-    <div className="canvas-area">
-      <div ref={containerRef} className="drawing-canvas" aria-label="Collaborative drawing canvas" />
+    <div className="bcv-canvas-area">
+      <div ref={containerRef} className="bcv-drawing-canvas" aria-label="Collaborative drawing canvas" />
     </div>
   );
 }
