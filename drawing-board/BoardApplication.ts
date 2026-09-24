@@ -107,7 +107,7 @@ export class BoardApplication extends Application<Renderer> {
     }
 
     if (board.size !== previousBoard?.size) {
-      console.log("Stroke size changed to", board.size);
+      // console.log("Stroke size changed to", board.size);
       this.brush.setSize(board.size);
     }
 
@@ -116,12 +116,12 @@ export class BoardApplication extends Application<Renderer> {
     // }
 
     if (board.layers !== previousBoard?.layers) {
-      console.log("Layers changed");
+      // console.log("Layers changed");
       this.layerManager.update(board.layers);
     }
 
     if (board.activeLayerId !== previousBoard?.activeLayerId && board.activeLayerId) {
-      console.log("Active layer changed to", board.activeLayerId);
+      // console.log("Active layer changed to", board.activeLayerId);
       this.strokeController?.setGraphics(this.layerManager.getLayerById(board.activeLayerId)?.graphics || new Graphics());
     }
 

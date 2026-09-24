@@ -54,7 +54,7 @@
 .bly-layer-item {
 	display: grid;
 	grid-template-rows: auto;
-	grid-template-columns: auto auto auto;
+	grid-template-columns: 2fr 5fr 1fr;
 	gap: 4px;
 	align-items: center;
 	padding: 7px 6px;
@@ -62,7 +62,7 @@
 	border-radius: 6px;
 	color: var(--ink);
 	background: #edebe6;
-	cursor: grab;
+	cursor: pointer;
 }
 
 .bly-layer-item.bly-layer-dragging {
@@ -75,9 +75,9 @@
 	background: #ff9898;
 }
 
-.bly-layer-item.bly-active {
-	border-color: #f0c0b3;
-	background: #fff1ec;
+.bly-layer-item.bly-layer-active {
+	border-color: #5099cd;
+	background: #5099cd;
 }
 
 .bly-layer-name {
@@ -85,6 +85,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	padding: 2px 4px;
 }
 
 .bly-layer-name-input {

@@ -1,20 +1,22 @@
 import { useSortable } from '@dnd-kit/react/sortable';
 import { useState } from "react";
 import Image from "next/image";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { useAppDispatch } from "@/lib/store/hooks";
 import {
   renameLayer,
   setActiveLayer,
   setLayerOpacity,
   setLayerVisibility,
 } from "@/lib/store/boardSlice";
+import { Popup } from '../Popup';
 
 export function BoardLayer (
-  {id, index, name, visible, opacity}: 
-  {id: string, index: number, name: string, visible: boolean, opacity: number}) 
+  {id, index, name, visible, opacity, isActive}: 
+  {id: string, index: number, name: string, visible: boolean, opacity: number, isActive: boolean}) 
 {
   const dispatch = useAppDispatch();
   const [isEditingName, setIsEditingName] = useState(false);
+
   const {ref, isDragging, isDropTarget} = useSortable({
     id,
     index,
@@ -32,22 +34,27 @@ export function BoardLayer (
     if (nextName) dispatch(renameLayer({ id: layerId, name: nextName }));
   };
 
-  const toggleVisibility = () => {
-    dispatch(setLayerVisibility({ id, visible: !visible }));
-  };
-
   return (
     <div 
-      className={`bly-layer-item ${isDragging ? "bly-layer-dragging" : ""} ${isDragging && !isDropTarget ? "bly-layer-has-no-drop-target" : ""}`}
+      className={`
+        bly-layer-item ${isDragging ? "bly-layer-dragging" : ""} 
+        ${isDragging && !isDropTarget ? "bly-layer-has-no-drop-target" : ""}
+        ${isActive ? "bly-layer-active" : ""}
+      `}
       data-has-drop-target={isDropTarget}
-      ref={ref}>
+      ref={ref}
+      onClick={() => dispatch(setActiveLayer(String(id)))}
+    >
       
       <div className="bly-layer-preview">preview</div>
       
       {!isEditingName && 
         <span 
           className="bly-layer-name"
-          onClick={() => setIsEditingName(true)}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            setIsEditingName(true);
+          }}
           >{name}</span>
       }
       {isEditingName && 
@@ -72,11 +79,14 @@ export function BoardLayer (
         role="button"
         tabIndex={0}
         aria-label={visible ? `Hide ${name}` : `Show ${name}`}
-        onClick={toggleVisibility}>
+        onClick={(e) => {
+          e.stopPropagation();
+          dispatch(setLayerVisibility({ id, visible: !visible }));
+        }}>
         {visible 
         ? <Image src="/eye-open.svg" alt="Layer visible" aria-label="Layer visible" width={16} height={16} /> 
         : <Image src="/eye-closed.svg" alt="Layer hidden" aria-label="Layer hidden" width={16} height={16} /> }
       </span>
     </div>
-  );
+  )
 }
