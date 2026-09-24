@@ -1,7 +1,6 @@
 import { Application, Graphics, Renderer } from 'pixi.js';
 import { BasicBrush } from './drawing/BasicBrush';
 import { store } from '@/lib/store/store';
-import { addLayer, setTool } from '@/lib/store/boardSlice';
 import { Grid } from './viewport/Grid';
 import { Viewport } from './viewport/Viewport';
 import { StrokeController } from './input/StrokeController';
@@ -83,30 +82,35 @@ export class BoardApplication extends Application<Renderer> {
 
   reflectStoreState = () =>
   {
-    const state = store.getState();
+    const board = store.getState().board;
+    const previousBoard = this.previousStoreState?.board;
+    
+    if (board.zoom !== previousBoard?.zoom) {
+      const { x: screenX, y: screenY } = board.zoomPosition;
+      this.viewport.zoomAt(screenX, screenY, board.zoom / 100);
+    }
 
-    const { x: screenX, y: screenY } = state.board.zoomPosition;
-    this.viewport.zoomAt(screenX, screenY, state.board.zoom / 100);
-
-    if (state.board.tool === "pan") {
+    if (board.tool === "pan") {
       this.panController?.activate();
     } else {
       this.panController?.deactivate();
     }
 
-    if (state.board.tool === "pen") {
+    if (board.tool === "pen") {
       this.strokeController?.activate();
     } else {
       this.strokeController?.deactivate();
     }
 
-    if (state.board.layers === this.previousStoreState?.board.layers) {
-      // Layers have not changed
-      console.log("Layers have not changed");
+    if (board.layers !== previousBoard?.layers) {
+      this.layerManager.update(board.layers);
     }
 
-    // console.log(state.board);
+    if (board.activeLayerId !== previousBoard?.activeLayerId && board.activeLayerId) {
+      console.log("Active layer changed to", board.activeLayerId);
+      this.strokeController?.setGraphics(this.layerManager.getLayerById(board.activeLayerId)?.graphics || new Graphics());
+    }
 
-    this.previousStoreState = state;
+    this.previousStoreState = store.getState();
   }
 }

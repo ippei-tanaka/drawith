@@ -15,7 +15,7 @@ export function BoardToolBox()
   const zoom = useAppSelector(state => state.board.zoom);
 
   return (
-    <>
+    <aside className="toolbar" aria-label="Drawing tools">
       <button className={`tool-button ${tool === "pan" ? "selected" : ""}`} onClick={() => dispatch(setTool("pan"))} aria-label="Pan" title="Pan">🖐️</button>
       <button className={`tool-button ${tool === "pen" ? "selected" : ""}`} onClick={() => dispatch(setTool("pen"))} aria-label="Pen" title="Pen">&#9998;</button>
       <button className={`tool-button marker-tool ${tool === "marker" ? "selected" : ""}`} onClick={() => dispatch(setTool("marker"))} aria-label="Highlighter" title="Highlighter">&#9644;</button>
@@ -30,6 +30,6 @@ export function BoardToolBox()
         <span className="zoom-input-unit">%</span>
       </div>
       {/* <button className="tool-button" onClick={undo} aria-label="Undo" title="Undo">&#8629;</button><button className="tool-button" onClick={clearCanvas} aria-label="Clear canvas" title="Clear canvas">&#128465;</button> */}
-    </>
+    </aside>
   );
 }

@@ -1,51 +1,86 @@
 import { Container, Graphics } from "pixi.js";
 
+type LayerUpdate = {
+  id: string;
+  name: string;
+  opacity: number;
+  visible: boolean;
+};
+
 export class LayerManager extends Container 
 {
   private layers: Layer[] = [];
   private activeLayerId: string | null = null;
 
-  addLayer(layer: Layer) {
-    this.layers.push(layer);
-    this.addChild(layer);
+  constructor() {
+    super();
+    this.sortableChildren = true; 
   }
 
-  removeLayer(id: string) {
-    const layerIndex = this.layers.findIndex(layer => layer.id === id);
-    if (layerIndex !== -1) {
-      const [layer] = this.layers.splice(layerIndex, 1);
-      this.removeChild(layer);
-      if (this.activeLayerId === id) {
-        this.activeLayerId = this.layers.length > 0 ? this.layers[0].id : null;
+  update (updates: LayerUpdate[])
+  {
+    const updatesById = new Map(updates.map(update => [update.id, update]));
+
+    for (let index = this.layers.length - 1; index >= 0; index--)
+    {
+      const layer = this.layers[index];
+      if (!updatesById.has(layer.id)) {
+        this.removeChild(layer);
+        this.layers.splice(index, 1);
+      }
+    }
+
+    for (const update of updates) 
+    {
+      const layer = this.getLayerById(update.id);
+      
+      if (layer) {
+        layer.update(update);
+      } else {
+        const newLayer = new Layer(
+          update.id,
+          update.name,
+          update.opacity,
+          update.visible,
+        );
+
+        this.layers.push(newLayer);
+        this.addChild(newLayer);
       }
     }
   }
-
-  getActiveLayer(): Layer | null {
-    return this.layers.find(
-      layer => layer.id === this.activeLayerId
-    ) ?? null;
+ 
+  getLayerById(id: string): Layer | undefined {
+    return this.layers.find(layer => layer.id === id);
   }
 
   setActiveLayer(id: string) {
-    this.activeLayerId = id;
+    if (this.getLayerById(id)) {
+      this.activeLayerId = id;
+    }
   }
 }
 
-export class Layer extends Container 
+class Layer extends Container 
 {
-  readonly id: string;
   readonly graphics = new Graphics();
 
-  name: string;
-  opacity = 1;
-  locked = false;
-
-  constructor(options: {id: string, name: string})
+  constructor(
+    public id: string, 
+    public name: string, 
+    private opacity: number, 
+    private _visible: boolean)
   {
     super();
-    this.id = options.id;
-    this.name = options.name;
     this.addChild(this.graphics);
+    this.visible = this._visible;
+    this.alpha = this.opacity;
+  }
+
+  update(update: LayerUpdate) {
+    this.name = update.name;
+    this.opacity = update.opacity;
+    this.alpha = update.opacity;
+    this.visible = update.visible;
   }
 }

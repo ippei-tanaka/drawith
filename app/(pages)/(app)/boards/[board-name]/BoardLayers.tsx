@@ -12,7 +12,8 @@ import {
 	setLayerVisibility,
 } from "@/lib/store/boardSlice";
 
-export function BoardLayers() {
+export function BoardLayers() 
+{
 	const dispatch = useAppDispatch();
 	const layers = useAppSelector((state) => state.board.layers);
 	const activeLayerId = useAppSelector((state) => state.board.activeLayerId);

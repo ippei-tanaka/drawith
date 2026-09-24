@@ -46,7 +46,6 @@ export class StrokeController
     if (event.button !== 0) return;
 
     const point = this.getPoint(event);
-
     this.drawing = true;
 
     this.currentStroke = {
@@ -88,14 +87,16 @@ export class StrokeController
     this.currentStroke.points.push(point);
   }
 
-  private pointerUp = () => {
+  private pointerUp = () => 
+  {
     if (!this.drawing) return;
 
     this.drawing = false;
     this.currentStroke = null;
   }
 
-  private getPoint(event: FederatedPointerEvent) {
+  private getPoint(event: FederatedPointerEvent) 
+  {
     const local = this.viewport.documentPoint(
       event.screenX,
       event.screenY,

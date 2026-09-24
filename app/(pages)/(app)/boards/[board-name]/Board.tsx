@@ -18,15 +18,8 @@ export function Board({ board, user }: { board: Board, user: User })
     <main className="drawith-app">
       <BoardHeader board={board} />
       <section className="workspace">
-
-        <aside className="toolbar" aria-label="Drawing tools">
-          <BoardToolBox />
-        </aside>
-
-        <div className="canvas-area">
-          <BoardCanvas board={board} user={user} />
-        </div>
-
+        <BoardToolBox />
+        <BoardCanvas board={board} user={user} />
         <BoardLayers />
       </section>
     </main>
