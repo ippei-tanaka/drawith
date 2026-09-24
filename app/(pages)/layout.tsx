@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import StoreProvider from "@/components/StoreProvider";
 import ApolloClientProvider from "@/components/ApolloClientProvider";
 import "@/styles/globals.css";
+import "@/styles/components.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

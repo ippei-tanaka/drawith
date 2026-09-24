@@ -2,10 +2,11 @@
 
 // import { router } from "better-auth/api";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { changeBoardNamebyId } from "@/actions/board-actions";
 import { useRouter } from "next/navigation";
 import { Board, deleteBoardById } from "@/actions/board-actions";
+import { Popup } from "@/components/Popup";
 
 export function BoardHeader({ board }: { board: Board })
 {
@@ -89,46 +90,40 @@ export function BoardHeader({ board }: { board: Board })
           </div>
         </div>
       </header>
-      {isDeletePopupOpen && (
-        <div className="bhd-popup-background">
-          <div className="bhd-popup">
-            <div className="bhd-board-form">
-              <p className="bhd-board-form-message">Are you sure you want to delete the board "<span className="bhd-text-bold">{board.display_name}</span>"?</p>
-              <div className="bhd-button-container">
-                <button className="bhd-cancel-button" onClick={() => setIsDeletePopupOpen(false)}>Cancel</button>
-                <button className="bhd-delete-button bhd-invite-button-danger" onClick={async () => {
-                  setIsDeletePopupOpen(false); 
-                  await deleteBoardById(board.id);
-                  router.push(`/dashboard`); 
-                }}>Delete</button>
-              </div>
-            </div>
+      
+      <Popup isOpen={isDeletePopupOpen} onClickBackground={() => setIsDeletePopupOpen(false)}>
+        <div className="bhd-board-form">
+          <p className="bhd-board-form-message">Are you sure you want to delete the board "<span className="bhd-text-bold">{board.display_name}</span>"?</p>
+          <div className="bhd-button-container">
+            <button className="orange-filled-button" onClick={async () => {
+              setIsDeletePopupOpen(false); 
+              await deleteBoardById(board.id);
+              router.push(`/dashboard`); 
+            }}>Delete</button>
+            <button className="blue-blank-button" onClick={() => setIsDeletePopupOpen(false)}>Cancel</button>
           </div>
         </div>
-      )}
-      {isChangeDisplayNamePopupOpen && (
-        <div className="bhd-popup-background">
-          <div className="bhd-popup">
-            <div className="bhd-board-form">
-              <p className="bhd-board-form-message">Change the display name of the board "<span className="bhd-text-bold">{board.display_name}</span>":</p>
-              <input
-                type="text"
-                className="bhd-board-form-input"
-                defaultValue={board.display_name}
-                onChange={(e) => setNewDisplayName(e.target.value)}
-              />
-              <div className="bhd-button-container">
-                <button className="bhd-cancel-button" onClick={() => setIsChangeDisplayNamePopupOpen(false)}>Cancel</button>
-                <button className="bhd-save-button" onClick={async () => {
-                  setIsChangeDisplayNamePopupOpen(false);
-                  await changeBoardNamebyId(board.id, newDisplayName);
-                  router.refresh();
-                }}>Save</button>
-              </div>
-            </div>
+      </Popup>
+      
+      <Popup isOpen={isChangeDisplayNamePopupOpen} onClickBackground={() => setIsChangeDisplayNamePopupOpen(false)}>
+        <div className="bhd-board-form">
+          <p className="bhd-board-form-message">Change the display name of the board "<span className="bhd-text-bold">{board.display_name}</span>":</p>
+          <input
+            type="text"
+            className="bhd-board-form-input"
+            defaultValue={board.display_name}
+            onChange={(e) => setNewDisplayName(e.target.value)}
+          />
+          <div className="bhd-button-container">
+            <button className="blue-filled-button" onClick={async () => {
+              setIsChangeDisplayNamePopupOpen(false);
+              await changeBoardNamebyId(board.id, newDisplayName);
+              router.refresh();
+            }}>Save</button>
+            <button className="blue-blank-button" onClick={() => setIsChangeDisplayNamePopupOpen(false)}>Cancel</button>
           </div>
         </div>
-      )}
+      </Popup>
     </>
   );
 }

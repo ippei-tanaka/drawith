@@ -1,4 +1,6 @@
 
+/* Header */
+
 .header-topbar {
   height: 72px;
   padding: 0 6vw;
@@ -91,4 +93,64 @@
 .header-menu-list a:focus-visible {
   background: #edf2f0;
   outline: none;
+}
+
+
+/* Popup */
+
+.popup-background {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+/* Buttons */
+
+.blue-blank-button,
+.orange-filled-button,
+.blue-filled-button {
+  padding: 9px 15px;
+  border-radius: 10px;
+}
+
+.blue-blank-button {
+  background: #f3f8fc;
+  color: #1d537ade;
+  border: 1px solid #66b8f3de;
+}
+
+.blue-blank-button:hover {
+  background: #cce8fc;
+}
+
+.orange-filled-button {
+  background: #ff7e64;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid #ff7e64;
+}
+.orange-filled-button:hover {
+  background: #ff4d29;
+}
+
+.blue-filled-button {
+  background: #49b3ffde;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid #49b3ffde;
+}
+
+.blue-filled-button:hover {
+  background: #1e96ffde;
 }

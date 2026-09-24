@@ -79,22 +79,6 @@
   color: #c0392b;
 }
 
-.bhd-popup-background {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.bhd-popup {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-}
-
 .bhd-board-form {
   display: flex;
   flex-direction: column;
@@ -112,39 +96,9 @@
 }
 
 .bhd-button-container {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row-reverse;
+  display: grid;
+  grid-template-columns: auto auto;
   gap: 8px;
-}
-
-.bhd-cancel-button,
-.bhd-delete-button,
-.bhd-save-button {
-  width: 100%;
-  margin-top: 6px;
-  padding: 9px;
-  border-radius: 10px;
-}
-
-.bhd-cancel-button {
-  background: #f3f8fc;
-  color: #1d537ade;
-  border: 1px solid #66b8f3de;
-}
-
-.bhd-delete-button {
-  background: #ff7e64;
-  font-weight: 600;
-  color: #fff;
-  border: 1px solid #ff7e64;
-}
-
-.bhd-save-button {
-  background: #49b3ffde;
-  font-weight: 600;
-  color: #fff;
-  border: 1px solid #49b3ffde;
 }
 
 .bhd-board-form-input {
