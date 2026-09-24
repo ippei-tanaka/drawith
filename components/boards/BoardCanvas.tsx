@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { User } from "better-auth";
-import { BoardApplication } from "../../../../../drawing-board/BoardApplication";
+import { BoardApplication } from "@/drawing-board/BoardApplication";
 
 type Board = {
   id: string;

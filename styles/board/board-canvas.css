@@ -19,13 +19,6 @@
 }
 
 @media (max-width: 760px) {
-  .bcv-workspace {
-    min-height: calc(100vh - 60px);
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 12px;
-  }
-
   .bcv-canvas-area {
     order: 1;
     min-height: 62vh;

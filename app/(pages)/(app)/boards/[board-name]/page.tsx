@@ -1,8 +1,8 @@
 import { getUser } from "@/lib/auth/actions";
 import { notFound, redirect } from "next/navigation";
-import { findBoardByName } from "../../../../../actions/board-actions";
-import { Board } from "./Board";
-import "@/styles/board.css";
+import { findBoardByName } from "@/actions/board-actions";
+import { Board } from "@/components/boards/Board";
+import "@/styles/board/board.css";
 
 export default async function BoardPage({ params }: { params: Promise<{ 'board-name': string }> }) {
   const _params = await params;
