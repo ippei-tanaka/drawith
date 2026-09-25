@@ -23,7 +23,7 @@ export function BoardLayer (
     accept: 'layer',
     group: 'layers',
     data: {
-      id: 1,
+      id,
       hasDropTarget: () => isDropTarget
     }
   });
@@ -45,7 +45,7 @@ export function BoardLayer (
       onClick={() => dispatch(setActiveLayer(String(id)))}
     >
       
-      <div className="bly-layer-preview">preview</div>
+      <div className="bly-layer-preview">@</div>
       
       {!isEditingName && 
         <span 

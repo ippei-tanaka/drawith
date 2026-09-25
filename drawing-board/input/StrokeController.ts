@@ -7,7 +7,6 @@ export class StrokeController {
   private drawing = false;
   private currentStroke: Omit<Stroke, "id" | "smoothness"> | null = null;
   private currentGraphics: Graphics | null = null;
-  private currentLayerId: string | null = null;
   private unsubscribe: (() => void) | null = null;
 
   constructor(
@@ -71,9 +70,6 @@ export class StrokeController {
       opacity,
       tool,
     } = state.brushSettings;
-
-    this.currentLayerId =
-      state.layerStack.activeLayerId;
 
     this.currentStroke = {
       points: [this.getPoint(event)],
@@ -142,7 +138,6 @@ export class StrokeController {
     );
 
     this.currentStroke = null;
-    this.currentLayerId = null;
     this.drawing = false;
   };
 

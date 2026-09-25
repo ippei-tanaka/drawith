@@ -21,10 +21,12 @@ export function BoardLayers()
 	};
 
 	const reorderOrRemoveLayer = (event: DragEndEvent) => {
-		const {source} = event.operation;
+		const {source, target} = event.operation;
 		if (event.canceled || !isSortable(source)) return;
 		if (source.data.hasDropTarget()) {
-			dispatch(reorderLayers({ fromIndex: source.initialIndex, toIndex: source.index }));
+			const reversedFromIndex = layers.length - 1 - source.initialIndex;
+			const reversedToIndex = layers.length - 1 - source.index;
+			dispatch(reorderLayers({ fromIndex: reversedFromIndex, toIndex: reversedToIndex }));
 		} else {
 			setLayerToDelete(layers.find(layer => layer.id === String(source.id)) ?? null);
 		}
@@ -41,16 +43,16 @@ export function BoardLayers()
 
 			<DragDropProvider onDragEnd={reorderOrRemoveLayer}>
 				<div className="bly-layers-list">
-					{layers.map((layer, index) => (
+					{layers.toReversed().map((layer, index) => (
 						<BoardLayer 
-						key={layer.id} 
-						id={layer.id}
-						index={index} 
-						name={layer.name} 
-						visible={layer.visible}
-						opacity={layer.opacity}
-						isActive={layer.id === activeLayerId}
-						/>
+							key={layer.id} 
+							id={layer.id}
+							index={index} 
+							name={layer.name} 
+							visible={layer.visible}
+							opacity={layer.opacity}
+							isActive={layer.id === activeLayerId}
+							/>
 					))} 
 				</div>
 			</DragDropProvider>

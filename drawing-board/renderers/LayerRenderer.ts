@@ -35,8 +35,7 @@ export class LayerRenderer
 
     // Add new strokes and update changed strokes.
     for (const stroke of strokes) {
-      const previousStroke =
-        this.renderedStrokes.get(stroke.id);
+      const previousStroke = this.renderedStrokes.get(stroke.id);
 
       if (!previousStroke) {
         this.addStroke(stroke);
@@ -112,6 +111,13 @@ export class LayerRenderer
       return;
     }
 
+    // const curve = smoothStroke(
+    //   stroke.points,
+    //   stroke.smoothness
+    // );
+
+    // drawCurve(graphics, curve, stroke);
+
     graphics.moveTo(points[0].x, points[0].y);
 
     for (let i = 1; i < points.length; i++) {
@@ -126,6 +132,7 @@ export class LayerRenderer
       alpha: opacity,
     });
   }
+  
 
   destroy() {
     for (const graphics of this.strokeGraphics.values()) {

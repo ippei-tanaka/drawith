@@ -201,6 +201,7 @@ const boardSlice = createSlice({
 
     reorderLayers(state, action: PayloadAction<{ fromIndex: number; toIndex: number }>)
     {
+      console.log("Reordering layers with payload:", state.layerStack.layers);
       const { fromIndex, toIndex } = action.payload;
       const layers = state.layerStack.layers;
       if (
@@ -216,6 +217,8 @@ const boardSlice = createSlice({
 
       const [layer] = layers.splice(fromIndex, 1);
       layers.splice(toIndex, 0, layer);
+
+      console.log("Reordering layers with payload:", state.layerStack.layers);
     },
 
     removeLayer(state, action: PayloadAction<{id: string}>) {
