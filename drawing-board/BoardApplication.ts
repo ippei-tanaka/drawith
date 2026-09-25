@@ -1,5 +1,6 @@
-import { Application, Renderer } from 'pixi.js';
-import type { AppStore } from '@/lib/store/store';
+import { Application, Renderer, Container } from 'pixi.js';
+import { listenerMiddleware, type AppStore } from '@/lib/store/store';
+import { setActiveLayer } from '@/lib/store/boardSlice';
 import { Grid } from './viewport/Grid';
 import { Viewport } from './viewport/Viewport';
 import { StrokeController } from './input/StrokeController';
@@ -15,6 +16,7 @@ export class BoardApplication extends Application<Renderer> {
   private zoomController: ZoomController | null = null;
   private strokeController: StrokeController | null = null;
   private boardRenderer: BoardRenderer | null = null;
+  private unsubscribe: (() => void) | null = null;
 
   constructor (private store: AppStore) 
   {
@@ -48,18 +50,32 @@ export class BoardApplication extends Application<Renderer> {
       this.store
     );
     this.zoomController.init();
-
-    this.strokeController = new StrokeController(
-      this.stage,
-      this.store
-    );
-    this.strokeController.init();
-
+    
     this.boardRenderer = new BoardRenderer(
       this.store,
       this.viewport
     );
     this.boardRenderer.init();
+
+    this.strokeController = new StrokeController(
+      this.stage,
+      this.boardRenderer.getLayerRenderer(
+        {id: this.store.getState().board.layerStack.activeLayerId || ''}
+      )?.container || new Container(),
+      this.store
+    );
+    this.strokeController.init();
+
+    this.unsubscribe = listenerMiddleware.startListening({
+      actionCreator: setActiveLayer,
+      effect: (action) => {
+        const id = action.payload || '';
+        const container = this.boardRenderer?.getLayerRenderer({id})?.container;
+        this.strokeController?.setContainer(
+          container || new Container()
+        );
+      }
+    });
   }
 
   override destroy(...params: any[]) {
@@ -68,5 +84,6 @@ export class BoardApplication extends Application<Renderer> {
     this.zoomController?.cleanup();
     this.strokeController?.cleanup();
     this.boardRenderer?.destroy();
+    this.unsubscribe?.();
   }
 }

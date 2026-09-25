@@ -54,6 +54,15 @@ export class BoardRenderer
     this.syncLayers(state.layerStack.layers);
   }
 
+  getLayerRenderer({id}: {id: string}) {
+    for (const renderer of this.layers.values()) {
+      if (renderer.id === id) {
+        return renderer;
+      }
+    }
+    return null;
+  }
+
   private syncLayers(layers: Layer[]) {
     const currentIds = new Set(layers.map(layer => layer.id));
 
