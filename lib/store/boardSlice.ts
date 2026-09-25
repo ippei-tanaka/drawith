@@ -32,7 +32,7 @@ export interface Layer {
 export interface LayerStack {
   layers: Layer[];
   activeLayerId: string | null;
-  activeLayer: Layer | null;
+  // activeLayer: Layer | null;
 }
 
 export interface BrushSettings {
@@ -88,9 +88,9 @@ const initialState: BoardState = {
       strokes: [],
     }],
     activeLayerId: defaultLayerId,
-    get activeLayer() {
-      return this.layers.find(layer => layer.id === this.activeLayerId) || null;
-    },
+    // get activeLayer() {
+    //   return this.layers.find(layer => layer.id === this.activeLayerId) || null;
+    // },
   },
   errors: [],
 };
@@ -235,7 +235,7 @@ const boardSlice = createSlice({
     {
       reducer(state, action: PayloadAction<Stroke>) 
       {
-        const activeLayer = state.layerStack.activeLayer;
+        const activeLayer = state.layerStack.layers.find(layer => layer.id === state.layerStack.activeLayerId) || null;
 
         if (!activeLayer) {
           state.errors.push({ message: "No active layer found." });

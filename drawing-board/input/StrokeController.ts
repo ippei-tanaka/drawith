@@ -16,7 +16,6 @@ export class StrokeController
 
   init() 
   {
-    // this.activate();
     this.unsubscribe = listenerMiddleware.startListening({
       actionCreator: setTool,
       effect: (action) => {

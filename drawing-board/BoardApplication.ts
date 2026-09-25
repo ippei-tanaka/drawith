@@ -5,16 +5,16 @@ import { Viewport } from './viewport/Viewport';
 import { StrokeController } from './input/StrokeController';
 import { ZoomController } from './input/ZoomController';
 import { PanController } from './input/PanController';
-// import { LayerManager } from './viewport/LayerManager';
+import { BoardRenderer } from './renderers/BoardRenderer';
 
 export class BoardApplication extends Application<Renderer> {
 
   private viewport = new Viewport();
   private grid = new Grid(); 
-  // private layerManager = new LayerManager();
   private panController: PanController | null = null;
   private zoomController: ZoomController | null = null;
   private strokeController: StrokeController | null = null;
+  private boardRenderer: BoardRenderer | null = null;
 
   constructor (private store: AppStore) 
   {
@@ -34,7 +34,6 @@ export class BoardApplication extends Application<Renderer> {
     this.stage.hitArea = this.screen;
 
     this.viewport.addChild(this.grid);
-    // this.viewport.addChild(this.layerManager);
     
     this.panController = new PanController(
       this.stage,
@@ -55,6 +54,12 @@ export class BoardApplication extends Application<Renderer> {
       this.store
     );
     this.strokeController.init();
+
+    this.boardRenderer = new BoardRenderer(
+      this.store,
+      this.viewport
+    );
+    this.boardRenderer.init();
   }
 
   override destroy(...params: any[]) {
@@ -62,5 +67,6 @@ export class BoardApplication extends Application<Renderer> {
     this.panController?.cleanup();
     this.zoomController?.cleanup();
     this.strokeController?.cleanup();
+    this.boardRenderer?.destroy();
   }
 }
