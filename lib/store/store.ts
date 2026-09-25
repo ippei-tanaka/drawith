@@ -1,18 +1,26 @@
-import { configureStore } from "@reduxjs/toolkit";
-// import authReducer from "./authSlice";
+import {
+  combineReducers,
+  configureStore,
+  createListenerMiddleware,
+} from "@reduxjs/toolkit";
 import boardReducer from "./boardSlice";
 
-// Create a new store per request/provider instance (App Router best practice).
-export const makeStore = () =>
-  configureStore({
-    reducer: {
-      // auth: authReducer,
-      board: boardReducer,
-    },
+const rootReducer = combineReducers({
+  board: boardReducer,
+});
+
+export type RootState = ReturnType<typeof rootReducer>;
+
+export const listenerMiddleware = createListenerMiddleware<RootState>();
+
+export const makeStore = () => {
+  return configureStore({
+    reducer: rootReducer,
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware().prepend(listenerMiddleware.middleware),
   });
+};
 
 export type AppStore = ReturnType<typeof makeStore>;
-export type RootState = ReturnType<AppStore["getState"]>;
-export type AppDispatch = AppStore["dispatch"];
 
-export const store = makeStore();
+export type AppDispatch = AppStore["dispatch"];

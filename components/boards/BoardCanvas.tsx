@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useAppStore } from "@/lib/store/hooks";
 import { User } from "better-auth";
 import { BoardApplication } from "@/drawing-board/BoardApplication";
 
@@ -14,6 +15,7 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
 {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<BoardApplication | null>(null);
+  const store = useAppStore();
 
   useEffect(() => {
     if (!containerRef.current) throw new Error("Container ref is not available");
@@ -21,7 +23,7 @@ export function BoardCanvas({ board, user }: { board: Board, user: User })
     let destroied = false;
 
     (async () => {
-      const app = new BoardApplication();
+      const app = new BoardApplication(store);
 
       await app.init({
         resizeTo: containerRef.current!,

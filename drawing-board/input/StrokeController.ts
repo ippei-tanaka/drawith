@@ -1,45 +1,58 @@
 import { Container, FederatedPointerEvent } from "pixi.js";
-import { iterateSegment } from "../drawing/iterateSegment";
-import { store } from "@/lib/store/store";
-import { addStrokeToActiveLayer, type Stroke } from "@/lib/store/boardSlice";
+import type { AppStore } from "@/lib/store/store";
+import { listenerMiddleware } from "@/lib/store/store";
+import { addStrokeToActiveLayer, setTool, type Stroke } from "@/lib/store/boardSlice";
 
 export class StrokeController 
 {
   private drawing = false;
   private currentStroke: Omit<Stroke, "id" | "smoothness"> | null = null;
+  private unsubscribe: (() => void) | null = null;
 
   constructor(
     private surface: Container,
+    private store: AppStore,
   ) {}
 
   init() 
   {
+    // this.activate();
+    this.unsubscribe = listenerMiddleware.startListening({
+      actionCreator: setTool,
+      effect: (action) => {
+        if (action.payload === "pen") {
+          this.activate();
+        } else {
+          this.deactivate();
+        }
+      }
+    });
+  }
+
+  activate() {
     this.surface.on("pointerdown", this.pointerDown);
     this.surface.on("pointermove", this.pointerMove);
     this.surface.on("pointerup", this.pointerUp);
     this.surface.on("pointerupoutside", this.pointerUp);
   }
 
-  activate() {
-    this.init();
-  }
-
   deactivate() {
-    this.clear();
-  }
-
-  clear() {
     this.surface.off("pointerdown", this.pointerDown);
     this.surface.off("pointermove", this.pointerMove);
     this.surface.off("pointerup", this.pointerUp);
     this.surface.off("pointerupoutside", this.pointerUp);
+  }
+
+  cleanup() {
+    this.deactivate();
+    this.unsubscribe?.();
   };
 
   private pointerDown = (event: FederatedPointerEvent) => 
   {
     if (event.button !== 0) return;
 
-    const { size, color, opacity, tool } = store.getState().board.brushSettings;
+    const { size, color, opacity, tool } = this.store.getState().board.brushSettings;
     const point = this.getPoint(event);
 
     this.currentStroke = {
@@ -56,30 +69,7 @@ export class StrokeController
   private pointerMove = (event: FederatedPointerEvent) => 
   {
     if (!this.drawing || !this.currentStroke) return;
-
-    const board = store.getState().board;
-    // const smoothness = board.brushSetting.smoothness;
-
     const point = this.getPoint(event);
-
-    // const lastPoint =
-    //   this.currentStroke.points[
-    //     this.currentStroke.points.length - 1
-    //   ];
-
-    // iterateSegment(
-    //   lastPoint,
-    //   point,
-    //   smoothness,
-    //   (x, y) => {
-    //     this.currentStroke?.points.push({ 
-    //       x, 
-    //       y, 
-    //       pressure: point.pressure
-    //     });
-    //   },
-    // );
-
     this.currentStroke.points.push(point);
   }
 
@@ -88,7 +78,7 @@ export class StrokeController
     if (!this.drawing) return;
     if (!this.currentStroke) return;
 
-    store.dispatch(addStrokeToActiveLayer(this.currentStroke));
+    this.store.dispatch(addStrokeToActiveLayer(this.currentStroke));
     this.drawing = false;
     this.currentStroke = null;
   }

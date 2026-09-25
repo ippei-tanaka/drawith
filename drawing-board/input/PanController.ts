@@ -1,21 +1,33 @@
 import { Container, FederatedPointerEvent } from "pixi.js";
 import { Viewport } from "../viewport/Viewport";
-import { store } from "@/lib/store/store";
 import { Tool, setTool } from "@/lib/store/boardSlice";
+import { listenerMiddleware, AppStore } from "@/lib/store/store";
 
 export class PanController 
 {
   private dragging = false;
   private originalTool = null as (Tool | null);
+  private unsubscribe: (() => void) | null = null;
 
   constructor(
     private stage: Container,
-    private viewport: Viewport
+    private viewport: Viewport,
+    private store: AppStore
   ) {}
 
   init() 
   {
     this.stage.on("mousedown", this.mouseDown);
+    this.unsubscribe = listenerMiddleware.startListening({
+      actionCreator: setTool,
+      effect: (action) => {
+        if (action.payload === "pan") {
+          this.activate();
+        } else {
+          this.deactivate();
+        }
+      }
+    });
   }
 
   activate() {
@@ -36,21 +48,18 @@ export class PanController
     this.stage.off("pointerupoutside", this.pointerUp);
   }
 
-  clear() {
+  cleanup() {
     this.stage.off("mousedown", this.mouseDown);
     this.stage.off("mouseup", this.mouseUp);
     this.stage.off("mouseupoutside", this.mouseUp);
-    this.stage.off("pointerdown", this.pointerDown);
-    this.stage.off("pointermove", this.pointerMove);
-    this.stage.off("pointerup", this.pointerUp);
-    this.stage.off("pointercancel", this.pointerUp);
-    this.stage.off("pointerupoutside", this.pointerUp);
+    this.deactivate();
+    this.unsubscribe?.();
   };
 
   private mouseDown = (event: FederatedPointerEvent) => {
     if (event.button === 1) {
-      this.originalTool = store.getState().board.tool;
-      store.dispatch(setTool("pan"));
+      this.originalTool = this.store.getState().board.tool;
+      this.store.dispatch(setTool("pan"));
       this.dragging = true;
       this.stage.on("mouseup", this.mouseUp);
       this.stage.on("mouseupoutside", this.mouseUp);
@@ -59,7 +68,7 @@ export class PanController
 
   private mouseUp = (event: FederatedPointerEvent) => {
     if (event.button === 1) {
-      this.originalTool && store.dispatch(setTool(this.originalTool));
+      this.originalTool && this.store.dispatch(setTool(this.originalTool));
       this.originalTool = null;
       this.stage.off("mouseup", this.mouseUp);
       this.stage.off("mouseupoutside", this.mouseUp);
@@ -72,7 +81,7 @@ export class PanController
   };
 
   private pointerMove = (event: FederatedPointerEvent) => {
-    if (!this.dragging || store.getState().board.tool !== "pan") return;
+    if (!this.dragging || this.store.getState().board.tool !== "pan") return;
     this.stage.cursor = "grabbing";
     this.viewport.panBy(
       event.movementX,
