@@ -12,8 +12,8 @@ import { Popup } from "../Popup";
 export function BoardLayers() 
 {
 	const dispatch = useAppDispatch();
-	const layers = useAppSelector((state) => state.board.layers);
-	const activeLayerId = useAppSelector((state) => state.board.activeLayerId);
+	const layers = useAppSelector((state) => state.board.layerStack.layers);
+	const activeLayerId = useAppSelector((state) => state.board.layerStack.activeLayerId);
 	const [layerToDelete, setLayerToDelete] = useState<Layer | null>(null);
 
 	const addNewLayer = () => {
@@ -61,7 +61,7 @@ export function BoardLayers()
 					<div className="bhd-button-container">
 						<button className="orange-filled-button" onClick={async () => {
 							setLayerToDelete(null);
-							dispatch(removeLayer(String(layerToDelete?.id)));
+							dispatch(removeLayer({ id: String(layerToDelete?.id) }));
 						}}>Delete</button>
 						<button className="blue-blank-button" onClick={() => setLayerToDelete(null)}>Cancel</button>
 					</div>

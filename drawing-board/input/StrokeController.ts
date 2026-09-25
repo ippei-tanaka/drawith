@@ -1,26 +1,23 @@
-import { Container, FederatedPointerEvent, Graphics } from "pixi.js";
-import { BasicBrush, Stroke } from "../drawing/BasicBrush";
+import { Container, FederatedPointerEvent } from "pixi.js";
 import { iterateSegment } from "../drawing/iterateSegment";
-import { Viewport } from "../viewport/Viewport";
+import { store } from "@/lib/store/store";
+import { addStrokeToActiveLayer, type Stroke } from "@/lib/store/boardSlice";
 
 export class StrokeController 
 {
   private drawing = false;
-  private currentStroke: Stroke | null = null;
+  private currentStroke: Omit<Stroke, "id"> | null = null;
 
   constructor(
-    private stage: Container,
-    private viewport: Viewport,
-    private graphics: Graphics,
-    private brush: BasicBrush
+    private surface: Container,
   ) {}
 
   init() 
   {
-    this.stage.on("pointerdown", this.pointerDown);
-    this.stage.on("pointermove", this.pointerMove);
-    this.stage.on("pointerup", this.pointerUp);
-    this.stage.on("pointerupoutside", this.pointerUp);
+    this.surface.on("pointerdown", this.pointerDown);
+    this.surface.on("pointermove", this.pointerMove);
+    this.surface.on("pointerup", this.pointerUp);
+    this.surface.on("pointerupoutside", this.pointerUp);
   }
 
   activate() {
@@ -32,57 +29,56 @@ export class StrokeController
   }
 
   clear() {
-    this.stage.off("pointerdown", this.pointerDown);
-    this.stage.off("pointermove", this.pointerMove);
-    this.stage.off("pointerup", this.pointerUp);
-    this.stage.off("pointerupoutside", this.pointerUp);
+    this.surface.off("pointerdown", this.pointerDown);
+    this.surface.off("pointermove", this.pointerMove);
+    this.surface.off("pointerup", this.pointerUp);
+    this.surface.off("pointerupoutside", this.pointerUp);
   };
 
-  setGraphics(graphics: Graphics) {
-    this.graphics = graphics;
-  }
-
-  private pointerDown = (event: FederatedPointerEvent) => {
+  private pointerDown = (event: FederatedPointerEvent) => 
+  {
     if (event.button !== 0) return;
 
+    const { size, color, opacity, tool } = store.getState().board.brushSetting;
     const point = this.getPoint(event);
-    this.drawing = true;
 
     this.currentStroke = {
       points: [point],
+      size: size,
+      color: color,
+      opacity: opacity,
+      tool: tool,
     };
-
-    this.brush.drawPoint(
-      this.graphics,
-      point.x,
-      point.y,
-      point.pressure,
-    );
+    
+    this.drawing = true;
   }
 
-  private pointerMove = (event: FederatedPointerEvent) => {
+  private pointerMove = (event: FederatedPointerEvent) => 
+  {
     if (!this.drawing || !this.currentStroke) return;
+
+    const board = store.getState().board;
+    // const smoothness = board.brushSetting.smoothness;
 
     const point = this.getPoint(event);
 
-    const lastPoint =
-      this.currentStroke.points[
-        this.currentStroke.points.length - 1
-      ];
+    // const lastPoint =
+    //   this.currentStroke.points[
+    //     this.currentStroke.points.length - 1
+    //   ];
 
-    iterateSegment(
-      lastPoint,
-      point,
-      2,
-      (x, y) => {
-        this.brush.drawPoint(
-          this.graphics,
-          x,
-          y,
-          point.pressure,
-        );
-      },
-    );
+    // iterateSegment(
+    //   lastPoint,
+    //   point,
+    //   smoothness,
+    //   (x, y) => {
+    //     this.currentStroke?.points.push({ 
+    //       x, 
+    //       y, 
+    //       pressure: point.pressure
+    //     });
+    //   },
+    // );
 
     this.currentStroke.points.push(point);
   }
@@ -90,21 +86,18 @@ export class StrokeController
   private pointerUp = () => 
   {
     if (!this.drawing) return;
+    if (!this.currentStroke) return;
 
+    store.dispatch(addStrokeToActiveLayer(this.currentStroke));
     this.drawing = false;
     this.currentStroke = null;
   }
 
   private getPoint(event: FederatedPointerEvent) 
   {
-    const local = this.viewport.documentPoint(
-      event.screenX,
-      event.screenY,
-    );
-
     return {
-      x: local.x,
-      y: local.y,
+      x: event.screenX,
+      y: event.screenY,
       pressure: event.pressure ?? 1,
     };
   }

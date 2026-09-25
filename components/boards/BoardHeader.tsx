@@ -1,8 +1,7 @@
 "use client";
 
-// import { router } from "better-auth/api";
 import Image from "next/image";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { changeBoardNamebyId } from "@/actions/board-actions";
 import { useRouter } from "next/navigation";
 import { Board, deleteBoardById } from "@/actions/board-actions";

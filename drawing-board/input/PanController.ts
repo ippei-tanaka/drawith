@@ -1,12 +1,12 @@
 import { Container, FederatedPointerEvent } from "pixi.js";
 import { Viewport } from "../viewport/Viewport";
 import { store } from "@/lib/store/store";
-import { BoardTool, setTool } from "@/lib/store/boardSlice";
+import { Tool, setTool } from "@/lib/store/boardSlice";
 
 export class PanController 
 {
   private dragging = false;
-  private originalTool = null as (BoardTool | null);
+  private originalTool = null as (Tool | null);
 
   constructor(
     private stage: Container,

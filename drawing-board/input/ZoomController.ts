@@ -1,15 +1,12 @@
-import { Viewport } from "../viewport/Viewport";
 import { store } from "@/lib/store/store";
-import { setZoom, setZoomPosition } from "@/lib/store/boardSlice";
+import { setZoom } from "@/lib/store/boardSlice";
 
 export class ZoomController 
 {
-  private dragging = false;
   private startDistance = 0;
 
   constructor(
     private canvas: HTMLCanvasElement,
-    private viewport: Viewport
   ) {}
 
   init() 
@@ -35,17 +32,15 @@ export class ZoomController
     const rect = this.canvas.getBoundingClientRect();
     const screenX = event.clientX - rect.left;
     const screenY = event.clientY - rect.top;
-    store.dispatch(setZoomPosition({ x: screenX, y: screenY }));
     const zoom = store.getState().board.zoom;
     const delta = event.deltaY > 0 ? -10 : 10;
-    store.dispatch(setZoom(zoom + delta));
+    store.dispatch(setZoom({ level: zoom.level + delta, position: { x: screenX, y: screenY } }));
   };
 
   touchStart = (event: TouchEvent) => {
     if (event.touches.length !== 2) return;
     event.preventDefault();
     event.stopPropagation();
-    this.dragging = false;
     this.startDistance = this.getTouchDistance(event.touches);
   };
 
@@ -58,21 +53,22 @@ export class ZoomController
     const distance = this.getTouchDistance(event.touches);
     const center = this.getTouchCenter(event.touches);
 
-    store.dispatch(setZoomPosition({
-      x: center.x - rect.left,
-      y: center.y - rect.top,
-    }));
-
     const zoom = store.getState().board.zoom;
-    store.dispatch(setZoom(zoom * (distance / this.startDistance)));
+    store.dispatch(setZoom({ 
+      level: zoom.level * (distance / this.startDistance), 
+      position: {
+        x: center.x - rect.left,
+        y: center.y - rect.top,
+      }
+    }));
     this.startDistance = distance;
   };
 
-  touchEnd = (event: TouchEvent) => {
+  touchEnd = () => {
     this.startDistance = 0;
   };
 
-  touchCancel = (event: TouchEvent) => {
+  touchCancel = () => {
     this.startDistance = 0;
   };
 

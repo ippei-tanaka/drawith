@@ -8,7 +8,6 @@ import {
   setLayerOpacity,
   setLayerVisibility,
 } from "@/lib/store/boardSlice";
-import { Popup } from '../Popup';
 
 export function BoardLayer (
   {id, index, name, visible, opacity, isActive}: 

@@ -3,15 +3,12 @@
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { setTool, setColor, setSize, setZoom } from "@/lib/store/boardSlice";
 
-import type { BoardTool } from "@/lib/store/boardSlice";
-
-
 export function BoardToolBox() 
 {
   const dispatch = useAppDispatch();
   const tool = useAppSelector(state => state.board.tool);
-  const color = useAppSelector(state => state.board.color);
-  const size = useAppSelector(state => state.board.size);
+  const color = useAppSelector(state => state.board.brushSetting.color);
+  const size = useAppSelector(state => state.board.brushSetting.size);
   const zoom = useAppSelector(state => state.board.zoom);
 
   return (
@@ -25,9 +22,9 @@ export function BoardToolBox()
       <label className="btb-size-control" title="Stroke size"><input type="text" className="btb-size-text" value={size} onChange={(event) => dispatch(setSize(Number(event.target.value)))} /><input aria-label="Stroke size" type="range" min="2" max="100" value={size} onChange={(event) => dispatch(setSize(Number(event.target.value)))} /></label>
       <span className="btb-tool-divider" />
       <div className="btb-zoom-control">
-        <input className="btb-zoom-input" type="number" min="10" max="400" step="10" aria-label="Zoom level" title="Zoom level" value={zoom} onChange={(event) => {
+        <input className="btb-zoom-input" type="number" min="10" max="400" step="10" aria-label="Zoom level" title="Zoom level" value={zoom.level} onChange={(event) => {
           const nextZoom = Number(event.target.value);
-          if (Number.isFinite(nextZoom)) dispatch(setZoom(nextZoom));
+          if (Number.isFinite(nextZoom)) dispatch(setZoom({ ...zoom, level: nextZoom }));
         }} />
         <span className="btb-zoom-input-unit">%</span>
       </div>

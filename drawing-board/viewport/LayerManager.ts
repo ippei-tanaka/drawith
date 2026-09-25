@@ -1,22 +1,16 @@
 import { Container, Graphics } from "pixi.js";
-
-type LayerUpdate = {
-  id: string;
-  name: string;
-  opacity: number;
-  visible: boolean;
-};
+import { Layer, Stroke } from "@/lib/store/boardSlice";
 
 export class LayerManager extends Container 
 {
-  private layers: Layer[] = [];
+  private layers: LayerView[] = [];
 
   constructor() {
     super();
     this.sortableChildren = true; 
   }
 
-  update (updates: LayerUpdate[])
+  update (updates: Layer[])
   {
     const updatesById = new Map(updates.map(update => [update.id, update]));
 
@@ -39,7 +33,7 @@ export class LayerManager extends Container
         layer.update(update);
         layer.zIndex = zIndex;
       } else {
-        const newLayer = new Layer(
+        const newLayer = new LayerView(
           update.id,
           update.name,
           update.opacity,
@@ -53,14 +47,15 @@ export class LayerManager extends Container
     }
   }
  
-  getLayerById(id: string): Layer | undefined {
+  getLayerById(id: string): LayerView | undefined {
     return this.layers.find(layer => layer.id === id);
   }
 }
 
-class Layer extends Container 
+class LayerView extends Container 
 {
   readonly graphics = new Graphics();
+  private previousStrokes: Stroke[] = [];
 
   constructor(
     public id: string, 
@@ -74,12 +69,17 @@ class Layer extends Container
     this.alpha = this.opacity;
   }
 
-  update(update: LayerUpdate) 
+  update(update: Layer) 
   {
     if (this.id === update.id) {
       this.name = update.name;
       this.alpha = update.opacity;
       this.visible = update.visible;
+    }
+
+    if (this.previousStrokes !== update.strokes) {
+      console.log("Strokes updated:", update.strokes);
+      this.previousStrokes = update.strokes;
     }
   }
 }

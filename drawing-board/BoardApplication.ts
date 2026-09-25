@@ -13,11 +13,6 @@ export class BoardApplication extends Application<Renderer> {
   private viewport = new Viewport();
   private grid = new Grid(); 
   private layerManager = new LayerManager();
-  private brush = new BasicBrush({
-    size: 10,
-    color: 0x000000,
-    opacity: 1,
-  });
   private panController: PanController | null = null;
   private zoomController: ZoomController | null = null;
   private strokeController: StrokeController | null = null;
@@ -53,16 +48,12 @@ export class BoardApplication extends Application<Renderer> {
     this.panController.init();
 
     this.zoomController = new ZoomController(
-      this.canvas,
-      this.viewport
+      this.canvas
     );
     this.zoomController.init();
 
     this.strokeController = new StrokeController(
-      this.stage,
-      this.viewport,
-      new Graphics(),
-      this.brush
+      this.stage
     );
     this.strokeController.init();
 
@@ -86,8 +77,8 @@ export class BoardApplication extends Application<Renderer> {
     const previousBoard = this.previousStoreState?.board;
     
     if (board.zoom !== previousBoard?.zoom) {
-      const { x: screenX, y: screenY } = board.zoomPosition;
-      this.viewport.zoomAt(screenX, screenY, board.zoom / 100);
+      const { x: screenX, y: screenY } = board.zoom.position;
+      this.viewport.zoomAt(screenX, screenY, board.zoom.level / 100);
     }
 
     if (board.tool === "pan") {
@@ -102,27 +93,17 @@ export class BoardApplication extends Application<Renderer> {
       this.strokeController?.deactivate();
     }
 
-    if (board.color !== previousBoard?.color) {
-      this.brush.setColor(board.color);
+    const layerStack = board.layerStack;
+    const layers = layerStack.layers;
+
+    if (layers !== previousBoard?.layerStack.layers) {
+      console.log("Layers updated:", layers);
+      this.layerManager.update(layers);
     }
 
-    if (board.size !== previousBoard?.size) {
-      // console.log("Stroke size changed to", board.size);
-      this.brush.setSize(board.size);
-    }
-
-    // if (board.opacity !== previousBoard?.opacity) {
-    //   this.brush.setOpacity(board.opacity);
-    // }
-
-    if (board.layers !== previousBoard?.layers) {
-      // console.log("Layers changed");
-      this.layerManager.update(board.layers);
-    }
-
-    if (board.activeLayerId !== previousBoard?.activeLayerId && board.activeLayerId) {
-      // console.log("Active layer changed to", board.activeLayerId);
-      this.strokeController?.setGraphics(this.layerManager.getLayerById(board.activeLayerId)?.graphics || new Graphics());
+    if (layerStack.activeLayer?.strokes !== previousBoard?.layerStack.activeLayer?.strokes) {
+      console.log("Active layer strokes updated:", layerStack.activeLayer?.strokes);
+      this.layerManager.update(layers);
     }
 
     this.previousStoreState = store.getState();

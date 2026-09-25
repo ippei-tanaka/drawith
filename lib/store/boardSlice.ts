@@ -1,57 +1,97 @@
-import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export type BoardTool = "pen" | "marker" | "eraser" | "pan";
+const DRAWING_TOOLS = ["pen", "marker", "eraser"] as const;
+export type DrawingTool = typeof DRAWING_TOOLS[number];
+export type NavigationTool = "pan";
+export type Tool = DrawingTool | NavigationTool;
 
-/*
-export interface Point
-{
+export interface PointerSample {
   x: number;
   y: number;
+  pressure: number;
 }
 
-export interface Stroke
-{
+export interface Stroke {
   id: string;
+  points: PointerSample[];
+  size: number;
   color: number;
-  points: Point[];
+  opacity: number;
+  tool: DrawingTool;
 }
-  */
 
 export interface Layer {
   id: string;
   name: string;
   visible: boolean;
   opacity: number;
-  // strokes: Stroke[];
+  strokes: Stroke[];
 }
 
-interface BoardState
-{
-  tool: BoardTool;
-  color: number;
-  size: number;
-  zoom: number;
-  zoomPosition: { x: number; y: number };
+export interface LayerStackState {
   layers: Layer[];
   activeLayerId: string | null;
+  activeLayer: Layer | null;
 }
 
-const defaultLayerId = nanoid();
+export interface BrushSettingState {
+  tool: DrawingTool;
+  color: number;
+  size: number;
+  opacity: number;
+  smoothness: number;
+}
+
+export interface ZoomState {
+  level: number;
+  position: { x: number; y: number };
+}
+
+export interface Error {
+  message: string;
+}
+
+export interface BoardState
+{
+  brushSetting: BrushSettingState;
+  tool: Tool;
+  zoom: ZoomState;
+  layerStack: LayerStackState;
+  errors: Error[];
+}
+
+const defaultLayerId = crypto.randomUUID();
 
 const initialState: BoardState = {
-  tool: "pen",
-  color: 0x000000,
-  size: 5,
-  zoom: 100,
-  zoomPosition: { x: 0, y: 0 },
-  layers: [{
-    id: defaultLayerId,
-    name: "Layer 1",
-    visible: true,
+  brushSetting: {
+    tool: "pen",
+    color: 0x000000,
+    size: 5,
     opacity: 1,
-    // strokes: [],
-  }],
-  activeLayerId: defaultLayerId,
+    smoothness: 2
+  },
+  tool: "pen",
+  zoom: { 
+    level: 100, 
+    position: { 
+      x: 0, 
+      y: 0 
+    } 
+  },
+  layerStack: {
+    layers: [{
+      id: defaultLayerId,
+      name: "Layer 1",
+      visible: true,
+      opacity: 1,
+      strokes: [],
+    }],
+    activeLayerId: defaultLayerId,
+    get activeLayer() {
+      return this.layers.find(layer => layer.id === this.activeLayerId) || null;
+    },
+  },
+  errors: [],
 };
 
 const boardSlice = createSlice({
@@ -59,42 +99,44 @@ const boardSlice = createSlice({
   initialState,
   reducers: 
   {
-    setTool(state, action: PayloadAction<BoardTool>) {
+    setTool(state, action: PayloadAction<Tool>) {
+      if (DRAWING_TOOLS.includes(action.payload as DrawingTool)) {
+        state.brushSetting.tool = action.payload as DrawingTool;
+      }
       state.tool = action.payload;
     },
   
     setColor(state, action: PayloadAction<number>) {
-      state.color = action.payload;
+      state.brushSetting.color = action.payload;
     },
   
     setSize(state, action: PayloadAction<number>) {
-      state.size = action.payload;
+      state.brushSetting.size = action.payload;
     },
   
-    setZoom(state, action: PayloadAction<number>) {
-      if (Number.isFinite(action.payload)) {
-        state.zoom = Math.round(Math.min(400, Math.max(10, action.payload)));
+    setZoom(state, action: PayloadAction<{ level: number, position: { x: number; y: number } }>) {
+      if (Number.isFinite(action.payload.level)) {
+        state.zoom.level = Math.round(Math.min(400, Math.max(10, action.payload.level)));
       }
-    },
-  
-    setZoomPosition(state, action: PayloadAction<{ x: number; y: number }>) {
-      state.zoomPosition = action.payload;
+      state.zoom.position = action.payload.position;
     },
 
     addLayer: 
     {
       reducer(state, action: PayloadAction<Layer>) {
-        action.payload.name = `Layer ${state.layers.length + 1}`;
-        state.layers.push(action.payload);
-        state.activeLayerId = action.payload.id;
+        const layers = state.layerStack.layers;
+        action.payload.name = `Layer ${layers.length + 1}`;
+        layers.push(action.payload);
+        state.layerStack.activeLayerId = action.payload.id;
       },
 
       prepare() {
         return {
           payload: {
-            id: nanoid(),
+            id: crypto.randomUUID(),
             name: "",
-            // strokes: [],
+            strokes: [],
+            currentStroke: null,
             visible: true,
             opacity: 1,
           },
@@ -104,84 +146,124 @@ const boardSlice = createSlice({
 
     setActiveLayer(state, action: PayloadAction<string>) 
     {
-      state.activeLayerId = action.payload;
+      state.layerStack.activeLayerId = action.payload;
     },
 
     renameLayer(state, action: PayloadAction<{ id: string; name: string }>)
     {
-      const layer = state.layers.find(
+      const layer = state.layerStack.layers.find(
         layer => layer.id === action.payload.id
       );
 
-      if (layer) {
-        layer.name = action.payload.name;
+      if (!layer) {
+        state.errors.push({ message: "Layer not found." });
+        return;
       }
+
+      layer.name = action.payload.name;
     },
 
     setLayerVisibility(state, action: PayloadAction<{ id: string; visible: boolean }>)
     {
-      const layer = state.layers.find(
+      const layer = state.layerStack.layers.find(
         layer => layer.id === action.payload.id
       );
 
-      if (layer) {
-        layer.visible = action.payload.visible;
+      if (!layer) {
+        state.errors.push({ message: "Layer not found." });
+        return;
       }
+
+      layer.visible = action.payload.visible;
     },
 
     setLayerOpacity(state, action: PayloadAction<{ id: string; opacity: number }>)
     {
-      const layer = state.layers.find(
-        layer => layer.id === action.payload.id
-      );
+      const layer = state.layerStack.layers.find(layer => layer.id === action.payload.id);
 
-      if (layer && Number.isFinite(action.payload.opacity)) {
-        layer.opacity = Math.min(1, Math.max(0, action.payload.opacity));
+      if (!layer) {
+        state.errors.push({ message: "Layer not found." });
+        return;
       }
+
+      if (!layer.visible) {
+        state.errors.push({ message: "Layer is not visible." });
+        return;
+      }
+
+      if (!Number.isFinite(action.payload.opacity)) {
+        state.errors.push({ message: "Invalid opacity value." });
+        return;
+      }
+
+      layer.opacity = Math.min(1, Math.max(0, action.payload.opacity));
     },
 
     reorderLayers(state, action: PayloadAction<{ fromIndex: number; toIndex: number }>)
     {
       const { fromIndex, toIndex } = action.payload;
+      const layers = state.layerStack.layers;
       if (
         fromIndex < 0 ||
         toIndex < 0 ||
-        fromIndex >= state.layers.length ||
-        toIndex >= state.layers.length ||
+        fromIndex >= layers.length ||
+        toIndex >= layers.length ||
         fromIndex === toIndex
-      ) return;
+      ) {
+        state.errors.push({ message: "Invalid layer reordering." });
+        return;
+      };
 
-      const [layer] = state.layers.splice(fromIndex, 1);
-      state.layers.splice(toIndex, 0, layer);
+      const [layer] = layers.splice(fromIndex, 1);
+      layers.splice(toIndex, 0, layer);
     },
 
-    removeLayer(state, action: PayloadAction<string>) {
-      const layerIndex = state.layers.findIndex(layer => layer.id === action.payload);
-      if (layerIndex !== -1) {
-        state.layers.splice(layerIndex, 1);
-        if (state.activeLayerId === action.payload) {
-          state.activeLayerId = state.layers.length > 0 ? state.layers[0].id : null;
-        }
+    removeLayer(state, action: PayloadAction<{id: string}>) {
+      const layers = state.layerStack.layers;
+      const layerIndex = layers.findIndex(layer => layer.id === action.payload.id);
+      if (layerIndex === -1) {
+        state.errors.push({ message: "Layer not found." });
+        return;
+      }
+      layers.splice(layerIndex, 1);
+      if (state.layerStack.activeLayerId === action.payload.id) {
+        state.layerStack.activeLayerId = layers.length > 0 ? layers[0].id : null;
       }
     },
 
-
-      /*
-    addStroke: 
+    addStrokeToActiveLayer: 
     {
-      reducer(state, action: PayloadAction<Stroke>) {
-        state.strokes.push(action.payload);
+      reducer(state, action: PayloadAction<Stroke>) 
+      {
+        const activeLayer = state.layerStack.activeLayer;
+
+        if (!activeLayer) {
+          state.errors.push({ message: "No active layer found." });
+          return;
+        }
+        
+        if (!activeLayer.visible) {
+          state.errors.push({ message: "Active layer is not visible." });
+          return;
+        }
+
+        // console.log("Adding stroke to active layer:", action.payload);
+
+        activeLayer.strokes.push(action.payload);
       },
 
-      prepare(points: Point[], color: string) {
-        return { payload: { id: nanoid(), points, color } };
-      },
+      prepare(stroke: Omit<Stroke, "id">) {
+        return { payload: { id: crypto.randomUUID(), ...stroke } };
+      }
+    },
+
+    clearErrors(state) {
+      state.errors = [];
     },
   
-    clearBoard(state) {
-      state.strokes = [];
+    clearBoard() {
+      return initialState;
     },
-    */
   },
 });
 
@@ -190,14 +272,15 @@ export const {
   setColor,
   setSize,
   setZoom,
-  setZoomPosition,
   addLayer,
   setActiveLayer,
   renameLayer,
   setLayerVisibility,
   setLayerOpacity,
   reorderLayers,
-  removeLayer
+  removeLayer,
+  addStrokeToActiveLayer,
+  clearErrors,
 } = boardSlice.actions;
 
 export default boardSlice.reducer;
