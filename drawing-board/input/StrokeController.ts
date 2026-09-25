@@ -6,7 +6,7 @@ import { addStrokeToActiveLayer, type Stroke } from "@/lib/store/boardSlice";
 export class StrokeController 
 {
   private drawing = false;
-  private currentStroke: Omit<Stroke, "id"> | null = null;
+  private currentStroke: Omit<Stroke, "id" | "smoothness"> | null = null;
 
   constructor(
     private surface: Container,
@@ -39,7 +39,7 @@ export class StrokeController
   {
     if (event.button !== 0) return;
 
-    const { size, color, opacity, tool } = store.getState().board.brushSetting;
+    const { size, color, opacity, tool } = store.getState().board.brushSettings;
     const point = this.getPoint(event);
 
     this.currentStroke = {

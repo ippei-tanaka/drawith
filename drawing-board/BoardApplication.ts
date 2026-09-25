@@ -93,17 +93,17 @@ export class BoardApplication extends Application<Renderer> {
       this.strokeController?.deactivate();
     }
 
-    const layerStack = board.layerStack;
-    const layers = layerStack.layers;
-
-    if (layers !== previousBoard?.layerStack.layers) {
-      console.log("Layers updated:", layers);
-      this.layerManager.update(layers);
+    if (board.layerStack.layers !== previousBoard?.layerStack.layers) {
+      // console.log("Layers updated:", layers);
+      this.layerManager.update(board.layerStack.layers);
     }
 
-    if (layerStack.activeLayer?.strokes !== previousBoard?.layerStack.activeLayer?.strokes) {
-      console.log("Active layer strokes updated:", layerStack.activeLayer?.strokes);
-      this.layerManager.update(layers);
+    if (board.layerStack.activeLayer?.strokes !== previousBoard?.layerStack.activeLayer?.strokes) {
+      // console.log("Active layer strokes updated:", layerStack.activeLayer?.strokes);
+      const activeLayerId = board.layerStack.activeLayer?.id;
+      if (activeLayerId) {
+        this.layerManager.getLayerById(activeLayerId)?.updateStrokes(board.layerStack.activeLayer?.strokes || []);
+      }
     }
 
     this.previousStoreState = store.getState();

@@ -17,6 +17,7 @@ export interface Stroke {
   size: number;
   color: number;
   opacity: number;
+  smoothness: number;
   tool: DrawingTool;
 }
 
@@ -28,13 +29,13 @@ export interface Layer {
   strokes: Stroke[];
 }
 
-export interface LayerStackState {
+export interface LayerStack {
   layers: Layer[];
   activeLayerId: string | null;
   activeLayer: Layer | null;
 }
 
-export interface BrushSettingState {
+export interface BrushSettings {
   tool: DrawingTool;
   color: number;
   size: number;
@@ -42,7 +43,7 @@ export interface BrushSettingState {
   smoothness: number;
 }
 
-export interface ZoomState {
+export interface Zoom {
   level: number;
   position: { x: number; y: number };
 }
@@ -53,17 +54,17 @@ export interface Error {
 
 export interface BoardState
 {
-  brushSetting: BrushSettingState;
+  brushSettings: BrushSettings;
   tool: Tool;
-  zoom: ZoomState;
-  layerStack: LayerStackState;
+  zoom: Zoom;
+  layerStack: LayerStack;
   errors: Error[];
 }
 
 const defaultLayerId = crypto.randomUUID();
 
 const initialState: BoardState = {
-  brushSetting: {
+  brushSettings: {
     tool: "pen",
     color: 0x000000,
     size: 5,
@@ -101,17 +102,17 @@ const boardSlice = createSlice({
   {
     setTool(state, action: PayloadAction<Tool>) {
       if (DRAWING_TOOLS.includes(action.payload as DrawingTool)) {
-        state.brushSetting.tool = action.payload as DrawingTool;
+        state.brushSettings.tool = action.payload as DrawingTool;
       }
       state.tool = action.payload;
     },
   
     setColor(state, action: PayloadAction<number>) {
-      state.brushSetting.color = action.payload;
+      state.brushSettings.color = action.payload;
     },
   
     setSize(state, action: PayloadAction<number>) {
-      state.brushSetting.size = action.payload;
+      state.brushSettings.size = action.payload;
     },
   
     setZoom(state, action: PayloadAction<{ level: number, position: { x: number; y: number } }>) {
@@ -136,7 +137,6 @@ const boardSlice = createSlice({
             id: crypto.randomUUID(),
             name: "",
             strokes: [],
-            currentStroke: null,
             visible: true,
             opacity: 1,
           },
@@ -247,13 +247,17 @@ const boardSlice = createSlice({
           return;
         }
 
-        // console.log("Adding stroke to active layer:", action.payload);
+        action.payload.smoothness = state.brushSettings.smoothness;
 
         activeLayer.strokes.push(action.payload);
       },
 
-      prepare(stroke: Omit<Stroke, "id">) {
-        return { payload: { id: crypto.randomUUID(), ...stroke } };
+      prepare(stroke: Omit<Stroke, "id" | "smoothness">) {
+        return { payload: { 
+          id: crypto.randomUUID(), 
+          smoothness: 1, 
+          ...stroke } 
+        };
       }
     },
 

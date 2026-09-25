@@ -1,4 +1,5 @@
 import { Graphics } from "pixi.js";
+import { BrushSettings } from "@/lib/store/boardSlice";
 
 export type Stroke = {
   points: PointerSample[];
@@ -15,20 +16,16 @@ export type PointerSample = {
   pressure: number;
 };
 
-type BrushSettings = {
-  size: number;
-  color: number;
-  opacity: number;
-};
+// type BrushSettings = {
+//   size: number;
+//   color: number;
+//   opacity: number;
+// };
 
 export class BasicBrush 
 {
-  private settings: BrushSettings;
-
-  constructor(private brushSettings: BrushSettings) 
-  {
-    this.settings = brushSettings;
-  }
+  constructor(private settings: BrushSettings) 
+  {}
 
   drawPoint(
     graphics: Graphics,

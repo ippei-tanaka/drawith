@@ -1,5 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 import { Layer, Stroke } from "@/lib/store/boardSlice";
+import { Drawer } from "../drawing/Drawer";
+import { iterateSegment } from "../drawing/iterateSegment";
 
 export class LayerManager extends Container 
 {
@@ -30,7 +32,7 @@ export class LayerManager extends Container
       const zIndex = updates.length - i;
 
       if (layer) {
-        layer.update(update);
+        layer.updateLayerInfo(update);
         layer.zIndex = zIndex;
       } else {
         const newLayer = new LayerView(
@@ -55,7 +57,7 @@ export class LayerManager extends Container
 class LayerView extends Container 
 {
   readonly graphics = new Graphics();
-  private previousStrokes: Stroke[] = [];
+  // private previousStrokes: Stroke[] = [];
 
   constructor(
     public id: string, 
@@ -69,7 +71,7 @@ class LayerView extends Container
     this.alpha = this.opacity;
   }
 
-  update(update: Layer) 
+  updateLayerInfo(update: Layer) 
   {
     if (this.id === update.id) {
       this.name = update.name;
@@ -77,9 +79,53 @@ class LayerView extends Container
       this.visible = update.visible;
     }
 
-    if (this.previousStrokes !== update.strokes) {
-      console.log("Strokes updated:", update.strokes);
-      this.previousStrokes = update.strokes;
+    // this.previousStrokes = update.strokes;
+  }
+
+  updateStrokes(strokes: Stroke[]) 
+  {
+    this.graphics.clear();
+
+    for (const stroke of strokes) 
+    {
+      if (stroke.points.length === 0) continue;
+
+      // Draw the first point of the stroke
+      Drawer.drawPoint({
+        graphics: this.graphics,
+        x: stroke.points[0].x,
+        y: stroke.points[0].y,
+        pressure: stroke.points[0].pressure,
+        size: stroke.size,
+        color: stroke.color,
+        opacity: stroke.opacity,
+      });
+
+      if (stroke.points.length < 2) continue;
+      
+      for (let i = 1; i < stroke.points.length; i++) 
+      {
+        const lastPoint = stroke.points[i - 1];
+        const point = stroke.points[i];
+
+        iterateSegment(
+          lastPoint,
+          point,
+          stroke.smoothness,
+          (x, y) => {
+            Drawer.drawPoint({
+              graphics: this.graphics,
+              x: x,
+              y: y,
+              pressure: point.pressure,
+              size: stroke.size,
+              color: stroke.color,
+              opacity: stroke.opacity,
+            });
+          },
+        );
+
+      }
     }
   }
 }

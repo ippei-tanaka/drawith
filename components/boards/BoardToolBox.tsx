@@ -7,8 +7,8 @@ export function BoardToolBox()
 {
   const dispatch = useAppDispatch();
   const tool = useAppSelector(state => state.board.tool);
-  const color = useAppSelector(state => state.board.brushSetting.color);
-  const size = useAppSelector(state => state.board.brushSetting.size);
+  const color = useAppSelector(state => state.board.brushSettings.color);
+  const size = useAppSelector(state => state.board.brushSettings.size);
   const zoom = useAppSelector(state => state.board.zoom);
 
   return (
