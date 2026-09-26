@@ -4,14 +4,18 @@ import type {
   Stroke,
 } from "@/lib/store/boardSlice";
 
+type RenderableStroke =
+  | Stroke
+  | Omit<Stroke, "id" | "smoothness">;
+
 export class StrokeRenderer {
   readonly graphics: Graphics;
 
-  private stroke: Stroke;
+  private stroke: RenderableStroke;
 
   constructor(
     private readonly parent: Container,
-    stroke: Stroke,
+    stroke: RenderableStroke,
   ) {
     this.stroke = stroke;
     this.graphics = new Graphics();
@@ -21,15 +25,74 @@ export class StrokeRenderer {
     this.render();
   }
 
+  /**
+   * Completely redraw the stroke.
+   *
+   * Used for persisted strokes.
+   */
   update(stroke: Stroke) {
     this.stroke = stroke;
+    this.render();
+  }
+
+  /**
+   * Add a point while the user is drawing.
+   *
+   * This renders incrementally instead of
+   * redrawing the entire stroke.
+   */
+  appendPoint(point: PointerSample) {
+    const points = this.stroke.points;
+
+    if (points.length === 0) {
+      points.push(point);
+      this.drawDot(point);
+      return;
+    }
+
+    const previous = points[points.length - 1];
+
+    points.push(point);
+
+    /*
+     * With only two points, we don't have enough
+     * information to create a useful smooth curve.
+     */
+    if (points.length === 2) {
+      this.drawSegment(previous, point);
+      return;
+    }
+
+    /*
+     * We now have:
+     *
+     * P0 ---- P1 ---- P2
+     *
+     * Use P1 as the Bézier control point and
+     * draw toward the midpoint of P1/P2.
+     */
+    const p0 = points[points.length - 3];
+    const p1 = points[points.length - 2];
+    const p2 = points[points.length - 1];
+
+    const midpoint = this.getMidpoint(p1, p2);
+
+    /*
+     * The previous straight segment may already have
+     * been drawn, so we need to redraw the stroke
+     * from the previous stable point.
+     *
+     * For simplicity, redraw the whole stroke here.
+     *
+     * Later we can make this fully incremental.
+     */
     this.render();
   }
 
   private render() {
     this.graphics.clear();
 
-    const { points } = this.stroke;
+    const points = this.stroke.points;
 
     if (points.length === 0) {
       return;
@@ -40,68 +103,173 @@ export class StrokeRenderer {
       return;
     }
 
-    this.drawStroke(points);
+    if (this.stroke.smoothness <= 0) {
+      this.drawPolyline(points);
+      return;
+    }
+
+    this.drawSmoothStroke(points);
   }
 
-  private drawDot(point: PointerSample) {
-    const {
-      size,
-      color,
-      opacity,
-    } = this.stroke;
-
-    const radius =
-      this.getWidth(point.pressure) / 2;
-
-    this.graphics
-      .circle(point.x, point.y, radius)
-      .fill({
-        color,
-        alpha: opacity,
-      });
-  }
-
-  private drawStroke(points: PointerSample[]) {
-    const {
-      color,
-      opacity,
-    } = this.stroke;
-
+  /**
+   * Simple unsmoothed polyline.
+   */
+  private drawPolyline(
+    points: PointerSample[],
+  ) {
     this.graphics.moveTo(
       points[0].x,
       points[0].y,
     );
 
     for (let i = 1; i < points.length; i++) {
-      const point = points[i];
-
       this.graphics.lineTo(
-        point.x,
-        point.y,
+        points[i].x,
+        points[i].y,
       );
     }
 
     this.graphics.stroke({
-      width: this.getAverageWidth(points),
-      color,
-      alpha: opacity,
+      width: this.getWidth(
+        this.getAveragePressure(points),
+      ),
+      color: this.stroke.color,
+      alpha: this.stroke.opacity,
     });
   }
 
-  private getWidth(pressure: number) {
-    return this.stroke.size * pressure;
-  }
-
-  private getAverageWidth(
+  /**
+   * Draw a smooth stroke using midpoint
+   * quadratic Bézier curves.
+   *
+   * Example:
+   *
+   * P0 ---- P1 ---- P2 ---- P3
+   *
+   *       control
+   *          P1
+   *          ↓
+   * P0 ---- curve ---- midpoint(P1,P2)
+   */
+  private drawSmoothStroke(
     points: PointerSample[],
   ) {
+    const first = points[0];
+
+    this.graphics.moveTo(
+      first.x,
+      first.y,
+    );
+
+    for (
+      let i = 1;
+      i < points.length - 1;
+      i++
+    ) {
+      const current = points[i];
+      const next = points[i + 1];
+
+      const midpoint =
+        this.getMidpoint(
+          current,
+          next,
+        );
+
+      this.graphics.quadraticCurveTo(
+        current.x,
+        current.y,
+        midpoint.x,
+        midpoint.y,
+      );
+    }
+
+    /*
+     * Finish the curve at the final point.
+     */
+    const last = points[points.length - 1];
+
+    this.graphics.lineTo(
+      last.x,
+      last.y,
+    );
+
+    this.graphics.stroke({
+      width: this.getWidth(
+        this.getAveragePressure(points),
+      ),
+      color: this.stroke.color,
+      alpha: this.stroke.opacity,
+    });
+  }
+
+  private drawDot(
+    point: PointerSample,
+  ) {
+    const width =
+      this.getWidth(point.pressure);
+
+    this.graphics
+      .circle(
+        point.x,
+        point.y,
+        width / 2,
+      )
+      .fill({
+        color: this.stroke.color,
+        alpha: this.stroke.opacity,
+      });
+  }
+
+  private drawSegment(
+    from: PointerSample,
+    to: PointerSample,
+  ) {
+    const width =
+      this.getWidth(
+        (from.pressure + to.pressure) / 2,
+      );
+
+    this.graphics
+      .moveTo(from.x, from.y)
+      .lineTo(to.x, to.y)
+      .stroke({
+        width,
+        color: this.stroke.color,
+        alpha: this.stroke.opacity,
+      });
+  }
+
+  private getMidpoint(
+    a: PointerSample,
+    b: PointerSample,
+  ): PointerSample {
+    return {
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2,
+      pressure: (a.pressure + b.pressure) / 2,
+    };
+  }
+
+  private getAveragePressure(
+    points: PointerSample[],
+  ) {
+    if (points.length === 0) {
+      return 1;
+    }
+
     const total = points.reduce(
       (sum, point) =>
-        sum + this.getWidth(point.pressure),
+        sum + point.pressure,
       0,
     );
 
     return total / points.length;
+  }
+
+  private getWidth(
+    pressure: number,
+  ) {
+    return this.stroke.size * pressure;
   }
 
   destroy() {

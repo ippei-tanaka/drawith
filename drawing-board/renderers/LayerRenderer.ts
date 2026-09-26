@@ -7,6 +7,7 @@ export class LayerRenderer {
   readonly id: string;
 
   private strokeRenderers = new Map<string, StrokeRenderer>();
+  private renderedStrokes = new Map<string, Stroke>();
 
   constructor(
     private readonly parent: Container,
@@ -26,50 +27,116 @@ export class LayerRenderer {
     this.syncStrokes(layer.strokes);
   }
 
-  private syncStrokes(strokes: Stroke[]) {
-    const currentIds = new Set(strokes.map(stroke => stroke.id));
+  private syncStrokes(
+    strokes: Stroke[]
+  ) {
+    const currentIds =
+      new Set(
+        strokes.map(
+          stroke => stroke.id
+        )
+      );
 
-    // Add or update
+    /*
+     * Add or update strokes.
+     */
     for (const stroke of strokes) {
-      const renderer = this.strokeRenderers.get(stroke.id);
+      const renderer =
+        this.strokeRenderers.get(
+          stroke.id
+        );
 
       if (!renderer) {
-        const newRenderer = new StrokeRenderer(this.container, stroke);
+        const newRenderer =
+          new StrokeRenderer(
+            this.container,
+            stroke
+          );
+
         this.strokeRenderers.set(
           stroke.id,
           newRenderer
         );
-      } else {
+
+        this.renderedStrokes.set(
+          stroke.id,
+          stroke
+        );
+
+        continue;
+      }
+
+      /*
+       * Redux Toolkit/Immer creates a new
+       * Stroke object when that stroke changes.
+       *
+       * If the reference hasn't changed,
+       * there is nothing to redraw.
+       */
+      const previous =
+        this.renderedStrokes.get(
+          stroke.id
+        );
+
+      if (previous !== stroke) {
         renderer.update(stroke);
+
+        this.renderedStrokes.set(
+          stroke.id,
+          stroke
+        );
       }
     }
 
-    // Remove
-    for (const [id, renderer] of this.strokeRenderers) {
+    /*
+     * Remove strokes that no longer exist
+     * in Redux.
+     */
+    for (
+      const [id, renderer]
+      of this.strokeRenderers
+    ) {
       if (!currentIds.has(id)) {
         renderer.destroy();
+
         this.strokeRenderers.delete(id);
+        this.renderedStrokes.delete(id);
       }
     }
 
-    // Keep PIXI order equal to Redux order
-    strokes.forEach((stroke, index) => {
-      const renderer = this.strokeRenderers.get(stroke.id);
-      if (renderer) {
+    /*
+     * Keep PIXI's child order synchronized
+     * with Redux's stroke order.
+     */
+    strokes.forEach(
+      (stroke, index) => {
+        const renderer =
+          this.strokeRenderers.get(
+            stroke.id
+          );
+
+        if (!renderer) {
+          return;
+        }
+
         this.container.setChildIndex(
           renderer.graphics,
           index
         );
       }
-    });
+    );
   }
 
   destroy() {
-    for (const renderer of this.strokeRenderers.values()) {
+    for (
+      const renderer
+      of this.strokeRenderers.values()
+    ) {
       renderer.destroy();
     }
 
     this.strokeRenderers.clear();
+    this.renderedStrokes.clear();
 
     this.container.destroy();
   }

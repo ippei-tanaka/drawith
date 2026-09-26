@@ -1,12 +1,13 @@
-import { Container, FederatedPointerEvent, Graphics } from "pixi.js";
+import { Container, FederatedPointerEvent } from "pixi.js";
 import type { AppStore } from "@/lib/store/store";
+import { addStrokeToActiveLayer, setTool, type Stroke } from "@/lib/store/boardSlice";
 import { listenerMiddleware } from "@/lib/store/store";
-import { addStrokeToActiveLayer, PointerSample, setTool, type Stroke } from "@/lib/store/boardSlice";
+import { StrokeRenderer } from "../renderers/StrokeRenderer";
 
 export class StrokeController {
   private drawing = false;
   private currentStroke: Omit<Stroke, "id" | "smoothness"> | null = null;
-  private currentGraphics: Graphics | null = null;
+  private currentRenderer: StrokeRenderer | null = null;
   private unsubscribe: (() => void) | null = null;
 
   constructor(
@@ -44,19 +45,27 @@ export class StrokeController {
     this.surface.off("pointermove", this.pointerMove);
     this.surface.off("pointerup", this.pointerUp);
     this.surface.off("pointerupoutside", this.pointerUp);
+
+    // Don't leave a temporary stroke behind
+    // if the tool changes while drawing.
+    this.cancelCurrentStroke();
   }
 
   cleanup() {
     this.deactivate();
     this.unsubscribe?.();
-  };
+    this.unsubscribe = null;
+  }
 
   setContainer(container: Container) {
     this.drawingContainer = container;
   }
 
-  private pointerDown = (event: FederatedPointerEvent) => {
-    if (event.button !== 0) return;
+  private pointerDown = (event: FederatedPointerEvent) => 
+  {
+    if (event.button !== 0) {
+      return;
+    }
 
     const state = this.store.getState().board;
 
@@ -71,19 +80,21 @@ export class StrokeController {
       tool,
     } = state.brushSettings;
 
+    const point = this.getPoint(event);
+
     this.currentStroke = {
-      points: [this.getPoint(event)],
+      points: [point],
       size,
       color,
       opacity,
       tool,
     };
 
-    this.currentGraphics = new Graphics();
-
-    this.drawingContainer.addChild(
-      this.currentGraphics
-    );
+    this.currentRenderer =
+      new StrokeRenderer(
+        this.drawingContainer,
+        this.currentStroke
+      );
 
     this.drawing = true;
   };
@@ -91,62 +102,69 @@ export class StrokeController {
   private pointerMove = (
     event: FederatedPointerEvent
   ) => {
-    if (!this.drawing || !this.currentStroke) {
+    if (
+      !this.drawing ||
+      !this.currentStroke ||
+      !this.currentRenderer
+    ) {
       return;
     }
 
-    const point = this.getPoint(event);
+    const point =
+      this.getPoint(event);
 
-    this.currentStroke.points.push(point);
-
-    this.drawCurrentSegment(point);
+    this.currentRenderer.appendPoint(point);
   };
 
-  private drawCurrentSegment(point: PointerSample) {
-    if (!this.currentGraphics || !this.currentStroke) {
-      return;
-    }
-
-    const points = this.currentStroke.points;
-
-    if (points.length < 2) {
-      return;
-    }
-
-    const previous = points[points.length - 2];
-
-    this.currentGraphics
-      .moveTo(previous.x, previous.y)
-      .lineTo(point.x, point.y)
-      .stroke({
-        width: this.currentStroke.size,
-        color: this.currentStroke.color,
-        alpha: this.currentStroke.opacity,
-      });
-  }
-
   private pointerUp = () => {
-    if (!this.drawing || !this.currentStroke) {
+    if (
+      !this.drawing ||
+      !this.currentStroke
+    ) {
       return;
     }
 
-    this.currentGraphics?.destroy();
-    this.currentGraphics = null;
+    const stroke =
+      this.currentStroke;
 
+    /*
+     * Commit the stroke to Redux.
+     *
+     * addStrokeToActiveLayer.prepare()
+     * will generate the permanent stroke ID.
+     */
     this.store.dispatch(
-      addStrokeToActiveLayer(this.currentStroke)
+      addStrokeToActiveLayer(stroke)
     );
 
+    /*
+     * The temporary renderer is no longer needed.
+     *
+     * LayerRenderer will create the permanent
+     * StrokeRenderer when it sees the new stroke.
+     */
+    this.currentRenderer?.destroy();
+
+    this.currentRenderer = null;
     this.currentStroke = null;
     this.drawing = false;
   };
 
-  private getPoint(event: FederatedPointerEvent) {
+  private cancelCurrentStroke() {
+    this.currentRenderer?.destroy();
+
+    this.currentRenderer = null;
+    this.currentStroke = null;
+    this.drawing = false;
+  }
+
+  private getPoint(
+    event: FederatedPointerEvent
+  ) {
     return {
       x: event.screenX,
       y: event.screenY,
       pressure: event.pressure ?? 1,
     };
   }
-
 }
