@@ -1,7 +1,7 @@
 import { Container } from "pixi.js";
 import type { AppStore } from "@/lib/store/store";
 import type { BoardRenderer } from "../renderers/BoardRenderer";
-import type { StrokeRenderer } from "../renderers/StrokeRenderer";
+import { StrokeRenderer } from "../renderers/StrokeRenderer";
 import type { Tool } from "@/lib/store/boardSlice";
 import {
   addStrokeToActiveLayer,
@@ -14,13 +14,15 @@ import { listenerMiddleware } from "@/lib/store/store";
 import { Viewport } from "../viewport/Viewport";
 import { nanoid } from "@reduxjs/toolkit";
 import { StrokeInputController } from "./StrokeInputController";
+import { LayerRenderer } from "../renderers/LayerRenderer";
 
 const DrawingTools = [DrawingTool.Pen, DrawingTool.Eraser];
 const isDrawingTool = (tool: Tool) => DrawingTools.includes(tool as DrawingTool);
 
 export class StrokeController {
   private currentStroke: Stroke | null = null;
-  private previewRenderer: StrokeRenderer | null = null;
+  private activeLayerRenderer: LayerRenderer | null = null;
+  private previewStrokeRenderer: StrokeRenderer | null = null;
   private unsubscribe: (() => void) | null = null;
   private strokeInputController = new StrokeInputController(this.surface);
 
@@ -59,6 +61,9 @@ export class StrokeController {
   deactivate() {
     this.strokeInputController.deactivate();
     this.currentStroke = null;
+    this.previewStrokeRenderer?.destroy();
+    this.previewStrokeRenderer = null;
+    this.activeLayerRenderer = null;
   }
 
   cleanup() {
@@ -68,8 +73,13 @@ export class StrokeController {
   }
 
   private startStroke = (point: PointerSample) => {
-    const state = this.store.getState().board;
-    const { size, color, opacity, tool, smoothness } = state.brushSettings;
+    this.activeLayerRenderer = this.boardRenderer.getActiveLayerRenderer();
+    if (!this.activeLayerRenderer) {
+      return;
+    }
+    
+    const { size, color, opacity, tool, smoothness } = this.store.getState().board.brushSettings;
+    
     this.currentStroke = {
       points: [this.transposePoint(point)],
       size,
@@ -79,22 +89,32 @@ export class StrokeController {
       smoothness,
       id: nanoid(),
     };
+    this.previewStrokeRenderer = new StrokeRenderer(this.currentStroke);
+    this.activeLayerRenderer.container.addChild(this.previewStrokeRenderer.graphics); 
   };
 
   private keepStroke = (point: PointerSample) => {
     if (!this.currentStroke) {
       return;
     }
-    this.currentStroke.points.push(this.transposePoint(point));
+    const transposedPoint = this.transposePoint(point);
+    this.currentStroke.points.push(transposedPoint);
+    this.previewStrokeRenderer?.appendPoint(transposedPoint);
   };
 
   private endStroke = (point: PointerSample) => {
     if (!this.currentStroke) {
       return;
     }
-    this.currentStroke.points.push(this.transposePoint(point));
+    const transposedPoint = this.transposePoint(point);
+    this.currentStroke.points.push(transposedPoint);
+    this.previewStrokeRenderer?.appendPoint(transposedPoint);
     this.store.dispatch(addStrokeToActiveLayer(this.currentStroke));
     this.currentStroke = null;
+    if (this.previewStrokeRenderer) this.activeLayerRenderer?.container.removeChild(this.previewStrokeRenderer.graphics);
+    this.activeLayerRenderer = null;
+    this.previewStrokeRenderer?.destroy();
+    this.previewStrokeRenderer = null;
   };
 
   private transposePoint(point: PointerSample) {

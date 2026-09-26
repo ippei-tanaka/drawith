@@ -7,14 +7,10 @@ export class LayerRenderer {
   readonly id: string;
 
   private strokeRenderers = new Map<string, StrokeRenderer>();
-  private renderedStrokes = new Map<string, Stroke>();
+  // private renderedStrokes = new Map<string, Stroke>();
 
-  constructor(
-    private readonly parent: Container,
-    layer: Layer,
-  ) {
+  constructor(layer: Layer) {
     this.container = new Container();
-    this.parent.addChild(this.container);
     this.container.filters = [new AlphaFilter()];
     this.id = layer.id;
     this.sync(layer);
@@ -26,47 +22,36 @@ export class LayerRenderer {
     this.syncStrokes(layer.strokes);
   }
 
-  private syncStrokes(strokes: Stroke[]) {
-    const currentIds = new Set(strokes.map((stroke) => stroke.id));
-
+  private syncStrokes(strokes: Stroke[]) 
+  {
     for (const stroke of strokes) {
-      const renderer = this.strokeRenderers.get(stroke.id);
-
-      if (!renderer) {
-        const newRenderer = new StrokeRenderer(this.container, stroke);
-
-        this.strokeRenderers.set(stroke.id, newRenderer);
-
-        this.renderedStrokes.set(stroke.id, stroke);
-
-        continue;
-      }
-
-      const previous = this.renderedStrokes.get(stroke.id);
-
-      if (previous !== stroke) {
-        renderer.update(stroke);
-
-        this.renderedStrokes.set(stroke.id, stroke);
+      // add
+      const strokeRenderer = this.strokeRenderers.get(stroke.id);
+      if (!strokeRenderer) {        
+        const newStrokeRenderer = new StrokeRenderer(stroke);
+        this.container.addChild(newStrokeRenderer.graphics);
+        this.strokeRenderers.set(stroke.id, newStrokeRenderer);
       }
     }
 
+    // remove
+    const currentIds = new Set(strokes.map((stroke) => stroke.id));
     for (const [id, renderer] of this.strokeRenderers) {
       if (!currentIds.has(id)) {
+        this.container.removeChild(renderer.graphics);
         renderer.destroy();
-
         this.strokeRenderers.delete(id);
-        this.renderedStrokes.delete(id);
       }
     }
 
-    strokes.forEach((stroke, index) => {
-      const renderer = this.strokeRenderers.get(stroke.id);
-      if (!renderer) {
-        return;
-      }
-      this.container.setChildIndex(renderer.graphics, index);
-    });
+    // reorder
+    // strokes.forEach((stroke, index) => {
+    //   const renderer = this.strokeRenderers.get(stroke.id);
+    //   if (!renderer) {
+    //     return;
+    //   }
+    //   this.container.setChildIndex(renderer.graphics, index);
+    // });
 
     // strokes.forEach((stroke, index) => {
     //   const renderer = this.strokeRenderers.get(stroke.id);
@@ -97,7 +82,7 @@ export class LayerRenderer {
     }
 
     this.strokeRenderers.clear();
-    this.renderedStrokes.clear();
+    // this.renderedStrokes.clear();
 
     this.container.destroy();
   }

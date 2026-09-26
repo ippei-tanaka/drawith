@@ -17,7 +17,7 @@ import { isAnyOf } from "@reduxjs/toolkit";
 
 export class BoardRenderer {
   private readonly container = new Container();
-  private readonly layers = new Map<string, LayerRenderer>();
+  private readonly layerRenderers = new Map<string, LayerRenderer>();
   private unsubscribe: (() => void) | null = null;
 
   constructor(
@@ -48,11 +48,11 @@ export class BoardRenderer {
   }
 
   destroy() {
-    for (const renderer of this.layers.values()) {
+    for (const renderer of this.layerRenderers.values()) {
       renderer.destroy();
     }
 
-    this.layers.clear();
+    this.layerRenderers.clear();
     this.container.destroy();
     this.unsubscribe?.();
   }
@@ -61,33 +61,30 @@ export class BoardRenderer {
     this.syncLayers(state.layerStack.layers);
   }
 
-  getLayerRenderer({ id }: { id: string }) {
-    for (const renderer of this.layers.values()) {
-      if (renderer.id === id) {
-        return renderer;
-      }
-    }
-    return null;
+  getActiveLayerRenderer() {
+    const activeLayerId = this.store.getState().board.layerStack.activeLayerId;
+    return this.layerRenderers.get(activeLayerId || "") ?? null;
   }
 
   private syncLayers(layers: Layer[]) {
     const currentIds = new Set(layers.map((layer) => layer.id));
 
     // Remove deleted layers
-    for (const [id, renderer] of this.layers) {
+    for (const [id, renderer] of this.layerRenderers) {
       if (!currentIds.has(id)) {
         renderer.destroy();
-        this.layers.delete(id);
+        this.layerRenderers.delete(id);
       }
     }
 
     // Add/update layers
     for (const layer of layers) {
-      let renderer = this.layers.get(layer.id);
+      let renderer = this.layerRenderers.get(layer.id);
 
       if (!renderer) {
-        renderer = new LayerRenderer(this.container, layer);
-        this.layers.set(layer.id, renderer);
+        renderer = new LayerRenderer(layer);
+        this.container.addChild(renderer.container);
+        this.layerRenderers.set(layer.id, renderer);
       }
 
       renderer.sync(layer);
@@ -95,7 +92,7 @@ export class BoardRenderer {
 
     // Make PIXI order match Redux order
     layers.forEach((layer, index) => {
-      const renderer = this.layers.get(layer.id)!;
+      const renderer = this.layerRenderers.get(layer.id)!;
       this.container.setChildIndex(renderer.container, index);
     });
   }

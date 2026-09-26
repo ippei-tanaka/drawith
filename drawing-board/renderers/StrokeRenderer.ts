@@ -1,24 +1,18 @@
 import { Container, Graphics } from "pixi.js";
-import type { PointerSample, Stroke } from "@/lib/store/boardSlice";
+import { DrawingTool, type PointerSample, type Stroke } from "@/lib/store/boardSlice";
 
 type RenderableStroke = Stroke;
 
-export class StrokeRenderer {
+export class StrokeRenderer 
+{
   readonly graphics: Graphics;
 
   private stroke: RenderableStroke;
 
   constructor(
-    private readonly parent: Container,
     stroke: RenderableStroke,
   ) {
-    this.stroke = stroke;
     this.graphics = new Graphics();
-    this.parent.addChild(this.graphics);
-    this.render();
-  }
-
-  update(stroke: Stroke) {
     this.stroke = stroke;
     this.render();
   }
@@ -44,10 +38,13 @@ export class StrokeRenderer {
     this.render();
   }
 
-  private render() {
+  private render() 
+  {
     this.graphics.clear();
 
-  
+    if (this.stroke.tool === DrawingTool.Eraser) {
+      this.graphics.blendMode = 'erase';
+    }
 
     const points = this.stroke.points;
 
@@ -171,7 +168,7 @@ export class StrokeRenderer {
   }
 
   destroy() {
-    this.parent.removeChild(this.graphics);
+    this.graphics.clear();
     this.graphics.destroy();
   }
 }
