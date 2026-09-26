@@ -60,20 +60,6 @@ export class StrokeRenderer {
     }
 
     /*
-     * We now have:
-     *
-     * P0 ---- P1 ---- P2
-     *
-     * Use P1 as the Bézier control point and
-     * draw toward the midpoint of P1/P2.
-     */
-    const p0 = points[points.length - 3];
-    const p1 = points[points.length - 2];
-    const p2 = points[points.length - 1];
-
-    const midpoint = this.getMidpoint(p1, p2);
-
-    /*
      * The previous straight segment may already have
      * been drawn, so we need to redraw the stroke
      * from the previous stable point.
@@ -113,25 +99,21 @@ export class StrokeRenderer {
   private drawPolyline(
     points: PointerSample[],
   ) {
-    this.graphics.moveTo(
-      points[0].x,
-      points[0].y,
-    );
-
     for (let i = 1; i < points.length; i++) {
-      this.graphics.lineTo(
-        points[i].x,
-        points[i].y,
-      );
-    }
+      const from = points[i - 1];
+      const to = points[i];
 
-    this.graphics.stroke({
-      width: this.getWidth(
-        this.getAveragePressure(points),
-      ),
-      color: this.stroke.color,
-      alpha: this.stroke.opacity,
-    });
+      this.graphics
+        .moveTo(from.x, from.y)
+        .lineTo(to.x, to.y)
+        .stroke({
+          width: this.getWidth(
+            (from.pressure + to.pressure) / 2,
+          ),
+          color: this.stroke.color,
+          alpha: this.stroke.opacity,
+        });
+    }
   }
 
   /**
@@ -151,11 +133,7 @@ export class StrokeRenderer {
     points: PointerSample[],
   ) {
     const first = points[0];
-
-    this.graphics.moveTo(
-      first.x,
-      first.y,
-    );
+    let start = first;
 
     for (
       let i = 1;
@@ -171,12 +149,23 @@ export class StrokeRenderer {
           next,
         );
 
-      this.graphics.quadraticCurveTo(
-        current.x,
-        current.y,
-        midpoint.x,
-        midpoint.y,
-      );
+      this.graphics
+        .moveTo(start.x, start.y)
+        .quadraticCurveTo(
+          current.x,
+          current.y,
+          midpoint.x,
+          midpoint.y,
+        )
+        .stroke({
+          width: this.getWidth(
+            (start.pressure + midpoint.pressure) / 2,
+          ),
+          color: this.stroke.color,
+          alpha: this.stroke.opacity,
+        });
+
+      start = midpoint;
     }
 
     /*
@@ -184,18 +173,16 @@ export class StrokeRenderer {
      */
     const last = points[points.length - 1];
 
-    this.graphics.lineTo(
-      last.x,
-      last.y,
-    );
-
-    this.graphics.stroke({
-      width: this.getWidth(
-        this.getAveragePressure(points),
-      ),
-      color: this.stroke.color,
-      alpha: this.stroke.opacity,
-    });
+    this.graphics
+      .moveTo(start.x, start.y)
+      .lineTo(last.x, last.y)
+      .stroke({
+        width: this.getWidth(
+          (start.pressure + last.pressure) / 2,
+        ),
+        color: this.stroke.color,
+        alpha: this.stroke.opacity,
+      });
   }
 
   private drawDot(
@@ -244,22 +231,6 @@ export class StrokeRenderer {
       y: (a.y + b.y) / 2,
       pressure: (a.pressure + b.pressure) / 2,
     };
-  }
-
-  private getAveragePressure(
-    points: PointerSample[],
-  ) {
-    if (points.length === 0) {
-      return 1;
-    }
-
-    const total = points.reduce(
-      (sum, point) =>
-        sum + point.pressure,
-      0,
-    );
-
-    return total / points.length;
   }
 
   private getWidth(
