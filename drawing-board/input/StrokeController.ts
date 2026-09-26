@@ -6,7 +6,7 @@ import { StrokeRenderer } from "../renderers/StrokeRenderer";
 
 export class StrokeController {
   private drawing = false;
-  private currentStroke: Omit<Stroke, "id" | "smoothness"> | null = null;
+  private currentStroke: Stroke | null = null;
   private currentRenderer: StrokeRenderer | null = null;
   private unsubscribe: (() => void) | null = null;
 
@@ -78,6 +78,7 @@ export class StrokeController {
       color,
       opacity,
       tool,
+      smoothness,
     } = state.brushSettings;
 
     const point = this.getPoint(event);
@@ -88,6 +89,8 @@ export class StrokeController {
       color,
       opacity,
       tool,
+      smoothness,
+      id: crypto.randomUUID()
     };
 
     this.currentRenderer =

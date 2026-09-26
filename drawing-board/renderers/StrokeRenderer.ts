@@ -4,9 +4,7 @@ import type {
   Stroke,
 } from "@/lib/store/boardSlice";
 
-type RenderableStroke =
-  | Stroke
-  | Omit<Stroke, "id" | "smoothness">;
+type RenderableStroke = Stroke;
 
 export class StrokeRenderer {
   readonly graphics: Graphics;
@@ -19,9 +17,7 @@ export class StrokeRenderer {
   ) {
     this.stroke = stroke;
     this.graphics = new Graphics();
-
     this.parent.addChild(this.graphics);
-
     this.render();
   }
 
