@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction, nanoid } from "@reduxjs/toolkit";
 
 const DRAWING_TOOLS = ["pen", "marker", "eraser"] as const;
 export type DrawingTool = typeof DRAWING_TOOLS[number];
@@ -61,7 +61,7 @@ export interface BoardState
   errors: Error[];
 }
 
-const defaultLayerId = crypto.randomUUID();
+const defaultLayerId = nanoid();
 
 const initialState: BoardState = {
   brushSettings: {
@@ -134,7 +134,7 @@ const boardSlice = createSlice({
       prepare() {
         return {
           payload: {
-            id: crypto.randomUUID(),
+            id: nanoid(),
             name: "",
             strokes: [],
             visible: true,
@@ -257,7 +257,7 @@ const boardSlice = createSlice({
 
       prepare(stroke: Omit<Stroke, "id" | "smoothness">) {
         return { payload: { 
-          id: crypto.randomUUID(), 
+          id: nanoid(), 
           smoothness: 1, 
           ...stroke } 
         };

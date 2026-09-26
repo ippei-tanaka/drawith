@@ -3,6 +3,7 @@ import type { AppStore } from "@/lib/store/store";
 import { addStrokeToActiveLayer, setTool, type Stroke } from "@/lib/store/boardSlice";
 import { listenerMiddleware } from "@/lib/store/store";
 import { StrokeRenderer } from "../renderers/StrokeRenderer";
+import { nanoid } from "@reduxjs/toolkit";
 
 export class StrokeController {
   private drawing = false;
@@ -90,7 +91,7 @@ export class StrokeController {
       opacity,
       tool,
       smoothness,
-      id: crypto.randomUUID()
+      id: nanoid()
     };
 
     this.currentRenderer =
