@@ -62,6 +62,7 @@ export class BoardApplication extends Application<Renderer> {
       this.boardRenderer.getLayerRenderer(
         {id: this.store.getState().board.layerStack.activeLayerId || ''}
       )?.container || new Container(),
+      this.viewport,
       this.store
     );
     this.strokeController.init();

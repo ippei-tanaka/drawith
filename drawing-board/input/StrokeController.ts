@@ -3,6 +3,7 @@ import type { AppStore } from "@/lib/store/store";
 import { addStrokeToActiveLayer, setTool, type Stroke } from "@/lib/store/boardSlice";
 import { listenerMiddleware } from "@/lib/store/store";
 import { StrokeRenderer } from "../renderers/StrokeRenderer";
+import { Viewport } from "../viewport/Viewport";
 import { nanoid } from "@reduxjs/toolkit";
 
 export class StrokeController {
@@ -14,6 +15,7 @@ export class StrokeController {
   constructor(
     private surface: Container,
     private drawingContainer: Container,
+    private viewport: Viewport,
     private store: AppStore,
   ) { }
 
@@ -165,9 +167,14 @@ export class StrokeController {
   private getPoint(
     event: FederatedPointerEvent
   ) {
+    const point = this.viewport.documentPoint(
+      event.global.x,
+      event.global.y,
+    );
+
     return {
-      x: event.screenX,
-      y: event.screenY,
+      x: point.x,
+      y: point.y,
       pressure: event.pressure ?? 1,
     };
   }
