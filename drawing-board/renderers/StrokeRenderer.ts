@@ -110,6 +110,8 @@ export class StrokeRenderer {
           width: this.getWidth(
             (from.pressure + to.pressure) / 2,
           ),
+          cap: "round",
+          join: "round",
           color: this.stroke.color,
           alpha: this.stroke.opacity,
         });
@@ -161,6 +163,8 @@ export class StrokeRenderer {
           width: this.getWidth(
             (start.pressure + midpoint.pressure) / 2,
           ),
+          cap: "round",
+          join: "round",
           color: this.stroke.color,
           alpha: this.stroke.opacity,
         });
@@ -180,6 +184,8 @@ export class StrokeRenderer {
         width: this.getWidth(
           (start.pressure + last.pressure) / 2,
         ),
+        cap: "round",
+        join: "round",
         color: this.stroke.color,
         alpha: this.stroke.opacity,
       });
@@ -217,6 +223,8 @@ export class StrokeRenderer {
       .lineTo(to.x, to.y)
       .stroke({
         width,
+        cap: "round",
+        join: "round",
         color: this.stroke.color,
         alpha: this.stroke.opacity,
       });
