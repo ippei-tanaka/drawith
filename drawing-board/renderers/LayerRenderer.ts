@@ -1,4 +1,4 @@
-import { AlphaFilter, Container, Graphics, Renderer, RenderTexture } from "pixi.js";
+import { AlphaFilter, Container } from "pixi.js";
 import { DrawingTool, type Layer, type Stroke } from "@/lib/store/boardSlice";
 import { StrokeRenderer } from "./StrokeRenderer";
 
@@ -10,15 +10,13 @@ export class LayerRenderer {
   private renderedStrokes = new Map<string, Stroke>();
 
   constructor(
-    private readonly renderer: Renderer,
     private readonly parent: Container,
     layer: Layer,
   ) {
     this.container = new Container();
-    this.id = layer.id;
-
     this.parent.addChild(this.container);
-
+    this.container.filters = [new AlphaFilter()];
+    this.id = layer.id;
     this.sync(layer);
   }
 
@@ -62,39 +60,35 @@ export class LayerRenderer {
       }
     }
 
-    this.container.removeChildren();
-    this.container.filters = [new AlphaFilter()];
-
     strokes.forEach((stroke, index) => {
       const renderer = this.strokeRenderers.get(stroke.id);
-
       if (!renderer) {
         return;
       }
-
-      // this.container.setChildIndex(renderer.graphics, index);
-      const container = new Container();
-      container.addChild(renderer.graphics);
-      container.zIndex = index;
-      container.sortableChildren = true;
-      // container.blendMode = "erase";
-      if (stroke.tool === DrawingTool.Eraser) {
-        container.blendMode = "erase";
-      }
-      this.container.addChild(container);
-
-
-      // const renderTexture = RenderTexture.create({ width: 800, height: 600 });
-      // const d = this.renderer.render({ 
-      //     container: this.container, 
-      //     target: renderTexture, 
-      //     clear: false 
-      // });
-      ;
-
+      this.container.setChildIndex(renderer.graphics, index);
     });
 
+    // strokes.forEach((stroke, index) => {
+    //   const renderer = this.strokeRenderers.get(stroke.id);
 
+    //   if (!renderer) {
+    //     return;
+    //   }
+
+    //   // this.container.setChildIndex(renderer.graphics, index);
+    //   // this.container.setChildIndex(renderer.graphics, index);
+    //   this.container.addChild(renderer.graphics);
+    //   renderer.graphics.zIndex = index;
+    //   // const container = new Container();
+    //   // container.addChild(renderer.graphics);
+    //   // container.zIndex = index;
+    //   // container.sortableChildren = true;
+    //   // container.blendMode = "erase";
+    //   if (stroke.tool === DrawingTool.Eraser) {
+    //     renderer.graphics.blendMode = "erase";
+    //   }
+    //   // this.container.addChild(container);
+    // });
   }
 
   destroy() {

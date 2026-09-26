@@ -1,68 +1,64 @@
-import { Container, FederatedPointerEvent } from "pixi.js";
+import { Container } from "pixi.js";
 import type { AppStore } from "@/lib/store/store";
+import type { BoardRenderer } from "../renderers/BoardRenderer";
+import type { StrokeRenderer } from "../renderers/StrokeRenderer";
+import type { Tool } from "@/lib/store/boardSlice";
 import {
   addStrokeToActiveLayer,
   DrawingTool,
-  eraseAtActiveLayer,
   setTool,
   type PointerSample,
   type Stroke,
 } from "@/lib/store/boardSlice";
 import { listenerMiddleware } from "@/lib/store/store";
-import { StrokeRenderer } from "../renderers/StrokeRenderer";
 import { Viewport } from "../viewport/Viewport";
 import { nanoid } from "@reduxjs/toolkit";
+import { StrokeInputController } from "./StrokeInputController";
+
+const DrawingTools = [DrawingTool.Pen, DrawingTool.Eraser];
+const isDrawingTool = (tool: Tool) => DrawingTools.includes(tool as DrawingTool);
 
 export class StrokeController {
-  private drawing = false;
   private currentStroke: Stroke | null = null;
-  private currentRenderer: StrokeRenderer | null = null;
-  private lastEraserPoint: PointerSample | null = null;
+  private previewRenderer: StrokeRenderer | null = null;
   private unsubscribe: (() => void) | null = null;
+  private strokeInputController = new StrokeInputController(this.surface);
 
   constructor(
     private surface: Container,
-    private drawingContainer: Container,
     private viewport: Viewport,
     private store: AppStore,
+    private boardRenderer: BoardRenderer
   ) {}
 
   init() {
-    if ([DrawingTool.Pen, DrawingTool.Eraser].includes(this.store.getState().board.tool as DrawingTool)) {
+    if (isDrawingTool(this.store.getState().board.tool)) {
       this.activate();
     }
 
     this.unsubscribe = listenerMiddleware.startListening({
       actionCreator: setTool,
       effect: (action) => {
-        if (action.payload === DrawingTool.Eraser) {
-          // this.cancelCurrentStroke();
-          this.activate();
-        } else if (action.payload === DrawingTool.Pen) {
+        if (isDrawingTool(action.payload)) {
           this.activate();
         } else {
           this.deactivate();
         }
       },
     });
+
+    this.strokeInputController.onStart = this.startStroke;
+    this.strokeInputController.onMove = this.keepStroke;
+    this.strokeInputController.onEnd = this.endStroke;
   }
 
   activate() {
-    this.surface.on("pointerdown", this.pointerDown);
-    this.surface.on("pointermove", this.pointerMove);
-    this.surface.on("pointerup", this.pointerUp);
-    this.surface.on("pointerupoutside", this.pointerUp);
+    this.strokeInputController.activate();
   }
 
   deactivate() {
-    this.surface.off("pointerdown", this.pointerDown);
-    this.surface.off("pointermove", this.pointerMove);
-    this.surface.off("pointerup", this.pointerUp);
-    this.surface.off("pointerupoutside", this.pointerUp);
-
-    // Don't leave a temporary stroke behind
-    // if the tool changes while drawing.
-    this.cancelCurrentStroke();
+    this.strokeInputController.deactivate();
+    this.currentStroke = null;
   }
 
   cleanup() {
@@ -71,43 +67,11 @@ export class StrokeController {
     this.unsubscribe = null;
   }
 
-  setContainer(container: Container) {
-    this.drawingContainer = container;
-  }
-
-  private pointerDown = (event: FederatedPointerEvent) => {
-    if (event.button !== 0) {
-      return;
-    }
-
+  private startStroke = (point: PointerSample) => {
     const state = this.store.getState().board;
-
-    if (!state.layerStack.activeLayerId) {
-      return;
-    }
-
     const { size, color, opacity, tool, smoothness } = state.brushSettings;
-
-    const point = this.getPoint(event);
-
-    /*
-    if (tool === DrawingTool.Eraser) {
-      this.cancelCurrentStroke();
-      this.lastEraserPoint = point;
-      this.drawing = true;
-      this.store.dispatch(eraseAtActiveLayer({
-        from: point,
-        to: point,
-        size,
-      }));
-      return;
-    }
-      */
-
-    this.cancelCurrentStroke();
-
     this.currentStroke = {
-      points: [point],
+      points: [this.transposePoint(point)],
       size,
       color,
       opacity,
@@ -115,82 +79,30 @@ export class StrokeController {
       smoothness,
       id: nanoid(),
     };
-
-    this.currentRenderer = new StrokeRenderer(
-      this.drawingContainer,
-      this.currentStroke,
-    );
-
-    this.drawing = true;
   };
 
-  private pointerMove = (event: FederatedPointerEvent) => {
-    /*
-    if (
-      this.drawing &&
-      this.store.getState().board.tool === DrawingTool.Eraser
-    ) {
-      const point = this.getPoint(event);
-      const previous = this.lastEraserPoint || point;
-
-      this.store.dispatch(eraseAtActiveLayer({
-        from: previous,
-        to: point,
-        size: this.store.getState().board.brushSettings.size,
-      }));
-      this.lastEraserPoint = point;
+  private keepStroke = (point: PointerSample) => {
+    if (!this.currentStroke) {
       return;
     }
-    */
-
-    if (!this.drawing || !this.currentStroke || !this.currentRenderer) {
-      return;
-    }
-
-    const point = this.getPoint(event);
-
-    this.currentRenderer.appendPoint(point);
+    this.currentStroke.points.push(this.transposePoint(point));
   };
 
-  private pointerUp = () => {
-    /*
-    if (this.store.getState().board.tool === DrawingTool.Eraser) {
-      this.lastEraserPoint = null;
-      this.drawing = false;
+  private endStroke = (point: PointerSample) => {
+    if (!this.currentStroke) {
       return;
     }
-      */
-
-    if (!this.drawing || !this.currentStroke) {
-      return;
-    }
-
-    const stroke = this.currentStroke;
-
-    this.store.dispatch(addStrokeToActiveLayer(stroke));
-    this.currentRenderer?.destroy();
-    this.currentRenderer = null;
+    this.currentStroke.points.push(this.transposePoint(point));
+    this.store.dispatch(addStrokeToActiveLayer(this.currentStroke));
     this.currentStroke = null;
-    this.drawing = false;
-    this.lastEraserPoint = null;
   };
 
-  private cancelCurrentStroke() {
-    this.currentRenderer?.destroy();
-
-    this.currentRenderer = null;
-    this.currentStroke = null;
-    this.drawing = false;
-    this.lastEraserPoint = null;
-  }
-
-  private getPoint(event: FederatedPointerEvent) {
-    const point = this.viewport.documentPoint(event.global.x, event.global.y);
-
+  private transposePoint(point: PointerSample) {
+    const docPoint = this.viewport.documentPoint(point.x, point.y);
     return {
-      x: point.x,
-      y: point.y,
-      pressure: event.pressure ?? 1,
+      x: docPoint.x,
+      y: docPoint.y,
+      pressure: point.pressure,
     };
   }
 }

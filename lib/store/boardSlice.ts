@@ -48,7 +48,6 @@ export interface Layer {
 export interface LayerStack {
   layers: Layer[];
   activeLayerId: string | null;
-  // activeLayer: Layer | null;
 }
 
 export interface BrushSettings {
@@ -104,9 +103,6 @@ const initialState: BoardState = {
       strokes: [],
     }],
     activeLayerId: defaultLayerId,
-    // get activeLayer() {
-    //   return this.layers.find(layer => layer.id === this.activeLayerId) || null;
-    // },
   },
   errors: [],
 };
@@ -250,34 +246,21 @@ const boardSlice = createSlice({
       }
     },
 
-    addStrokeToActiveLayer: 
+    addStrokeToActiveLayer(state, action: PayloadAction<Stroke>) 
     {
-      reducer(state, action: PayloadAction<Stroke>) 
-      {
-        const activeLayer = state.layerStack.layers.find(layer => layer.id === state.layerStack.activeLayerId) || null;
+      const activeLayer = state.layerStack.layers.find(layer => layer.id === state.layerStack.activeLayerId) || null;
 
-        if (!activeLayer) {
-          state.errors.push({ message: "No active layer found." });
-          return;
-        }
-        
-        if (!activeLayer.visible) {
-          state.errors.push({ message: "Active layer is not visible." });
-          return;
-        }
-
-        action.payload.smoothness = state.brushSettings.smoothness;
-
-        activeLayer.strokes.push(action.payload);
-      },
-
-      prepare(stroke: Omit<Stroke, "id" | "smoothness">) {
-        return { payload: { 
-          id: nanoid(), 
-          smoothness: 1, 
-          ...stroke } 
-        };
+      if (!activeLayer) {
+        state.errors.push({ message: "No active layer found." });
+        return;
       }
+      
+      if (!activeLayer.visible) {
+        state.errors.push({ message: "Active layer is not visible." });
+        return;
+      }
+
+      activeLayer.strokes.push(action.payload);
     },
 
     eraseAtActiveLayer(state, action: PayloadAction<{

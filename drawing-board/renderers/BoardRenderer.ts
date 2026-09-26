@@ -1,4 +1,4 @@
-import { Container, Renderer } from "pixi.js";
+import { Container } from "pixi.js";
 import {
   addLayer,
   removeLayer,
@@ -21,7 +21,6 @@ export class BoardRenderer {
   private unsubscribe: (() => void) | null = null;
 
   constructor(
-    private renderer: Renderer,
     private store: AppStore,
     parent: Container,
   ) {
@@ -40,7 +39,6 @@ export class BoardRenderer {
         setLayerOpacity,
         addStrokeToActiveLayer,
         eraseAtActiveLayer,
-        // setZoom,
       ),
 
       effect: (_, listenerApi) => {
@@ -88,7 +86,7 @@ export class BoardRenderer {
       let renderer = this.layers.get(layer.id);
 
       if (!renderer) {
-        renderer = new LayerRenderer(this.renderer, this.container, layer);
+        renderer = new LayerRenderer(this.container, layer);
         this.layers.set(layer.id, renderer);
       }
 
