@@ -1,5 +1,5 @@
 import { AlphaFilter, Container, Graphics, Renderer, RenderTexture } from "pixi.js";
-import type { Layer, Stroke } from "@/lib/store/boardSlice";
+import { DrawingTool, type Layer, type Stroke } from "@/lib/store/boardSlice";
 import { StrokeRenderer } from "./StrokeRenderer";
 
 export class LayerRenderer {
@@ -78,7 +78,7 @@ export class LayerRenderer {
       container.zIndex = index;
       container.sortableChildren = true;
       // container.blendMode = "erase";
-      if (stroke.tool === "eraser") {
+      if (stroke.tool === DrawingTool.Eraser) {
         container.blendMode = "erase";
       }
       this.container.addChild(container);

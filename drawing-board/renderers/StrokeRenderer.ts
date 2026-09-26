@@ -1,4 +1,4 @@
-import { Container, Graphics, Renderer } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import type { PointerSample, Stroke } from "@/lib/store/boardSlice";
 
 type RenderableStroke = Stroke;
@@ -66,11 +66,6 @@ export class StrokeRenderer {
     }
 
     this.drawSmoothStroke(points);
-
-    if (this.stroke.tool === "eraser") {
-      // console.log(121);
-      // this.graphics.blendMode = "erase";
-    }
   }
 
   private drawPolyline(points: PointerSample[]) {

@@ -1,6 +1,6 @@
 import { Container, FederatedPointerEvent } from "pixi.js";
 import { Viewport } from "../viewport/Viewport";
-import { Tool, setTool } from "@/lib/store/boardSlice";
+import { TOOLS, Tool, setTool } from "@/lib/store/boardSlice";
 import { listenerMiddleware, AppStore } from "@/lib/store/store";
 
 export class PanController 
@@ -21,7 +21,7 @@ export class PanController
     this.unsubscribe = listenerMiddleware.startListening({
       actionCreator: setTool,
       effect: (action) => {
-        if (action.payload === "pan") {
+        if (action.payload === TOOLS.Pan) {
           this.activate();
         } else {
           this.deactivate();
@@ -59,7 +59,7 @@ export class PanController
   private mouseDown = (event: FederatedPointerEvent) => {
     if (event.button === 1) {
       this.originalTool = this.store.getState().board.tool;
-      this.store.dispatch(setTool("pan"));
+      this.store.dispatch(setTool(TOOLS.Pan));
       this.dragging = true;
       this.stage.on("mouseup", this.mouseUp);
       this.stage.on("mouseupoutside", this.mouseUp);

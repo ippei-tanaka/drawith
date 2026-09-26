@@ -1,10 +1,25 @@
 import { createSlice, type PayloadAction, nanoid } from "@reduxjs/toolkit";
 import { eraseStroke } from "@/drawing-board/drawing/eraseStroke";
-const PEN = "pen" as const;
-const DRAWING_TOOLS = ["pen", "brush", "eraser"] as const;
-export type DrawingTool = typeof DRAWING_TOOLS[number];
-export type NavigationTool = "pan";
-export type Tool = DrawingTool | NavigationTool;
+
+export enum DrawingTool {
+  Pen = "pen",
+  Brush = "brush",
+  Eraser = "eraser",
+}
+
+const DRAWING_TOOLS: DrawingTool[] = Object.values(DrawingTool);
+
+export enum NavigationTool {
+  Pan = "pan",
+}
+
+export type Tool = "pen" | "brush" | "eraser" | "pan";
+
+export const TOOLS = {
+  ...DrawingTool,
+  ...NavigationTool,
+};
+
 
 export interface PointerSample {
   x: number;
@@ -66,13 +81,13 @@ const defaultLayerId = nanoid();
 
 const initialState: BoardState = {
   brushSettings: {
-    tool: "pen",
+    tool: DrawingTool.Pen,
     color: 0x000000,
     size: 65,
     opacity: 1,
     smoothness: 2
   },
-  tool: "pen",
+  tool: DrawingTool.Pen,
   zoom: { 
     level: 100, 
     position: { 

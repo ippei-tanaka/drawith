@@ -2,6 +2,7 @@ import { Container, FederatedPointerEvent } from "pixi.js";
 import type { AppStore } from "@/lib/store/store";
 import {
   addStrokeToActiveLayer,
+  DrawingTool,
   eraseAtActiveLayer,
   setTool,
   type PointerSample,
@@ -27,17 +28,17 @@ export class StrokeController {
   ) {}
 
   init() {
-    if (["pen", "eraser"].includes(this.store.getState().board.tool)) {
+    if ([DrawingTool.Pen, DrawingTool.Eraser].includes(this.store.getState().board.tool as DrawingTool)) {
       this.activate();
     }
 
     this.unsubscribe = listenerMiddleware.startListening({
       actionCreator: setTool,
       effect: (action) => {
-        if (action.payload === "eraser") {
+        if (action.payload === DrawingTool.Eraser) {
           // this.cancelCurrentStroke();
           this.activate();
-        } else if (action.payload === "pen") {
+        } else if (action.payload === DrawingTool.Pen) {
           this.activate();
         } else {
           this.deactivate();
@@ -90,7 +91,7 @@ export class StrokeController {
     const point = this.getPoint(event);
 
     /*
-    if (tool === "eraser") {
+    if (tool === DrawingTool.Eraser) {
       this.cancelCurrentStroke();
       this.lastEraserPoint = point;
       this.drawing = true;
@@ -127,7 +128,7 @@ export class StrokeController {
     /*
     if (
       this.drawing &&
-      this.store.getState().board.tool === "eraser"
+      this.store.getState().board.tool === DrawingTool.Eraser
     ) {
       const point = this.getPoint(event);
       const previous = this.lastEraserPoint || point;
@@ -153,7 +154,7 @@ export class StrokeController {
 
   private pointerUp = () => {
     /*
-    if (this.store.getState().board.tool === "eraser") {
+    if (this.store.getState().board.tool === DrawingTool.Eraser) {
       this.lastEraserPoint = null;
       this.drawing = false;
       return;
