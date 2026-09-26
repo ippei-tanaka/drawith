@@ -1,44 +1,52 @@
-import { Container } from "pixi.js";
-import { addLayer, removeLayer, reorderLayers, setLayerVisibility, setLayerOpacity, addStrokeToActiveLayer, eraseAtActiveLayer, setZoom, type BoardState, type Layer } from "@/lib/store/boardSlice";
+import { Container, Renderer } from "pixi.js";
+import {
+  addLayer,
+  removeLayer,
+  reorderLayers,
+  setLayerVisibility,
+  setLayerOpacity,
+  addStrokeToActiveLayer,
+  eraseAtActiveLayer,
+  setZoom,
+  type BoardState,
+  type Layer,
+} from "@/lib/store/boardSlice";
 import { LayerRenderer } from "./LayerRenderer";
 import { AppStore, listenerMiddleware } from "@/lib/store/store";
 import { isAnyOf } from "@reduxjs/toolkit";
 
-export class BoardRenderer 
-{
+export class BoardRenderer {
   private readonly container = new Container();
   private readonly layers = new Map<string, LayerRenderer>();
   private unsubscribe: (() => void) | null = null;
 
   constructor(
+    private renderer: Renderer,
     private store: AppStore,
-    parent: Container
-  ) 
-  {
+    parent: Container,
+  ) {
     parent.addChild(this.container);
   }
 
-  init() 
-  {
+  init() {
     this.sync(this.store.getState().board);
 
-    this.unsubscribe = listenerMiddleware.startListening(
-      {
-        matcher: isAnyOf(
-          addLayer,
-          removeLayer,
-          reorderLayers,
-          setLayerVisibility,
-          setLayerOpacity,
-          addStrokeToActiveLayer,
-          eraseAtActiveLayer,
-          // setZoom,
-        ),
+    this.unsubscribe = listenerMiddleware.startListening({
+      matcher: isAnyOf(
+        addLayer,
+        removeLayer,
+        reorderLayers,
+        setLayerVisibility,
+        setLayerOpacity,
+        addStrokeToActiveLayer,
+        eraseAtActiveLayer,
+        // setZoom,
+      ),
 
-        effect: (_, listenerApi) => {
-          this.sync(listenerApi.getState().board);
-        },
-      });
+      effect: (_, listenerApi) => {
+        this.sync(listenerApi.getState().board);
+      },
+    });
   }
 
   destroy() {
@@ -55,7 +63,7 @@ export class BoardRenderer
     this.syncLayers(state.layerStack.layers);
   }
 
-  getLayerRenderer({id}: {id: string}) {
+  getLayerRenderer({ id }: { id: string }) {
     for (const renderer of this.layers.values()) {
       if (renderer.id === id) {
         return renderer;
@@ -65,7 +73,7 @@ export class BoardRenderer
   }
 
   private syncLayers(layers: Layer[]) {
-    const currentIds = new Set(layers.map(layer => layer.id));
+    const currentIds = new Set(layers.map((layer) => layer.id));
 
     // Remove deleted layers
     for (const [id, renderer] of this.layers) {
@@ -80,7 +88,7 @@ export class BoardRenderer
       let renderer = this.layers.get(layer.id);
 
       if (!renderer) {
-        renderer = new LayerRenderer(this.container, layer);
+        renderer = new LayerRenderer(this.renderer, this.container, layer);
         this.layers.set(layer.id, renderer);
       }
 

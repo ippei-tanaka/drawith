@@ -1,6 +1,12 @@
 import { Container, FederatedPointerEvent } from "pixi.js";
 import type { AppStore } from "@/lib/store/store";
-import { addStrokeToActiveLayer, eraseAtActiveLayer, setTool, type PointerSample, type Stroke } from "@/lib/store/boardSlice";
+import {
+  addStrokeToActiveLayer,
+  eraseAtActiveLayer,
+  setTool,
+  type PointerSample,
+  type Stroke,
+} from "@/lib/store/boardSlice";
 import { listenerMiddleware } from "@/lib/store/store";
 import { StrokeRenderer } from "../renderers/StrokeRenderer";
 import { Viewport } from "../viewport/Viewport";
@@ -18,7 +24,7 @@ export class StrokeController {
     private drawingContainer: Container,
     private viewport: Viewport,
     private store: AppStore,
-  ) { }
+  ) {}
 
   init() {
     if (["pen", "eraser"].includes(this.store.getState().board.tool)) {
@@ -29,14 +35,14 @@ export class StrokeController {
       actionCreator: setTool,
       effect: (action) => {
         if (action.payload === "eraser") {
-          this.cancelCurrentStroke();
+          // this.cancelCurrentStroke();
           this.activate();
         } else if (action.payload === "pen") {
           this.activate();
         } else {
           this.deactivate();
         }
-      }
+      },
     });
   }
 
@@ -68,8 +74,7 @@ export class StrokeController {
     this.drawingContainer = container;
   }
 
-  private pointerDown = (event: FederatedPointerEvent) => 
-  {
+  private pointerDown = (event: FederatedPointerEvent) => {
     if (event.button !== 0) {
       return;
     }
@@ -80,16 +85,11 @@ export class StrokeController {
       return;
     }
 
-    const {
-      size,
-      color,
-      opacity,
-      tool,
-      smoothness,
-    } = state.brushSettings;
+    const { size, color, opacity, tool, smoothness } = state.brushSettings;
 
     const point = this.getPoint(event);
 
+    /*
     if (tool === "eraser") {
       this.cancelCurrentStroke();
       this.lastEraserPoint = point;
@@ -101,6 +101,7 @@ export class StrokeController {
       }));
       return;
     }
+      */
 
     this.cancelCurrentStroke();
 
@@ -111,21 +112,19 @@ export class StrokeController {
       opacity,
       tool,
       smoothness,
-      id: nanoid()
+      id: nanoid(),
     };
 
-    this.currentRenderer =
-      new StrokeRenderer(
-        this.drawingContainer,
-        this.currentStroke
-      );
+    this.currentRenderer = new StrokeRenderer(
+      this.drawingContainer,
+      this.currentStroke,
+    );
 
     this.drawing = true;
   };
 
-  private pointerMove = (
-    event: FederatedPointerEvent
-  ) => {
+  private pointerMove = (event: FederatedPointerEvent) => {
+    /*
     if (
       this.drawing &&
       this.store.getState().board.tool === "eraser"
@@ -141,56 +140,34 @@ export class StrokeController {
       this.lastEraserPoint = point;
       return;
     }
+    */
 
-    if (
-      !this.drawing ||
-      !this.currentStroke ||
-      !this.currentRenderer
-    ) {
+    if (!this.drawing || !this.currentStroke || !this.currentRenderer) {
       return;
     }
 
-    const point =
-      this.getPoint(event);
+    const point = this.getPoint(event);
 
     this.currentRenderer.appendPoint(point);
   };
 
   private pointerUp = () => {
+    /*
     if (this.store.getState().board.tool === "eraser") {
       this.lastEraserPoint = null;
       this.drawing = false;
       return;
     }
+      */
 
-    if (
-      !this.drawing ||
-      !this.currentStroke
-    ) {
+    if (!this.drawing || !this.currentStroke) {
       return;
     }
 
-    const stroke =
-      this.currentStroke;
+    const stroke = this.currentStroke;
 
-    /*
-     * Commit the stroke to Redux.
-     *
-     * addStrokeToActiveLayer.prepare()
-     * will generate the permanent stroke ID.
-     */
-    this.store.dispatch(
-      addStrokeToActiveLayer(stroke)
-    );
-
-    /*
-     * The temporary renderer is no longer needed.
-     *
-     * LayerRenderer will create the permanent
-     * StrokeRenderer when it sees the new stroke.
-     */
+    this.store.dispatch(addStrokeToActiveLayer(stroke));
     this.currentRenderer?.destroy();
-
     this.currentRenderer = null;
     this.currentStroke = null;
     this.drawing = false;
@@ -206,13 +183,8 @@ export class StrokeController {
     this.lastEraserPoint = null;
   }
 
-  private getPoint(
-    event: FederatedPointerEvent
-  ) {
-    const point = this.viewport.documentPoint(
-      event.global.x,
-      event.global.y,
-    );
+  private getPoint(event: FederatedPointerEvent) {
+    const point = this.viewport.documentPoint(event.global.x, event.global.y);
 
     return {
       x: point.x,

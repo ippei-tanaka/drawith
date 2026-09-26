@@ -1,8 +1,5 @@
-import { Container, Graphics } from "pixi.js";
-import type {
-  PointerSample,
-  Stroke,
-} from "@/lib/store/boardSlice";
+import { Container, Graphics, Renderer } from "pixi.js";
+import type { PointerSample, Stroke } from "@/lib/store/boardSlice";
 
 type RenderableStroke = Stroke;
 
@@ -21,22 +18,11 @@ export class StrokeRenderer {
     this.render();
   }
 
-  /**
-   * Completely redraw the stroke.
-   *
-   * Used for persisted strokes.
-   */
   update(stroke: Stroke) {
     this.stroke = stroke;
     this.render();
   }
 
-  /**
-   * Add a point while the user is drawing.
-   *
-   * This renders incrementally instead of
-   * redrawing the entire stroke.
-   */
   appendPoint(point: PointerSample) {
     const points = this.stroke.points;
 
@@ -50,29 +36,18 @@ export class StrokeRenderer {
 
     points.push(point);
 
-    /*
-     * With only two points, we don't have enough
-     * information to create a useful smooth curve.
-     */
     if (points.length === 2) {
       this.drawSegment(previous, point);
       return;
     }
 
-    /*
-     * The previous straight segment may already have
-     * been drawn, so we need to redraw the stroke
-     * from the previous stable point.
-     *
-     * For simplicity, redraw the whole stroke here.
-     *
-     * Later we can make this fully incremental.
-     */
     this.render();
   }
 
   private render() {
     this.graphics.clear();
+
+  
 
     const points = this.stroke.points;
 
@@ -91,14 +66,14 @@ export class StrokeRenderer {
     }
 
     this.drawSmoothStroke(points);
+
+    if (this.stroke.tool === "eraser") {
+      // console.log(121);
+      // this.graphics.blendMode = "erase";
+    }
   }
 
-  /**
-   * Simple unsmoothed polyline.
-   */
-  private drawPolyline(
-    points: PointerSample[],
-  ) {
+  private drawPolyline(points: PointerSample[]) {
     for (let i = 1; i < points.length; i++) {
       const from = points[i - 1];
       const to = points[i];
@@ -107,9 +82,7 @@ export class StrokeRenderer {
         .moveTo(from.x, from.y)
         .lineTo(to.x, to.y)
         .stroke({
-          width: this.getWidth(
-            (from.pressure + to.pressure) / 2,
-          ),
+          width: this.getWidth((from.pressure + to.pressure) / 2),
           cap: "round",
           join: "round",
           color: this.stroke.color,
@@ -131,38 +104,21 @@ export class StrokeRenderer {
    *          ↓
    * P0 ---- curve ---- midpoint(P1,P2)
    */
-  private drawSmoothStroke(
-    points: PointerSample[],
-  ) {
+  private drawSmoothStroke(points: PointerSample[]) {
     const first = points[0];
     let start = first;
 
-    for (
-      let i = 1;
-      i < points.length - 1;
-      i++
-    ) {
+    for (let i = 1; i < points.length - 1; i++) {
       const current = points[i];
       const next = points[i + 1];
 
-      const midpoint =
-        this.getMidpoint(
-          current,
-          next,
-        );
+      const midpoint = this.getMidpoint(current, next);
 
       this.graphics
         .moveTo(start.x, start.y)
-        .quadraticCurveTo(
-          current.x,
-          current.y,
-          midpoint.x,
-          midpoint.y,
-        )
+        .quadraticCurveTo(current.x, current.y, midpoint.x, midpoint.y)
         .stroke({
-          width: this.getWidth(
-            (start.pressure + midpoint.pressure) / 2,
-          ),
+          width: this.getWidth((start.pressure + midpoint.pressure) / 2),
           cap: "round",
           join: "round",
           color: this.stroke.color,
@@ -172,18 +128,13 @@ export class StrokeRenderer {
       start = midpoint;
     }
 
-    /*
-     * Finish the curve at the final point.
-     */
     const last = points[points.length - 1];
 
     this.graphics
       .moveTo(start.x, start.y)
       .lineTo(last.x, last.y)
       .stroke({
-        width: this.getWidth(
-          (start.pressure + last.pressure) / 2,
-        ),
+        width: this.getWidth((start.pressure + last.pressure) / 2),
         cap: "round",
         join: "round",
         color: this.stroke.color,
@@ -191,49 +142,28 @@ export class StrokeRenderer {
       });
   }
 
-  private drawDot(
-    point: PointerSample,
-  ) {
-    const width =
-      this.getWidth(point.pressure);
+  private drawDot(point: PointerSample) {
+    const width = this.getWidth(point.pressure);
 
-    this.graphics
-      .circle(
-        point.x,
-        point.y,
-        width / 2,
-      )
-      .fill({
-        color: this.stroke.color,
-        alpha: this.stroke.opacity,
-      });
+    this.graphics.circle(point.x, point.y, width / 2).fill({
+      color: this.stroke.color,
+      alpha: this.stroke.opacity,
+    });
   }
 
-  private drawSegment(
-    from: PointerSample,
-    to: PointerSample,
-  ) {
-    const width =
-      this.getWidth(
-        (from.pressure + to.pressure) / 2,
-      );
+  private drawSegment(from: PointerSample, to: PointerSample) {
+    const width = this.getWidth((from.pressure + to.pressure) / 2);
 
-    this.graphics
-      .moveTo(from.x, from.y)
-      .lineTo(to.x, to.y)
-      .stroke({
-        width,
-        cap: "round",
-        join: "round",
-        color: this.stroke.color,
-        alpha: this.stroke.opacity,
-      });
+    this.graphics.moveTo(from.x, from.y).lineTo(to.x, to.y).stroke({
+      width,
+      cap: "round",
+      join: "round",
+      color: this.stroke.color,
+      alpha: this.stroke.opacity,
+    });
   }
 
-  private getMidpoint(
-    a: PointerSample,
-    b: PointerSample,
-  ): PointerSample {
+  private getMidpoint(a: PointerSample, b: PointerSample): PointerSample {
     return {
       x: (a.x + b.x) / 2,
       y: (a.y + b.y) / 2,
@@ -241,9 +171,7 @@ export class StrokeRenderer {
     };
   }
 
-  private getWidth(
-    pressure: number,
-  ) {
+  private getWidth(pressure: number) {
     return this.stroke.size * pressure;
   }
 
