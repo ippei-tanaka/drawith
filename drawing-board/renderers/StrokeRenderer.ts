@@ -248,6 +248,7 @@ export class StrokeRenderer {
   }
 
   destroy() {
+    this.parent.removeChild(this.graphics);
     this.graphics.destroy();
   }
 }

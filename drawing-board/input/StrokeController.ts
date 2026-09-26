@@ -28,7 +28,10 @@ export class StrokeController {
     this.unsubscribe = listenerMiddleware.startListening({
       actionCreator: setTool,
       effect: (action) => {
-        if (action.payload === "pen" || action.payload === "eraser") {
+        if (action.payload === "eraser") {
+          this.cancelCurrentStroke();
+          this.activate();
+        } else if (action.payload === "pen") {
           this.activate();
         } else {
           this.deactivate();
@@ -88,6 +91,7 @@ export class StrokeController {
     const point = this.getPoint(event);
 
     if (tool === "eraser") {
+      this.cancelCurrentStroke();
       this.lastEraserPoint = point;
       this.drawing = true;
       this.store.dispatch(eraseAtActiveLayer({
@@ -97,6 +101,8 @@ export class StrokeController {
       }));
       return;
     }
+
+    this.cancelCurrentStroke();
 
     this.currentStroke = {
       points: [point],

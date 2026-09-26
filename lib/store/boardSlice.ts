@@ -68,7 +68,7 @@ const initialState: BoardState = {
   brushSettings: {
     tool: "pen",
     color: 0x000000,
-    size: 5,
+    size: 65,
     opacity: 1,
     smoothness: 2
   },
@@ -296,6 +296,7 @@ const boardSlice = createSlice({
         }));
       });
 
+      console.log("Updated strokes for active layer:", strokes);
       activeLayer.strokes = strokes;
     },
 
