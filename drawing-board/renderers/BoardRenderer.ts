@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import { addLayer, removeLayer, reorderLayers, setLayerVisibility, setLayerOpacity, addStrokeToActiveLayer, setZoom, type BoardState, type Layer } from "@/lib/store/boardSlice";
+import { addLayer, removeLayer, reorderLayers, setLayerVisibility, setLayerOpacity, addStrokeToActiveLayer, eraseAtActiveLayer, setZoom, type BoardState, type Layer } from "@/lib/store/boardSlice";
 import { LayerRenderer } from "./LayerRenderer";
 import { AppStore, listenerMiddleware } from "@/lib/store/store";
 import { isAnyOf } from "@reduxjs/toolkit";
@@ -31,6 +31,7 @@ export class BoardRenderer
           setLayerVisibility,
           setLayerOpacity,
           addStrokeToActiveLayer,
+          eraseAtActiveLayer,
           // setZoom,
         ),
 

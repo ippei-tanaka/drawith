@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction, nanoid } from "@reduxjs/toolkit";
-
-const DRAWING_TOOLS = ["pen", "marker", "eraser"] as const;
+import { eraseStroke } from "@/drawing-board/drawing/eraseStroke";
+const PEN = "pen" as const;
+const DRAWING_TOOLS = ["pen", "brush", "eraser"] as const;
 export type DrawingTool = typeof DRAWING_TOOLS[number];
 export type NavigationTool = "pan";
 export type Tool = DrawingTool | NavigationTool;
@@ -264,6 +265,40 @@ const boardSlice = createSlice({
       }
     },
 
+    eraseAtActiveLayer(state, action: PayloadAction<{
+      from: PointerSample;
+      to: PointerSample;
+      size: number;
+    }>) {
+      const activeLayer = state.layerStack.layers.find(
+        layer => layer.id === state.layerStack.activeLayerId,
+      );
+
+      if (!activeLayer || !activeLayer.visible) {
+        return;
+      }
+
+      const strokes = activeLayer.strokes.flatMap(stroke => {
+        const erased = eraseStroke(
+          stroke,
+          action.payload.from,
+          action.payload.to,
+          action.payload.size,
+        );
+
+        if (!erased) {
+          return [stroke];
+        }
+
+        return erased.map((part, index) => ({
+          ...part,
+          id: index === 0 ? stroke.id : nanoid(),
+        }));
+      });
+
+      activeLayer.strokes = strokes;
+    },
+
     clearErrors(state) {
       state.errors = [];
     },
@@ -287,6 +322,7 @@ export const {
   reorderLayers,
   removeLayer,
   addStrokeToActiveLayer,
+  eraseAtActiveLayer,
   clearErrors,
 } = boardSlice.actions;
 

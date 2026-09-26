@@ -1,6 +1,6 @@
 import { Container, FederatedPointerEvent } from "pixi.js";
 import type { AppStore } from "@/lib/store/store";
-import { addStrokeToActiveLayer, setTool, type Stroke } from "@/lib/store/boardSlice";
+import { addStrokeToActiveLayer, eraseAtActiveLayer, setTool, type PointerSample, type Stroke } from "@/lib/store/boardSlice";
 import { listenerMiddleware } from "@/lib/store/store";
 import { StrokeRenderer } from "../renderers/StrokeRenderer";
 import { Viewport } from "../viewport/Viewport";
@@ -10,6 +10,7 @@ export class StrokeController {
   private drawing = false;
   private currentStroke: Stroke | null = null;
   private currentRenderer: StrokeRenderer | null = null;
+  private lastEraserPoint: PointerSample | null = null;
   private unsubscribe: (() => void) | null = null;
 
   constructor(
@@ -20,14 +21,14 @@ export class StrokeController {
   ) { }
 
   init() {
-    if (this.store.getState().board.tool === "pen") {
+    if (["pen", "eraser"].includes(this.store.getState().board.tool)) {
       this.activate();
     }
 
     this.unsubscribe = listenerMiddleware.startListening({
       actionCreator: setTool,
       effect: (action) => {
-        if (action.payload === "pen") {
+        if (action.payload === "pen" || action.payload === "eraser") {
           this.activate();
         } else {
           this.deactivate();
@@ -86,6 +87,17 @@ export class StrokeController {
 
     const point = this.getPoint(event);
 
+    if (tool === "eraser") {
+      this.lastEraserPoint = point;
+      this.drawing = true;
+      this.store.dispatch(eraseAtActiveLayer({
+        from: point,
+        to: point,
+        size,
+      }));
+      return;
+    }
+
     this.currentStroke = {
       points: [point],
       size,
@@ -109,6 +121,22 @@ export class StrokeController {
     event: FederatedPointerEvent
   ) => {
     if (
+      this.drawing &&
+      this.store.getState().board.tool === "eraser"
+    ) {
+      const point = this.getPoint(event);
+      const previous = this.lastEraserPoint || point;
+
+      this.store.dispatch(eraseAtActiveLayer({
+        from: previous,
+        to: point,
+        size: this.store.getState().board.brushSettings.size,
+      }));
+      this.lastEraserPoint = point;
+      return;
+    }
+
+    if (
       !this.drawing ||
       !this.currentStroke ||
       !this.currentRenderer
@@ -123,6 +151,12 @@ export class StrokeController {
   };
 
   private pointerUp = () => {
+    if (this.store.getState().board.tool === "eraser") {
+      this.lastEraserPoint = null;
+      this.drawing = false;
+      return;
+    }
+
     if (
       !this.drawing ||
       !this.currentStroke
@@ -154,6 +188,7 @@ export class StrokeController {
     this.currentRenderer = null;
     this.currentStroke = null;
     this.drawing = false;
+    this.lastEraserPoint = null;
   };
 
   private cancelCurrentStroke() {
@@ -162,6 +197,7 @@ export class StrokeController {
     this.currentRenderer = null;
     this.currentStroke = null;
     this.drawing = false;
+    this.lastEraserPoint = null;
   }
 
   private getPoint(
