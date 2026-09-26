@@ -129,7 +129,7 @@ const boardSlice = createSlice({
   
     setZoom(state, action: PayloadAction<{ level: number, position: { x: number; y: number } }>) {
       if (Number.isFinite(action.payload.level)) {
-        state.zoom.level = Math.round(Math.min(400, Math.max(10, action.payload.level)));
+        state.zoom.level = Math.round(Math.min(300, Math.max(50, action.payload.level)));
       }
       state.zoom.position = action.payload.position;
     },
@@ -213,7 +213,6 @@ const boardSlice = createSlice({
 
     reorderLayers(state, action: PayloadAction<{ fromIndex: number; toIndex: number }>)
     {
-      console.log("Reordering layers with payload:", state.layerStack.layers);
       const { fromIndex, toIndex } = action.payload;
       const layers = state.layerStack.layers;
       if (
