@@ -46,11 +46,8 @@ export function BoardLayers()
 					{layers.toReversed().map((layer, index) => (
 						<BoardLayer 
 							key={layer.id} 
-							id={layer.id}
+							layer={layer}
 							index={index} 
-							name={layer.name} 
-							visible={layer.visible}
-							opacity={layer.opacity}
 							isActive={layer.id === activeLayerId}
 							/>
 					))} 
