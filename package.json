@@ -18,6 +18,7 @@
     "auth:generate": "auth generate",
     "auth:migrate": "auth migrate",
     "test": "playwright test",
+    "test:migrate": "drizzle-kit migrate",
     "test:seed": "tsx scripts/seed-test-users.ts"
   },
   "dependencies": {
