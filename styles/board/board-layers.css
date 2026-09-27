@@ -1,0 +1,107 @@
+.bly-layers-panel {
+	align-self: start;
+	min-width: 0;
+	padding: 14px;
+	border: 1px solid #d7dfe3;
+	border-radius: 8px;
+	background: #fffefb;
+	box-shadow: 0 7px 16px rgba(41, 55, 70, 0.06);
+}
+
+.bly-layers-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.bly-layers-heading h2 {
+	margin: 0;
+	color: var(--ink);
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.bly-layers-add-button {
+	border: 0;
+	background: transparent;
+	color: #687681;
+	cursor: pointer;
+}
+
+.bly-layers-add-button {
+	width: 28px;
+	height: 28px;
+	border: 1px solid #d7dfe3;
+	border-radius: 6px;
+	font-size: 19px;
+	line-height: 1;
+}
+
+.bly-layers-add-button:hover {
+	color: #d8614b;
+}
+
+.bly-layers-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.bly-layer-item {
+	display: grid;
+	grid-template-rows: auto;
+	grid-template-columns: 2fr 5fr 1fr;
+	gap: 4px;
+	align-items: center;
+	padding: 7px 6px;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	color: var(--ink);
+	background: #edebe6;
+	cursor: pointer;
+}
+
+.bly-layer-item.bly-layer-dragging {
+	border-color: #61cdd7;
+	background: #cdeaff;
+}
+
+.bly-layer-item.bly-layer-dragging.bly-layer-has-no-drop-target {
+	border-color: #ff5526;
+	background: #ff9898;
+}
+
+.bly-layer-item.bly-layer-active {
+	border-color: #5099cd;
+	background: #5099cd;
+}
+
+.bly-layer-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 2px 4px;
+}
+
+.bly-layer-name-input {
+	width: 100%;
+	min-width: 0;
+	padding: 2px 4px;
+	border: 1px solid #d7dfe3;
+	border-radius: 4px;
+	color: var(--ink);
+	font: inherit;
+}
+
+.bly-layer-preview {
+	width: 34px;
+	height: 34px;
+	background: #ccc;
+	border-radius: 4px;
+	overflow: hidden;
+}

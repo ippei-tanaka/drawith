@@ -1,0 +1,26 @@
+.bcv-canvas-area {
+  position: relative;
+  min-height: calc(100vh - 114px);
+  overflow: hidden;
+  border: 1px solid #d5dcdf;
+  border-radius: 7px;
+  background-color: var(--paper);
+  background-image: linear-gradient(#eff1ee 1px, transparent 1px), linear-gradient(90deg, #eff1ee 1px, transparent 1px);
+  background-size: 32px 32px;
+  box-shadow: 0 14px 38px rgba(46, 59, 72, 0.1);
+}
+
+.bcv-drawing-canvas {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+@media (max-width: 760px) {
+  .bcv-canvas-area {
+    order: 1;
+    min-height: 62vh;
+  }
+}

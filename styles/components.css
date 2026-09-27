@@ -1,0 +1,156 @@
+
+/* Header */
+
+.header-topbar {
+  height: 72px;
+  padding: 0 6vw;
+  display: flex;
+  align-items: center;
+  gap: 64px;
+  background: rgba(255, 254, 251, 0.92);
+  border-bottom: 1px solid #dde2df;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 730;
+  text-decoration: none;
+}
+
+.header-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  background: var(--coral);
+  color: white;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 21px;
+}
+
+.header-user-name {
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.header-section-note {
+  color: #899596;
+  font-size: 10px;
+}
+
+.header-menu {
+  position: relative;
+  margin-left: auto;
+}
+
+.header-menu-toggle {
+  display: grid;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  border: 1px solid #cbd5d2;
+  border-radius: 6px;
+  background: var(--paper);
+}
+
+.header-menu-toggle span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: var(--ink);
+}
+
+.header-menu-list {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  min-width: 150px;
+  padding: 6px;
+  border: 1px solid #dde2df;
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow: 0 8px 20px rgba(36, 50, 74, 0.14);
+}
+
+.header-menu-list a {
+  padding: 9px 10px;
+  border-radius: 4px;
+  color: var(--ink);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.header-menu-list a:hover,
+.header-menu-list a:focus-visible {
+  background: #edf2f0;
+  outline: none;
+}
+
+
+/* Popup */
+
+.popup-background {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+/* Buttons */
+
+.blue-blank-button,
+.orange-filled-button,
+.blue-filled-button {
+  padding: 9px 15px;
+  border-radius: 10px;
+}
+
+.blue-blank-button {
+  background: #f3f8fc;
+  color: #1d537ade;
+  border: 1px solid #66b8f3de;
+}
+
+.blue-blank-button:hover {
+  background: #cce8fc;
+}
+
+.orange-filled-button {
+  background: #ff7e64;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid #ff7e64;
+}
+.orange-filled-button:hover {
+  background: #ff4d29;
+}
+
+.blue-filled-button {
+  background: #49b3ffde;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid #49b3ffde;
+}
+
+.blue-filled-button:hover {
+  background: #1e96ffde;
+}

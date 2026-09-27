@@ -1,0 +1,13 @@
+# Runs the Playwright permission suite against the app+postgres services
+# defined in docker-compose.test.yml. Not meant to be used standalone.
+FROM mcr.microsoft.com/playwright:v1.63.0-noble
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+CMD ["npx", "playwright", "test"]
+

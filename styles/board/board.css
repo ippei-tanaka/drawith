@@ -1,0 +1,19 @@
+@import "./board-header.css";
+@import "./board-canvas.css";
+@import "./board-layers.css";
+@import "./board-toolbox.css";
+
+.bd-page-container {
+	min-height: 100vh;
+	background-color: #e7edef;
+	background-image: radial-gradient(#d2dade 1px, transparent 1px);
+	background-size: 18px 18px;
+}
+
+.bd-main-workspace {
+	min-height: calc(100vh - 70px);
+	display: grid;
+	grid-template-columns: 82px minmax(0, 1fr) 210px;
+	gap: 18px;
+	padding: 22px 28px;
+}

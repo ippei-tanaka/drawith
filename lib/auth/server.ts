@@ -1,19 +1,16 @@
-import { createNeonAuth } from "@neondatabase/auth/next/server";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "../db/db";
+import * as schema from "@/lib/db/schema";
+import { nextCookies } from "better-auth/next-js";
 
-/*
-const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
-
-export const auth = createNeonAuth({
-  baseUrl: process.env.NEON_AUTH_BASE_URL ?? (isBuildPhase ? "https://build.invalid" : ""),
-  cookies: {
-    secret: process.env.NEON_AUTH_COOKIE_SECRET ?? (isBuildPhase ? "build-only-secret-not-for-runtime" : ""),
-  },
-});
-
-import { createNeonAuth } from '@neondatabase/auth/next/server';
-*/
-
-export const auth = createNeonAuth({
-  baseUrl: process.env.NEON_AUTH_BASE_URL!,
-  cookies: { secret: process.env.NEON_AUTH_COOKIE_SECRET! },
+export const auth = betterAuth({
+    emailAndPassword: { 
+        enabled: true, 
+    },
+    database: drizzleAdapter(db, {
+        provider: "pg",
+        schema: schema,
+    }),
+    plugins: [nextCookies()]
 });
