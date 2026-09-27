@@ -10,11 +10,15 @@
     "docker:db": "docker compose --env-file .env.docker.dev -f docker-compose.dev.yml up --build --no-deps postgres",
     "docker:app": "docker compose --env-file .env.docker.dev -f docker-compose.dev.yml up --build --no-deps app",
     "docker:test": "docker compose --env-file .env.docker.test -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "docker:access-db": "docker exec -it drawith-postgres-dev psql -U drawith_user -d drawith_db",
+    "db:generate:prod": "npx dotenv -e .env.drizzle-kit.prod -- drizzle-kit generate",
+    "db:generate:dev": "npx dotenv -e .env.drizzle-kit.dev -- drizzle-kit generate",
+    "db:migrate:prod": "npx dotenv -e .env.drizzle-kit.prod -- drizzle-kit migrate",
+    "db:migrate:dev": "npx dotenv -e .env.drizzle-kit.dev -- drizzle-kit migrate",
     "auth:generate": "auth generate",
     "auth:migrate": "auth migrate",
     "test": "playwright test",
+    "test:migrate": "drizzle-kit migrate",
     "test:seed": "tsx scripts/seed-test-users.ts"
   },
   "dependencies": {
