@@ -10,4 +10,10 @@ const handler = startServerAndCreateNextHandler<NextRequest>(server, {
   },
 });
 
-export { handler as GET, handler as POST };
+export async function GET(request: NextRequest): Promise<Response> {
+  return handler(request);
+}
+
+export async function POST(request: NextRequest): Promise<Response> {
+  return handler(request);
+}
