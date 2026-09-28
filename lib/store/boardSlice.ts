@@ -7,6 +7,16 @@ export enum DrawingTool {
   Eraser = "eraser",
 }
 
+export const ZOOM = {
+  MIN_LEVEL: 20,
+  MAX_LEVEL: 500,
+};
+
+export const BRUSH_SIZE = {
+  MIN_SIZE: 1,
+  MAX_SIZE: 300,
+};
+
 const DRAWING_TOOLS: DrawingTool[] = Object.values(DrawingTool);
 
 export enum NavigationTool {
@@ -129,7 +139,7 @@ const boardSlice = createSlice({
   
     setZoom(state, action: PayloadAction<{ level: number, position: { x: number; y: number } }>) {
       if (Number.isFinite(action.payload.level)) {
-        state.zoom.level = Math.round(Math.min(300, Math.max(50, action.payload.level)));
+        state.zoom.level = Math.round(Math.min(ZOOM.MAX_LEVEL, Math.max(ZOOM.MIN_LEVEL, action.payload.level)));
       }
       state.zoom.position = action.payload.position;
     },
