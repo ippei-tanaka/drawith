@@ -6,6 +6,7 @@ import { changeBoardNamebyId } from "@/actions/board-actions";
 import { useRouter } from "next/navigation";
 import { Board, deleteBoardById } from "@/actions/board-actions";
 import { Popup } from "@/components/Popup";
+import "@/styles/board/board-header.css";
 
 export function BoardHeader({ board }: { board: Board })
 {

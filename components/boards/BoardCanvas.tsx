@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useAppStore } from "@/lib/store/hooks";
 import { User } from "better-auth";
 import { BoardApplication } from "@/drawing-board/BoardApplication";
+import "@/styles/board/board-canvas.css";
 
 type Board = {
   id: string;

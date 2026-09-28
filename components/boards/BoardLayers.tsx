@@ -8,6 +8,7 @@ import { BoardLayer } from './BoardLayer'
 import { DragDropProvider, type DragEndEvent } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 import { Popup } from "../Popup";
+import "@/styles/board/board-layers.css";
 
 export function BoardLayers() 
 {

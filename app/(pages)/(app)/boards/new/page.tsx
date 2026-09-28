@@ -17,7 +17,7 @@ export default async function NewBoardPage() {
         <h1 id="new-board-heading">Make room for a new idea.</h1>
         <p className="new-board-description">Name your board, then bring people in when you are ready. You can always rename it later.</p>
         <NewBoardForm user={user} />
-        <Link className="back-link" href="/dashboard">Back to your boards</Link>
+        <Link className="new-board-back-link" href="/dashboard">Back to your boards</Link>
       </section>
     </main>
   );

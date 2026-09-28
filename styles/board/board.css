@@ -1,8 +1,3 @@
-@import "./board-header.css";
-@import "./board-canvas.css";
-@import "./board-layers.css";
-@import "./board-toolbox.css";
-
 .bd-page-container {
 	min-height: 100vh;
 	background-color: #e7edef;
@@ -16,4 +11,46 @@
 	grid-template-columns: 82px minmax(0, 1fr) 210px;
 	gap: 18px;
 	padding: 22px 28px;
+}
+
+.bd-toolbox-container {
+	min-width: 0;
+}
+
+.bd-layers-container {
+	min-width: 0;
+}
+
+.bd-canvas-container {
+	min-width: 0;
+}
+
+@media (max-width: 760px) {
+	.bd-main-workspace {
+		min-height: calc(100vh - 70px);
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-rows: auto minmax(0, 1fr);
+		grid-template-areas:
+			"toolbox layers"
+			"canvas canvas";
+    gap: 12px;
+		padding: 16px;
+	}
+
+	.bd-toolbox-container {
+		grid-area: toolbox;
+	}
+
+	.bd-layers-container {
+		grid-area: layers;
+	}
+
+	.bd-canvas-container {
+		grid-area: canvas;
+	}
+
+	.bly-layers-panel {
+		height: 100%;
+		box-sizing: border-box;
+  }
 }

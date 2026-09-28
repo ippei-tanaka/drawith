@@ -12,15 +12,20 @@ type Board = {
   display_name: string;
 };
 
-export function Board({ board, user }: { board: Board, user: User }) 
-{
+export function Board({ board, user }: { board: Board; user: User }) {
   return (
     <main className="bd-page-container">
       <BoardHeader board={board} />
       <section className="bd-main-workspace">
-        <BoardToolBox />
-        <BoardCanvas board={board} user={user} />
-        <BoardLayers />
+        <div className="bd-toolbox-container">
+          <BoardToolBox />
+        </div>
+        <div className="bd-canvas-container">
+          <BoardCanvas board={board} user={user} />
+        </div>
+        <div className="bd-layers-container">
+          <BoardLayers />
+        </div>
       </section>
     </main>
   );
