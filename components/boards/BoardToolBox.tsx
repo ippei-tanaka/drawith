@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { DrawingTool, setTool, setColor, setSize, setZoom, BRUSH_SIZE  } from "@/lib/store/boardSlice";
+import { DrawingTool, setTool, setColor, setSize, setZoom, BRUSH_SIZE, ZOOM  } from "@/lib/store/boardSlice";
 import "@/styles/board/board-toolbox.css";
 
 export function BoardToolBox() 
@@ -14,6 +14,7 @@ export function BoardToolBox()
   const size = useAppSelector(state => state.board.brushSettings.size);
   const zoom = useAppSelector(state => state.board.zoom);
   const [isSizeControlOpen, setIsSizeControlOpen] = useState(false);
+  const [isZoomControlOpen, setIsZoomControlOpen] = useState(false);
   const sizeIndicator = 6 + ((size - BRUSH_SIZE.MIN_SIZE) / (BRUSH_SIZE.MAX_SIZE - BRUSH_SIZE.MIN_SIZE)) * 26;
 
   return (
@@ -63,11 +64,31 @@ export function BoardToolBox()
       </div>
       <span className="btb-tool-divider" />
       <div className="btb-zoom-control">
-        <input className="btb-zoom-input" type="number" min="10" max="400" step="10" aria-label="Zoom level" title="Zoom level" value={zoom.level} onChange={(event) => {
-          const nextZoom = Number(event.target.value);
-          if (Number.isFinite(nextZoom)) dispatch(setZoom({ ...zoom, level: nextZoom }));
-        }} />
-        <span className="btb-zoom-input-unit">%</span>
+        <button
+          className="btb-zoom-button"
+          type="button"
+          aria-label={`Zoom ${zoom.level}%`}
+          aria-expanded={isZoomControlOpen}
+          title={`Zoom ${zoom.level}%`}
+          onClick={() => setIsZoomControlOpen(open => !open)}
+        >
+          <Image src="/zoom-in.svg" alt="" width={20} height={20} />
+          <span>{zoom.level}%</span>
+        </button>
+        {isZoomControlOpen && (
+          <div className="btb-zoom-popover">
+            <input
+              className="btb-zoom-range"
+              type="range"
+              min={ZOOM.MIN_LEVEL}
+              max={ZOOM.MAX_LEVEL}
+              step="10"
+              aria-label="Zoom level"
+              value={zoom.level}
+              onChange={(event) => dispatch(setZoom({ ...zoom, level: Number(event.target.value) }))}
+            />
+          </div>
+        )}
       </div>
       {/* <button className="btb-tool-button" onClick={undo} aria-label="Undo" title="Undo">&#8629;</button><button className="btb-tool-button" onClick={clearCanvas} aria-label="Clear canvas" title="Clear canvas">&#128465;</button> */}
     </aside>
