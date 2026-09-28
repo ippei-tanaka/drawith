@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { DrawingTool, setTool, setColor, setSize, setZoom, BRUSH_SIZE, ZOOM  } from "@/lib/store/boardSlice";
 import "@/styles/board/board-toolbox.css";
+import { z } from "better-auth";
 
 export function BoardToolBox() 
 {
@@ -15,14 +16,34 @@ export function BoardToolBox()
   const zoom = useAppSelector(state => state.board.zoom);
   const [isSizeControlOpen, setIsSizeControlOpen] = useState(false);
   const [isZoomControlOpen, setIsZoomControlOpen] = useState(false);
+  const toolbarRef = useRef<HTMLElement>(null);
+  const sizePopoverRef = useRef<HTMLDivElement>(null);
+  const zoomPopoverRef = useRef<HTMLDivElement>(null);
   const sizeIndicator = 6 + ((size - BRUSH_SIZE.MIN_SIZE) / (BRUSH_SIZE.MAX_SIZE - BRUSH_SIZE.MIN_SIZE)) * 26;
+
+  useEffect(() => {
+    const handlePointerDownOutside = (event: PointerEvent) => {
+      // if (toolbarRef.current && !toolbarRef.current.contains(event.target as Node)) {
+      //   setIsSizeControlOpen(false);
+      //   setIsZoomControlOpen(false);
+      // }
+      if (sizePopoverRef.current && !sizePopoverRef.current.contains(event.target as Node)) {
+        setIsSizeControlOpen(false);
+      }
+      if (zoomPopoverRef.current && !zoomPopoverRef.current.contains(event.target as Node)) {
+        setIsZoomControlOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDownOutside);
+    return () => document.removeEventListener("pointerdown", handlePointerDownOutside);
+  }, []);
 
   return (
     <aside className="btb-toolbar" aria-label="Drawing tools">
-      <button className={`btb-tool-button ${tool === "pan" ? "btb-selected" : ""}`} onClick={() => dispatch(setTool("pan"))} aria-label="Pan" title="Pan"><Image src="/hand.svg" alt="Pan" width={24} height={24} /></button>
       <button className={`btb-tool-button ${tool === DrawingTool.Pen ? "btb-selected" : ""}`} onClick={() => dispatch(setTool(DrawingTool.Pen))} aria-label="Pen" title="Pen"><Image src="/pen.svg" alt="Pen" width={24} height={24} /></button>
-      {/* <button className={`btb-tool-button btb-marker-tool ${tool === "marker" ? "btb-selected" : ""}`} onClick={() => dispatch(setTool("marker"))} aria-label="Highlighter" title="Highlighter">&#9644;</button> */}
       <button className={`btb-tool-button ${tool === DrawingTool.Eraser ? "btb-selected" : ""}`} onClick={() => dispatch(setTool(DrawingTool.Eraser))} aria-label="Eraser" title="Eraser"><Image src="/eraser.svg" alt="Eraser" width={24} height={24} /></button>
+      <button className={`btb-tool-button ${tool === "pan" ? "btb-selected" : ""}`} onClick={() => dispatch(setTool("pan"))} aria-label="Pan" title="Pan"><Image src="/hand.svg" alt="Pan" width={20} height={20} /></button>
       <span className="btb-tool-divider" />
       <label className="btb-color-button" title="Ink color"><span style={{ backgroundColor: `#${color.toString(16).padStart(6, "0")}` }} /><input aria-label="Ink color" type="color" value={`#${color.toString(16).padStart(6, "0")}`} onChange={(event) => dispatch(setColor(Number.parseInt(event.target.value.slice(1), 16)))} /></label>
       <div className="btb-size-control">
@@ -41,7 +62,7 @@ export function BoardToolBox()
           <span className="btb-size-value">{size}</span>
         </button>
         {isSizeControlOpen && (
-          <div className="btb-size-popover">
+          <div className="btb-size-popover" ref={sizePopoverRef} >
             <input
               type="number"
               className="btb-size-text"
@@ -76,7 +97,7 @@ export function BoardToolBox()
           <span>{zoom.level}%</span>
         </button>
         {isZoomControlOpen && (
-          <div className="btb-zoom-popover">
+          <div className="btb-zoom-popover" ref={zoomPopoverRef}>
             <input
               className="btb-zoom-range"
               type="range"
@@ -90,7 +111,6 @@ export function BoardToolBox()
           </div>
         )}
       </div>
-      {/* <button className="btb-tool-button" onClick={undo} aria-label="Undo" title="Undo">&#8629;</button><button className="btb-tool-button" onClick={clearCanvas} aria-label="Clear canvas" title="Clear canvas">&#128465;</button> */}
     </aside>
   );
 }
