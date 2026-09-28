@@ -26,11 +26,10 @@ jobs:
       POSTGRES_DB: drawith_test_db
       POSTGRES_USER: drawith_test_user
       POSTGRES_PASSWORD: drawith-test-password
-      DRAWITH_DATABASE_URL: postgresql://drawith_test_user:drawith-test-password@drawith-postgres:5432/drawith_test_db
       BETTER_AUTH_SECRET: drawith-test-secret
       BETTER_AUTH_URL: http://drawith-app:3000
-      GRAPHQL_URI: http://drawith-app:3000/api/graphql
-      TEST_APP_URL: http://drawith-app:3000
+      DRAWITH_GRAPHQL_URI: http://drawith-app:3000/api/graphql
+      DRAWITH_TEST_APP_URL: http://drawith-app:3000
 
     steps:
       - name: Check out repository

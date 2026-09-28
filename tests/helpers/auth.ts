@@ -4,7 +4,7 @@ export type Credentials = { email: string; password: string };
 
 /** Logs in as the given user and returns a request context carrying their session cookie. */
 export async function loginAs(user: Credentials): Promise<APIRequestContext> {
-  const context = await apiRequest.newContext({ baseURL: process.env.TEST_APP_URL });
+  const context = await apiRequest.newContext({ baseURL: process.env.DRAWITH_TEST_APP_URL });
   const response = await context.post("/api/auth/sign-in/email", {
     data: { email: user.email, password: user.password },
   });
