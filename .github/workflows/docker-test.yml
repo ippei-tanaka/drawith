@@ -22,10 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
-      POSTGRES_HOST: drawith-postgres
-      POSTGRES_DB: drawith_test_db
-      POSTGRES_USER: drawith_test_user
-      POSTGRES_PASSWORD: drawith-test-password
+      DRAWITH_DATABASE_HOST: drawith-postgres
+      DRAWITH_DATABASE_PORT: 5432
+      DRAWITH_DATABASE_NAME: drawith_test_db
+      DRAWITH_DATABASE_USER: drawith_test_user
+      DRAWITH_DATABASE_PASSWORD: drawith-test-password
       BETTER_AUTH_SECRET: drawith-test-secret
       BETTER_AUTH_URL: http://drawith-app:3000
       DRAWITH_GRAPHQL_URI: http://drawith-app:3000/api/graphql
