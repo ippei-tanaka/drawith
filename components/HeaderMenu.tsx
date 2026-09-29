@@ -2,6 +2,7 @@
 
 import Link from "next/link";   
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function HeaderMenu({ loggedIn, userName }: { loggedIn: boolean; userName?: string }) {
 
@@ -52,9 +53,9 @@ export default function HeaderMenu({ loggedIn, userName }: { loggedIn: boolean; 
                         <strong>{loggedIn ? userName || "Your account" : "Drawith"}</strong>
                     </div>
                     <div className="header-menu-links">
-                        {loggedIn && <Link href="/dashboard" onClick={() => setIsOpen(false)}><span className="header-menu-icon">▦</span>Boards</Link>}
-                        {loggedIn && <Link href="/profile" onClick={() => setIsOpen(false)}><span className="header-menu-icon">○</span>Profile settings</Link>}
-                        {!loggedIn && <Link href="/sign-in" onClick={() => setIsOpen(false)}><span className="header-menu-icon">→</span>Sign in</Link>}
+                        {loggedIn && <Link href="/dashboard" onClick={() => setIsOpen(false)}><span className="header-menu-icon"><Image src="/drawing-on-board.svg" alt="Boards" width={16} height={16} /></span>Boards</Link>}
+                        {loggedIn && <Link href="/profile" onClick={() => setIsOpen(false)}><span className="header-menu-icon"><Image src="/profile.svg" alt="Profile" width={16} height={16} /></span>Profile settings</Link>}
+                        {!loggedIn && <Link href="/sign-in" onClick={() => setIsOpen(false)}>Sign in</Link>}
                     </div>
                     {loggedIn && <div className="header-menu-footer"><Link href="/sign-out" onClick={() => setIsOpen(false)}>Sign out</Link></div>}
                 </nav>

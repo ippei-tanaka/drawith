@@ -80,7 +80,7 @@ export function BoardHeader({ board }: { board: Board })
                     setIsDeletePopupOpen(true);
                   }}
                 >
-                  <span className="bhd-menu-icon">!</span> Delete board
+                  <span className="bhd-menu-icon"><Image src="/trash.svg" alt="Delete" width={16} height={16} /></span> Delete board
                 </button>
                 </div>
               </div>

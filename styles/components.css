@@ -54,9 +54,9 @@
   width: 36px;
   height: 36px;
   padding: 0;
-  border: 1px solid #cbd5d2;
+  border: 1px solid #d4d4d4;
   border-radius: 50%;
-  background: #dcebe6;
+  background: #ececec;
   color: #315b53;
   font-size: 12px;
   font-weight: 760;
@@ -67,7 +67,7 @@
 
 .header-menu-toggle:hover,
 .header-menu-toggle[aria-expanded="true"] {
-  background: #edf2f0;
+  background: #f2f2f2;
   border-color: #9db4ad;
 }
 
