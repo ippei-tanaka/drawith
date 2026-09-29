@@ -100,6 +100,16 @@ export function BoardLayer (
           aria-label={`Rename ${name}`}/>
       }
 
+      {!visible && (
+        <Image
+          className="bly-layer-hidden-icon"
+          src="/eye-off.svg"
+          alt="Layer hidden"
+          width={16}
+          height={16}
+        />
+      )}
+
       <button
         className="bly-layer-menu-button"
         type="button"
@@ -134,8 +144,8 @@ export function BoardLayer (
             }}
           >
             {visible
-              ? <Image src="/eye-open.svg" alt="" width={16} height={16} />
-              : <Image src="/eye-closed.svg" alt="" width={16} height={16} />}
+              ? <Image src="/eye-closed.svg" alt="" width={16} height={16} />
+              : <Image src="/eye-open.svg" alt="" width={16} height={16} />}
             {visible ? "Hide" : "Show"}
           </button>
           <label className="bly-layer-opacity" role="menuitem">
