@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { findManyBoards, Board } from "@/actions/board-actions";
+import { BoardPreview } from "@/components/boards/BoardPreview";
 
 const BOARDS_PER_PAGE = 7;
 
@@ -98,9 +99,7 @@ export default function BoardList({ user }: { user: { id: string } }) {
         <Link className="new-board-card" href="/boards/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
         {pageBoards.map((board) => 
           <Link className={`board-card board-card-red`} href={`/boards/${board.name}`} key={board.id}>
-            <div className="board-preview" aria-hidden="true">
-              <span>{board.display_name}</span>
-            </div>
+            <BoardPreview boardId={board.id} boardName={board.display_name} />
             <div className="board-card-info">
               <div>
                 <strong>{board.name}</strong>
