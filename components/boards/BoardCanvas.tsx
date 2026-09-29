@@ -36,12 +36,11 @@ export function BoardCanvas({
   boardRevision: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const appRef = useRef<BoardApplication | null>(null);
   const store = useAppStore();
 
   useEffect(() => {
-    if (!containerRef.current)
-      throw new Error("Container ref is not available");
+    const container = containerRef.current;
+    if (!container) return;
 
     if (boardState) {
       store.dispatch(hydrateBoard(boardState));
@@ -78,30 +77,35 @@ export function BoardCanvas({
     });
 
     let destroied = false;
+    let app: BoardApplication | null = null;
+    let canvas: HTMLCanvasElement | null = null;
 
     (async () => {
-      const app = new BoardApplication(store);
+      app = new BoardApplication(store);
 
       await app.init({
-        resizeTo: containerRef.current!,
+        resizeTo: container,
       });
+      canvas = app.canvas;
 
       // if the component was destroyed (the cleanup callback was called)
       // before the app finished initializing, destroy the app immediately
       if (destroied) {
         app.destroy();
+        canvas.remove();
         return;
       }
 
-      appRef.current = app;
-      containerRef.current!.appendChild(app.canvas);
+      container.appendChild(canvas);
     })();
 
     return () => {
       destroied = true;
       stopPersistence();
-      appRef.current?.destroy();
-      containerRef.current = null;
+      if (app && canvas) {
+        app.destroy();
+        canvas.remove();
+      }
     };
   }, [board.id, boardRevision, boardState, store]);
 
