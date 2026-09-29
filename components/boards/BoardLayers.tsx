@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { addLayer, removeLayer, reorderLayers} from "@/lib/store/boardSlice";
+import { addLayer, clearErrors, removeLayer, reorderLayers} from "@/lib/store/boardSlice";
 import type { Layer } from "@/lib/store/boardSlice";
 import { BoardLayer } from './BoardLayer'
 import { DragDropProvider, type DragEndEvent } from '@dnd-kit/react';
@@ -15,6 +15,7 @@ export function BoardLayers()
 	const dispatch = useAppDispatch();
 	const layers = useAppSelector((state) => state.board.layerStack.layers);
 	const activeLayerId = useAppSelector((state) => state.board.layerStack.activeLayerId);
+	const errors = useAppSelector((state) => state.board.errors);
 	const [layerToDelete, setLayerToDelete] = useState<Layer | null>(null);
 
 	const addNewLayer = () => {
@@ -55,14 +56,23 @@ export function BoardLayers()
 			</DragDropProvider>
 
 			<Popup isOpen={!!layerToDelete} onClickBackground={() => setLayerToDelete(null)}>
-				<div className="bhd-board-form">
-					<p className="bhd-board-form-message">Do you want to delete the layer "<span className="bhd-text-bold">{layerToDelete?.name}</span>"?</p>
-					<div className="bhd-button-container">
+				<div className="bly-board-form">
+					<p className="bly-board-form-message">Do you want to delete the layer "<span className="bly-text-bold">{layerToDelete?.name}</span>"?</p>
+					<div className="bly-button-container">
 						<button className="orange-filled-button" onClick={async () => {
 							setLayerToDelete(null);
 							dispatch(removeLayer({ id: String(layerToDelete?.id) }));
 						}}>Delete</button>
 						<button className="blue-blank-button" onClick={() => setLayerToDelete(null)}>Cancel</button>
+					</div>
+				</div>
+			</Popup>
+
+			<Popup isOpen={errors.length > 0} onClickBackground={() => dispatch(clearErrors())}>
+				<div className="bly-board-form">
+					<p className="bly-board-form-message">{errors.map((error) => error.message).join("\n")}</p>
+					<div className="bly-button-container-single">
+						<button className="blue-filled-button" onClick={() => dispatch(clearErrors())}>OK</button>
 					</div>
 				</div>
 			</Popup>

@@ -241,3 +241,31 @@
 	grid-column: 1 / -1;
 	accent-color: #d8614b;
 }
+
+.bly-board-form {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-width: 400px;
+}
+
+.bly-board-form-message {
+	margin-bottom: 12px;
+	text-align: center;
+}
+
+.bly-text-bold {
+	font-weight: 700;
+}
+
+.bly-button-container {
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: 8px;
+}
+
+.bly-button-container-single {
+	display: grid;
+	grid-template-columns: auto;
+	gap: 8px;
+}
