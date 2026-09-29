@@ -18,6 +18,12 @@ export function BoardLayerPreview({ layer }: { layer: Layer }) {
     let application: Application | null = null;
     let cancelled = false;
     const strokes = layer.strokes.filter(stroke => stroke.points.length > 0);
+    const destroyApplication = (nextApplication: Application) => {
+      nextApplication.destroy(
+        { removeView: true },
+        { children: true },
+      );
+    };
 
     const render = async () => {
       const nextApplication = new Application();
@@ -31,7 +37,7 @@ export function BoardLayerPreview({ layer }: { layer: Layer }) {
       });
 
       if (cancelled) {
-        nextApplication.destroy(true, true);
+        destroyApplication(nextApplication);
         return;
       }
 
@@ -77,7 +83,9 @@ export function BoardLayerPreview({ layer }: { layer: Layer }) {
 
     return () => {
       cancelled = true;
-      application?.destroy(true, true);
+      if (application) {
+        destroyApplication(application);
+      }
       application = null;
       preview.replaceChildren();
     };
