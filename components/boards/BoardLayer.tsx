@@ -43,7 +43,6 @@ export function BoardLayer (
   const openMenu = (event: React.SyntheticEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    dispatch(setActiveLayer(String(id)));
     setIsMenuOpen(true);
   };
 
@@ -65,6 +64,7 @@ export function BoardLayer (
       className={`
         bly-layer-item ${isDragging ? "bly-layer-dragging" : ""} 
         ${isDragging && !isDropTarget ? "bly-layer-has-no-drop-target" : ""}
+        ${!visible ? "bly-layer-hidden" : ""}
         ${isActive ? "bly-layer-active" : ""}
       `}
       data-has-drop-target={isDropTarget}

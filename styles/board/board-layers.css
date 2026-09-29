@@ -76,6 +76,15 @@
 	background: #ff9898;
 }
 
+.bly-layer-item.bly-layer-hidden {
+	color: #879096;
+	background: #e3e0db;
+}
+
+.bly-layer-item.bly-layer-hidden .bly-layer-preview {
+	opacity: 0.45;
+}
+
 .bly-layer-item.bly-layer-active {
 	border-color: #484a4b;
 	background: #3b3b3c;
