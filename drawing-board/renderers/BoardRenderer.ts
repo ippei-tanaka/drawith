@@ -1,6 +1,7 @@
 import { Container } from "pixi.js";
 import {
   addLayer,
+  clearLayer,
   removeLayer,
   reorderLayers,
   setLayerVisibility,
@@ -33,6 +34,7 @@ export class BoardRenderer {
     this.unsubscribe = listenerMiddleware.startListening({
       matcher: isAnyOf(
         addLayer,
+        clearLayer,
         removeLayer,
         reorderLayers,
         setLayerVisibility,
