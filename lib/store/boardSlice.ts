@@ -86,6 +86,10 @@ export interface BoardState
   errors: Error[];
 }
 
+export interface PersistedBoardState {
+  layerStack: LayerStack;
+}
+
 const defaultLayerId = nanoid();
 
 const initialState: BoardState = {
@@ -122,6 +126,11 @@ const boardSlice = createSlice({
   initialState,
   reducers: 
   {
+    hydrateBoard(state, action: PayloadAction<PersistedBoardState>) {
+      state.layerStack = action.payload.layerStack;
+      state.errors = [];
+    },
+    
     setTool(state, action: PayloadAction<Tool>) {
       if (DRAWING_TOOLS.includes(action.payload as DrawingTool)) {
         state.brushSettings.tool = action.payload as DrawingTool;
@@ -325,6 +334,7 @@ const boardSlice = createSlice({
 });
 
 export const { 
+  hydrateBoard,
   setTool,
   setColor,
   setSize,

@@ -1,5 +1,6 @@
-import { pgTable, pgEnum, text, timestamp, boolean, index, unique } from 'drizzle-orm/pg-core';
+import { pgTable, pgEnum, text, timestamp, boolean, index, unique, integer, jsonb } from 'drizzle-orm/pg-core';
 import { defineRelations } from "drizzle-orm";
+import type { PersistedBoardState } from "@/lib/store/boardSlice";
 
 export const user = pgTable(
   "user", 
@@ -101,6 +102,17 @@ export const drawingBoard = pgTable(
   }
 );
 
+export const drawingBoardState = pgTable(
+  'drawing_board_state',
+  {
+    board_id: text('board_id').primaryKey().references(() => drawingBoard.id, { onDelete: 'cascade' }),
+    revision: integer('revision').notNull().default(0),
+    content_version: integer('content_version').notNull().default(1),
+    state: jsonb('state').$type<PersistedBoardState>().notNull(),
+    updated_at: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+);
+
 export const drawingBoardMembership = pgTable(
   'drawing_board_membership', 
   {
@@ -132,7 +144,7 @@ export const drawingBoardInvitation = pgTable(
 );
 
 export const relations = defineRelations(
-  { user, session, account, verification, userProfile, drawingBoard, drawingBoardMembership, drawingBoardInvitation },
+  { user, session, account, verification, userProfile, drawingBoard, drawingBoardState, drawingBoardMembership, drawingBoardInvitation },
   (r) => ({
     user: {
       sessions: r.many.session(),
@@ -165,6 +177,18 @@ export const relations = defineRelations(
       memberships: r.many.drawingBoardMembership({
         from: r.drawingBoard.id,
         to: r.drawingBoardMembership.drawing_board_id
+      }),
+      state: r.one.drawingBoardState({
+        from: r.drawingBoard.id,
+        to: r.drawingBoardState.board_id,
+        optional: true,
+      }),
+    },
+    drawingBoardState: {
+      drawingBoard: r.one.drawingBoard({
+        from: r.drawingBoardState.board_id,
+        to: r.drawingBoard.id,
+        optional: false,
       }),
     },
     drawingBoardMembership: {
