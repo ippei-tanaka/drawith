@@ -120,7 +120,10 @@ export function BoardLayer (
           onClick={(event) => event.stopPropagation()}
           onPointerDown={(event) => event.stopPropagation()}
         >
-          <button type="button" role="menuitem" onClick={() => { setIsMenuOpen(false); setIsEditingName(true); }}>Rename Layer</button>
+          <button className="bly-layer-menu-item" type="button" role="menuitem" onClick={() => { setIsMenuOpen(false); setIsEditingName(true); }}>
+            <Image src="/rename.svg" alt="" width={16} height={16} />
+            Rename
+          </button>
           <button
             className="bly-layer-visibility-menu-item"
             type="button"
@@ -133,10 +136,14 @@ export function BoardLayer (
             {visible
               ? <Image src="/eye-open.svg" alt="" width={16} height={16} />
               : <Image src="/eye-closed.svg" alt="" width={16} height={16} />}
-            {visible ? "Hide Layer" : "Show Layer"}
+            {visible ? "Hide" : "Show"}
           </button>
           <label className="bly-layer-opacity" role="menuitem">
-            <span>Change Opacity</span>
+            <span className="bly-layer-opacity-label">
+              <Image src="/opacity.svg" alt="" width={16} height={16} />
+              <span>Opacity</span>
+            </span>
+            <span className="bly-layer-opacity-value">{Math.round(layer.opacity * 100)}%</span>
             <input
               type="range"
               min="0"
@@ -146,10 +153,15 @@ export function BoardLayer (
               aria-label="Layer opacity"
               onChange={(event) => dispatch(setLayerOpacity({ id, opacity: Number(event.target.value) }))}
             />
-            <span>{Math.round(layer.opacity * 100)}%</span>
           </label>
-          <button type="button" role="menuitem" onClick={() => { dispatch(clearLayer({ id })); setIsMenuOpen(false); }}>Clear</button>
-          <button type="button" role="menuitem" onClick={() => { setIsMenuOpen(false); onDelete(layer); }}>Delete Layer</button>
+          <button className="bly-layer-menu-item" type="button" role="menuitem" onClick={() => { dispatch(clearLayer({ id })); setIsMenuOpen(false); }}>
+            <Image src="/clean.svg" alt="" width={16} height={16} />
+            Clear
+          </button>
+          <button className="bly-layer-menu-item" type="button" role="menuitem" onClick={() => { setIsMenuOpen(false); onDelete(layer); }}>
+            <Image src="/trash.svg" alt="" width={16} height={16} />
+            Delete
+          </button>
         </div>
       )}
     </div>
