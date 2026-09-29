@@ -313,6 +313,7 @@ export const {
   removeLayer,
   addStrokeToActiveLayer,
   clearErrors,
+  clearBoard,
 } = boardSlice.actions;
 
 export default boardSlice.reducer;

@@ -11,6 +11,7 @@ import {
   setLayerVisibility,
   setLayerOpacity,
   addStrokeToActiveLayer,
+  clearBoard,
   type PersistedBoardState,
 } from "@/lib/store/boardSlice";
 import { isAnyOf } from "@reduxjs/toolkit";
@@ -40,6 +41,8 @@ export function BoardCanvas({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    store.dispatch(clearBoard());
 
     if (boardState) {
       store.dispatch(hydrateBoard(boardState));
