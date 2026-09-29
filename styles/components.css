@@ -50,13 +50,17 @@
 
 .header-menu-toggle {
   display: grid;
-  gap: 4px;
+  place-items: center;
   width: 36px;
   height: 36px;
-  padding: 9px;
+  padding: 0;
   border: 1px solid #cbd5d2;
-  border-radius: 6px;
-  background: var(--paper);
+  border-radius: 50%;
+  background: #dcebe6;
+  color: #315b53;
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.04em;
   cursor: pointer;
   transition: background 150ms ease, border-color 150ms ease;
 }
@@ -65,13 +69,6 @@
 .header-menu-toggle[aria-expanded="true"] {
   background: #edf2f0;
   border-color: #9db4ad;
-}
-
-.header-menu-toggle span {
-  display: block;
-  width: 16px;
-  height: 2px;
-  background: var(--ink);
 }
 
 .header-menu-list {

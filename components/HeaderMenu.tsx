@@ -6,6 +6,15 @@ import { useState, useEffect } from "react";
 export default function HeaderMenu({ loggedIn, userName }: { loggedIn: boolean; userName?: string }) {
 
     const [isOpen, setIsOpen] = useState(false);
+    const initials = loggedIn
+        ? (userName || "Your account")
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((namePart) => namePart[0])
+            .join("")
+            .toUpperCase()
+        : "DW";
 
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
@@ -29,14 +38,12 @@ export default function HeaderMenu({ loggedIn, userName }: { loggedIn: boolean; 
             <button
                 aria-controls="header-navigation"
                 aria-expanded={isOpen}
-                aria-label="Toggle navigation menu"
+                aria-label={loggedIn ? `${userName || "Account"} menu` : "Open sign-in menu"}
                 className="header-menu-toggle"
                 onClick={() => setIsOpen((open) => !open)}
                 type="button"
             >
-                <span />
-                <span />
-                <span />
+                {initials}
             </button>
             {isOpen && (
                 <nav className="header-menu-list" id="header-navigation" aria-label="Account navigation">
