@@ -11,7 +11,6 @@ import {
   setLayerVisibility,
   setLayerOpacity,
   addStrokeToActiveLayer,
-  eraseAtActiveLayer,
   type PersistedBoardState,
 } from "@/lib/store/boardSlice";
 import { isAnyOf } from "@reduxjs/toolkit";
@@ -55,8 +54,7 @@ export function BoardCanvas({
         reorderLayers,
         setLayerVisibility,
         setLayerOpacity,
-        addStrokeToActiveLayer,
-        eraseAtActiveLayer,
+        addStrokeToActiveLayer
       ),
       effect: async (_, listenerApi) => {
         listenerApi.cancelActiveListeners();

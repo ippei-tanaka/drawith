@@ -7,8 +7,6 @@ import {
   setLayerVisibility,
   setLayerOpacity,
   addStrokeToActiveLayer,
-  eraseAtActiveLayer,
-  setZoom,
   type BoardState,
   type Layer,
 } from "@/lib/store/boardSlice";
@@ -40,7 +38,6 @@ export class BoardRenderer {
         setLayerVisibility,
         setLayerOpacity,
         addStrokeToActiveLayer,
-        eraseAtActiveLayer,
       ),
 
       effect: (_, listenerApi) => {

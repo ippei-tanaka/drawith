@@ -1,5 +1,4 @@
 import { createSlice, type PayloadAction, nanoid } from "@reduxjs/toolkit";
-import { eraseStroke } from "@/drawing-board/drawing/eraseStroke";
 
 export enum DrawingTool {
   Pen = "pen",
@@ -288,41 +287,6 @@ const boardSlice = createSlice({
       activeLayer.strokes.push(action.payload);
     },
 
-    eraseAtActiveLayer(state, action: PayloadAction<{
-      from: PointerSample;
-      to: PointerSample;
-      size: number;
-    }>) {
-      const activeLayer = state.layerStack.layers.find(
-        layer => layer.id === state.layerStack.activeLayerId,
-      );
-
-      if (!activeLayer || !activeLayer.visible) {
-        return;
-      }
-
-      const strokes = activeLayer.strokes.flatMap(stroke => {
-        const erased = eraseStroke(
-          stroke,
-          action.payload.from,
-          action.payload.to,
-          action.payload.size,
-        );
-
-        if (!erased) {
-          return [stroke];
-        }
-
-        return erased.map((part, index) => ({
-          ...part,
-          id: index === 0 ? stroke.id : nanoid(),
-        }));
-      });
-
-      console.log("Updated strokes for active layer:", strokes);
-      activeLayer.strokes = strokes;
-    },
-
     clearErrors(state) {
       state.errors = [];
     },
@@ -348,7 +312,6 @@ export const {
   reorderLayers,
   removeLayer,
   addStrokeToActiveLayer,
-  eraseAtActiveLayer,
   clearErrors,
 } = boardSlice.actions;
 
