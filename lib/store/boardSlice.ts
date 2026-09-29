@@ -208,17 +208,24 @@ const boardSlice = createSlice({
         return;
       }
 
-      if (!layer.visible) {
-        state.errors.push({ message: "Layer is not visible." });
-        return;
-      }
-
       if (!Number.isFinite(action.payload.opacity)) {
         state.errors.push({ message: "Invalid opacity value." });
         return;
       }
 
       layer.opacity = Math.min(1, Math.max(0, action.payload.opacity));
+    },
+
+    clearLayer(state, action: PayloadAction<{ id: string }>)
+    {
+      const layer = state.layerStack.layers.find(layer => layer.id === action.payload.id);
+
+      if (!layer) {
+        state.errors.push({ message: "Layer not found." });
+        return;
+      }
+
+      layer.strokes = [];
     },
 
     reorderLayers(state, action: PayloadAction<{ fromIndex: number; toIndex: number }>)
@@ -327,6 +334,7 @@ export const {
   renameLayer,
   setLayerVisibility,
   setLayerOpacity,
+  clearLayer,
   reorderLayers,
   removeLayer,
   addStrokeToActiveLayer,

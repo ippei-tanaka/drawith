@@ -52,9 +52,10 @@
 }
 
 .bly-layer-item {
+	position: relative;
 	display: grid;
 	grid-template-rows: auto;
-	grid-template-columns: 2fr 5fr 1fr;
+	grid-template-columns: 2fr 5fr 2fr;
 	gap: 4px;
 	align-items: center;
 	padding: 7px 6px;
@@ -86,6 +87,7 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	padding: 2px 4px;
+	font-size: 13px;
 }
 
 .bly-layer-name-input {
@@ -104,4 +106,85 @@
 	background: #ccc;
 	border-radius: 4px;
 	overflow: hidden;
+}
+
+.bly-layer-visibility {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4px;
+	cursor: pointer;
+	border-radius: 4px;
+	border: 1px solid transparent;
+}
+
+.bly-layer-visibility:hover {
+	/* color: #d8614b;
+	 */
+	border: 1px solid #d8614b;
+}
+
+.bly-layer-menu {
+	width: 190px;
+	position: absolute;
+	z-index: 3;
+	top: calc(100% + 6px);
+	right: 0;
+	display: grid;
+	gap: 2px;
+	padding: 6px;
+	border: 1px solid #d7dfe3;
+	border-radius: 7px;
+	background: #fffefb;
+	box-shadow: 0 7px 16px rgba(41, 55, 70, 0.12);
+	color: var(--ink);
+}
+
+.bly-layer-menu::before {
+	width: 10px;
+	height: 10px;
+	content: "";
+	position: absolute;
+	top: -6px;
+	right: 14px;
+	transform: rotate(45deg);
+	border-top: 1px solid #d7dfe3;
+	border-left: 1px solid #d7dfe3;
+	background: #fffefb;
+}
+
+.bly-layer-menu button,
+.bly-layer-opacity {
+	min-height: 30px;
+	box-sizing: border-box;
+	padding: 5px 7px;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 12px;
+	text-align: left;
+}
+
+.bly-layer-menu button {
+	cursor: pointer;
+}
+
+.bly-layer-menu button:hover {
+	background: #fff1ec;
+	color: #d8614b;
+}
+
+.bly-layer-opacity {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 5px 8px;
+	align-items: center;
+}
+
+.bly-layer-opacity input {
+	width: 100%;
+	grid-column: 1 / -1;
+	accent-color: #d8614b;
 }

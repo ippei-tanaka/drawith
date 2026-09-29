@@ -50,6 +50,7 @@ export function BoardLayers()
 							layer={layer}
 							index={index} 
 							isActive={layer.id === activeLayerId}
+							onDelete={setLayerToDelete}
 							/>
 					))} 
 				</div>
