@@ -2,6 +2,8 @@
 /* Header */
 
 .header-topbar {
+  position: relative;
+  z-index: 40;
   width: 100%;
   background: rgba(255, 254, 251, 0.92);
   border-bottom: 1px solid #dde2df;
@@ -55,6 +57,14 @@
   border: 1px solid #cbd5d2;
   border-radius: 6px;
   background: var(--paper);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.header-menu-toggle:hover,
+.header-menu-toggle[aria-expanded="true"] {
+  background: #edf2f0;
+  border-color: #9db4ad;
 }
 
 .header-menu-toggle span {
@@ -69,16 +79,49 @@
   z-index: 10;
   top: calc(100% + 8px);
   right: 0;
-  display: grid;
-  min-width: 150px;
-  padding: 6px;
+  width: 224px;
+  padding: 8px;
   border: 1px solid #dde2df;
   border-radius: 6px;
   background: var(--paper);
   box-shadow: 0 8px 20px rgba(36, 50, 74, 0.14);
 }
 
+.header-menu-heading {
+  display: grid;
+  gap: 3px;
+  padding: 10px 11px 12px;
+  border-bottom: 1px solid #e5eae8;
+}
+
+.header-menu-kicker,
+.bhd-menu-kicker {
+  color: #7b8988;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.header-menu-heading strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-menu-links {
+  display: grid;
+  gap: 2px;
+  padding: 7px 0;
+}
+
 .header-menu-list a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
   padding: 9px 10px;
   border-radius: 4px;
   color: var(--ink);
@@ -86,10 +129,47 @@
   text-decoration: none;
 }
 
+.header-menu-icon {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid #cbd5d2;
+  border-radius: 5px;
+  color: #55746d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.header-menu-footer {
+  border-top: 1px solid #e5eae8;
+  padding-top: 6px;
+}
+
+.header-menu-footer a {
+  color: #8f4d43;
+  font-size: 13px;
+}
+
 .header-menu-list a:hover,
 .header-menu-list a:focus-visible {
   background: #edf2f0;
   outline: none;
+}
+
+@media (max-width: 560px) {
+  .header-inner {
+    height: 64px;
+    /* padding: 0 16px; */
+  }
+
+  .header-menu-list {
+    position: fixed;
+    top: 72px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
 }
 
 

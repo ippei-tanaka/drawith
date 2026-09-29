@@ -10,7 +10,7 @@
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr) 210px;
 	gap: 18px;
-	padding: 22px 28px;
+	padding: 3px 28px 22px;
 }
 
 .bd-toolbox-container {
@@ -34,7 +34,7 @@
 			"toolbox layers"
 			"canvas canvas";
     gap: 12px;
-		padding: 16px;
+		/* padding: 3px 16px 16px 16px; */
 	}
 
 	.bd-toolbox-container {

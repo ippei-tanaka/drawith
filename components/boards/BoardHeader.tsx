@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Board, deleteBoardById } from "@/actions/board-actions";
 import { Popup } from "@/components/Popup";
 import "@/styles/board/board-header.css";
+import Link from "next/link";
 
 export function BoardHeader({ board }: { board: Board })
 {
@@ -33,19 +34,15 @@ export function BoardHeader({ board }: { board: Board })
   return (
     <>
       <header className="bhd-topbar">
-        <div className="bhd-brand">
-          <span className="bhd-brand-mark"></span>
-          <span></span>
-        </div>
         <div className="bhd-room-title">
-          <span className="bhd-room-dot" />
           <span>{board.display_name}</span>
         </div>
         <div className="bhd-top-actions">
           <div className="bhd-gear-menu" ref={menuRef}>
             <button
               className="bhd-gear-button"
-              aria-haspopup="true"
+              aria-label="Open board menu"
+              aria-haspopup="menu"
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen((open) => !open)}
             >
@@ -53,6 +50,14 @@ export function BoardHeader({ board }: { board: Board })
             </button>
             {isMenuOpen && (
               <div className="bhd-gear-dropdown" role="menu">
+                <div className="bhd-menu-heading">
+                  <span className="bhd-menu-kicker">Board menu</span>
+                  <strong>{board.display_name}</strong>
+                </div>
+                <div className="bhd-menu-links">
+                <Link className="bhd-gear-dropdown-item" href="/dashboard" role="menuitem" onClick={() => setIsMenuOpen(false)}>
+                  <span className="bhd-menu-icon">←</span> All boards
+                </Link>
                 <button
                   className="bhd-gear-dropdown-item"
                   role="menuitem"
@@ -62,18 +67,10 @@ export function BoardHeader({ board }: { board: Board })
                     setIsChangeDisplayNamePopupOpen(true);
                   }}
                 >
-                  Change board name
+                  <span className="bhd-menu-icon">Aa</span> Rename board
                 </button>
-                {/* <button
-                  className="bhd-gear-dropdown-item"
-                  role="menuitem"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Share board
-                </button> */}
+                </div>
+                <div className="bhd-menu-danger">
                 <button
                   className="bhd-gear-dropdown-item bhd-gear-dropdown-item-danger"
                   role="menuitem"
@@ -83,8 +80,9 @@ export function BoardHeader({ board }: { board: Board })
                     setIsDeletePopupOpen(true);
                   }}
                 >
-                  Delete board
+                  <span className="bhd-menu-icon">!</span> Delete board
                 </button>
+                </div>
               </div>
             )}
           </div>
@@ -93,7 +91,7 @@ export function BoardHeader({ board }: { board: Board })
       
       <Popup isOpen={isDeletePopupOpen} onClickBackground={() => setIsDeletePopupOpen(false)}>
         <div className="bhd-board-form">
-          <p className="bhd-board-form-message">Are you sure you want to delete the board "<span className="bhd-text-bold">{board.display_name}</span>"?</p>
+          <p className="bhd-board-form-message">Are you sure you want to delete the board &quot;<span className="bhd-text-bold">{board.display_name}</span>&quot;?</p>
           <div className="bhd-button-container">
             <button className="orange-filled-button" onClick={async () => {
               setIsDeletePopupOpen(false); 
@@ -107,7 +105,7 @@ export function BoardHeader({ board }: { board: Board })
       
       <Popup isOpen={isChangeDisplayNamePopupOpen} onClickBackground={() => setIsChangeDisplayNamePopupOpen(false)}>
         <div className="bhd-board-form">
-          <p className="bhd-board-form-message">Change the display name of the board "<span className="bhd-text-bold">{board.display_name}</span>":</p>
+          <p className="bhd-board-form-message">Change the display name of the board &quot;<span className="bhd-text-bold">{board.display_name}</span>&quot;:</p>
           <input
             type="text"
             className="bhd-board-form-input"

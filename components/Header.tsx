@@ -11,7 +11,7 @@ export default async function Header() {
         <Link className="header-brand" href="/" aria-label="Drawith home">
           Drawith
         </Link>
-        <HeaderMenu loggedIn={!!user} />
+        <HeaderMenu loggedIn={!!user} userName={user?.name} />
       </div>
     </header>
   );
