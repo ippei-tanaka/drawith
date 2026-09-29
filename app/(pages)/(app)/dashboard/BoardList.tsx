@@ -96,7 +96,7 @@ export default function BoardList({ user }: { user: { id: string } }) {
         </div>
       </div>
       <div className="board-grid">
-        <Link className="new-board-card" href="/boards/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong><span>Blank canvas, open possibilities.</span></Link>
+        <Link className="new-board-card" href="/boards/new"><span className="new-board-icon" aria-hidden="true">+</span><strong>Start a new board</strong></Link>
         {pageBoards.map((board) => 
           <Link className={`board-card board-card-red`} href={`/boards/${board.name}`} key={board.id}>
             <BoardPreview boardId={board.id} boardName={board.display_name} />

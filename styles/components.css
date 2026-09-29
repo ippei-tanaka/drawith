@@ -2,13 +2,21 @@
 /* Header */
 
 .header-topbar {
-  height: 72px;
-  padding: 0 6vw;
-  display: flex;
-  align-items: center;
-  gap: 64px;
+  width: 100%;
   background: rgba(255, 254, 251, 0.92);
   border-bottom: 1px solid #dde2df;
+}
+
+.header-inner {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 30px;
+  box-sizing: border-box;
 }
 
 .header-brand {
@@ -19,19 +27,8 @@
   font-size: 20px;
   font-weight: 730;
   text-decoration: none;
-}
-
-.header-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 29px;
-  height: 29px;
-  border-radius: 9px;
-  background: var(--coral);
-  color: white;
-  font-family: Georgia, serif;
-  font-style: italic;
-  font-size: 21px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
 }
 
 .header-user-name {

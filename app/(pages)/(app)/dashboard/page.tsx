@@ -14,13 +14,6 @@ export default async function DashboardPage() {
   return (
     <main className="dashboard-page">
       <div className="dashboard-content">
-        <section className="dashboard-welcome">
-          <div>
-            {/* <p className="dashboard-eyebrow">Wednesday, September 2</p>  */}
-            <h1>Hello, {user.name}.</h1>
-            <p className="dashboard-subtitle">What are you making space for today?</p>
-          </div>
-        </section>
         <BoardList user={user} />
       </div>
     </main>
