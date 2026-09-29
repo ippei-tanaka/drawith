@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { Board, deleteBoardById } from "@/actions/board-actions";
 import { Popup } from "@/components/Popup";
 import "@/styles/board/board-header.css";
-import Link from "next/link";
 
 export function BoardHeader({ board }: { board: Board })
 {
@@ -55,9 +54,14 @@ export function BoardHeader({ board }: { board: Board })
                   <strong>{board.display_name}</strong>
                 </div>
                 <div className="bhd-menu-links">
-                <Link className="bhd-gear-dropdown-item" href="/dashboard" role="menuitem" onClick={() => setIsMenuOpen(false)}>
-                  <span className="bhd-menu-icon">←</span> All boards
-                </Link>
+                <button
+                  className="bhd-gear-dropdown-item bhd-gear-dropdown-item-disabled"
+                  type="button"
+                  role="menuitem"
+                  disabled
+                >
+                  <span className="bhd-menu-icon">+</span> Invite friend
+                </button>
                 <button
                   className="bhd-gear-dropdown-item"
                   role="menuitem"

@@ -134,6 +134,17 @@
   background: #f0f2f4;
 }
 
+.bhd-gear-dropdown-item-disabled,
+.bhd-gear-dropdown-item-disabled:hover {
+  color: #9aa4a1;
+  cursor: not-allowed;
+  background: none;
+}
+
+.bhd-gear-dropdown-item-disabled .bhd-menu-icon {
+  color: #9aa4a1;
+}
+
 .bhd-gear-dropdown-item:focus-visible {
   background: #f0f2f4;
   outline: 2px solid #55aa91;
