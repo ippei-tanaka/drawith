@@ -19,7 +19,6 @@ export function BoardLayer (
   const dispatch = useAppDispatch();
   const [isEditingName, setIsEditingName] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const { id, name, visible } = layer;
 
@@ -32,19 +31,13 @@ export function BoardLayer (
     data: {
       id,
       hasDropTarget: () => isDropTarget
-    }
+    },
+    disabled: isMenuOpen,
   });
 
   const commitName = (layerId: string, name: string) => {
     const nextName = name.trim();
     if (nextName) dispatch(renameLayer({ id: layerId, name: nextName }));
-  };
-
-  const clearHoldTimer = () => {
-    if (holdTimerRef.current) {
-      clearTimeout(holdTimerRef.current);
-      holdTimerRef.current = null;
-    }
   };
 
   const openMenu = (event: React.SyntheticEvent) => {
@@ -64,7 +57,6 @@ export function BoardLayer (
     document.addEventListener("pointerdown", closeMenuOnOutsidePointer);
     return () => {
       document.removeEventListener("pointerdown", closeMenuOnOutsidePointer);
-      clearHoldTimer();
     };
   }, []);
 
@@ -78,15 +70,6 @@ export function BoardLayer (
       data-has-drop-target={isDropTarget}
       ref={ref}
       onClick={() => dispatch(setActiveLayer(String(id)))}
-      onContextMenu={openMenu}
-      onPointerDown={(event) => {
-        if (event.button !== 0) return;
-        clearHoldTimer();
-        holdTimerRef.current = setTimeout(() => openMenu(event), 550);
-      }}
-      onPointerUp={clearHoldTimer}
-      onPointerCancel={clearHoldTimer}
-      onPointerLeave={clearHoldTimer}
     >
       
       <BoardLayerPreview layer={layer} />
@@ -117,19 +100,16 @@ export function BoardLayer (
           aria-label={`Rename ${name}`}/>
       }
 
-      <span 
-        className="bly-layer-visibility"
-        role="button"
-        tabIndex={0}
-        aria-label={visible ? `Hide ${name}` : `Show ${name}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          dispatch(setLayerVisibility({ id, visible: !visible }));
-        }}>
-        {visible 
-        ? <Image src="/eye-open.svg" alt="Layer visible" aria-label="Layer visible" width={16} height={16} /> 
-        : <Image src="/eye-closed.svg" alt="Layer hidden" aria-label="Layer hidden" width={16} height={16} /> }
-      </span>
+      <button
+        className="bly-layer-menu-button"
+        type="button"
+        aria-label={`Open ${name} layer menu`}
+        aria-expanded={isMenuOpen}
+        aria-haspopup="menu"
+        onClick={openMenu}
+      >
+        <span aria-hidden="true">...</span>
+      </button>
 
       {isMenuOpen && (
         <div
@@ -141,6 +121,20 @@ export function BoardLayer (
           onPointerDown={(event) => event.stopPropagation()}
         >
           <button type="button" role="menuitem" onClick={() => { setIsMenuOpen(false); setIsEditingName(true); }}>Rename Layer</button>
+          <button
+            className="bly-layer-visibility-menu-item"
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              dispatch(setLayerVisibility({ id, visible: !visible }));
+              setIsMenuOpen(false);
+            }}
+          >
+            {visible
+              ? <Image src="/eye-open.svg" alt="" width={16} height={16} />
+              : <Image src="/eye-closed.svg" alt="" width={16} height={16} />}
+            {visible ? "Hide Layer" : "Show Layer"}
+          </button>
           <label className="bly-layer-opacity" role="menuitem">
             <span>Change Opacity</span>
             <input

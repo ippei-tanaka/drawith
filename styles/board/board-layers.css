@@ -77,8 +77,20 @@
 }
 
 .bly-layer-item.bly-layer-active {
-	border-color: #5099cd;
-	background: #5099cd;
+	border-color: #484a4b;
+	background: #3b3b3c;
+}
+
+.bly-layer-item.bly-layer-active .bly-layer-name {
+	color: #ffffff;
+}
+
+.bly-layer-item.bly-layer-active .bly-layer-name-input {
+	color: #ffffff;
+}
+
+.bly-layer-item.bly-layer-active .bly-layer-menu-button {
+	color: #ffffff;
 }
 
 .bly-layer-name {
@@ -98,6 +110,7 @@
 	border-radius: 4px;
 	color: var(--ink);
 	font: inherit;
+	font-size: 13px;
 }
 
 .bly-layer-preview {
@@ -108,20 +121,38 @@
 	overflow: hidden;
 }
 
-.bly-layer-visibility {
+.bly-layer-menu-button {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	padding: 4px;
+	text-align: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
 	cursor: pointer;
-	border-radius: 4px;
 	border: 1px solid transparent;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--ink);
+	font-size: 16px;
+	letter-spacing: 2px;
+	line-height: 1;
 }
 
-.bly-layer-visibility:hover {
-	/* color: #d8614b;
-	 */
-	border: 1px solid #d8614b;
+.bly-layer-menu-button:hover,
+.bly-layer-menu-button[aria-expanded="true"] {
+	border-color: #d8614b;
+	color: #d8614b;
+}
+
+.bly-layer-menu-button span {
+	transform: translateY(-3px);
+}
+
+.bly-layer-visibility-menu-item {
+	display: flex;
+	align-items: center;
+	gap: 7px;
 }
 
 .bly-layer-menu {

@@ -28,8 +28,6 @@ export function BoardLayers()
 			const reversedFromIndex = layers.length - 1 - source.initialIndex;
 			const reversedToIndex = layers.length - 1 - source.index;
 			dispatch(reorderLayers({ fromIndex: reversedFromIndex, toIndex: reversedToIndex }));
-		} else {
-			setLayerToDelete(layers.find(layer => layer.id === String(source.id)) ?? null);
 		}
 	};
 
