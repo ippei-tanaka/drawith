@@ -47,7 +47,7 @@ export default function SignUpPage() {
           </label>
             {state?.error && <p className="form-error" role="alert">{state.error}</p>}
           <button className="button" type="submit" disabled={isPending}>{isPending ? "Creating account..." : "Create account"}</button>
-          <button className="blue-blank-button" type="button" onClick={fillWithRandomValues}>Fill with random values</button>
+          {/* <button className="blue-blank-button" type="button" onClick={fillWithRandomValues}>Fill with random values</button> */}
         </form>
         <p className="panel-footer">Already have an account? <Link href="/sign-in">Sign in</Link></p>
       </section>
