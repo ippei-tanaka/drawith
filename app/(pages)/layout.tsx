@@ -4,6 +4,7 @@ import StoreProvider from "@/components/StoreProvider";
 import ApolloClientProvider from "@/components/ApolloClientProvider";
 import "@/styles/globals.css";
 import "@/styles/components.css";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {children}
           </StoreProvider>
         </ApolloClientProvider>
+        <Analytics />
       </body>
     </html>
   );

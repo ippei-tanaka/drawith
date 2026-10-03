@@ -22,7 +22,7 @@ export default function NewBoardForm({user}: {user: {id: string}}) {
   const [mutate, { data, loading, error }] = useMutation(CREATE_NEW_BOARD);
 
   return (
-    <form className="new-board-form" onSubmit={async (e) => {
+    <form className="form" onSubmit={async (e) => {
       e.preventDefault();
       try {
         await mutate({
@@ -48,8 +48,8 @@ export default function NewBoardForm({user}: {user: {id: string}}) {
         }} />
       <label htmlFor="board-name">Board Identifier</label>
       <input id="board-name" name="name" type="text" placeholder="e.g. friday-brainstorm" maxLength={120} required value={name} onChange={(e) => setName(e.target.value)} />
-      {error && <p className="new-board-error" role="alert">{error.message}</p>}
-      <button className="new-board-submit" type="submit">Create board</button>
+      {error && <p className="form-error" role="alert">{error.message}</p>}
+      <button className="button" type="submit">Create board</button>
     </form>
   );
 }

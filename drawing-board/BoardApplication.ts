@@ -59,10 +59,10 @@ export class BoardApplication extends Application<Renderer> {
   }
 
   override destroy(...params: any[]) {
-    super.destroy(...params);
     this.panController?.cleanup();
     this.zoomController?.cleanup();
     this.strokeController?.cleanup();
     this.boardRenderer?.destroy();
+    super.destroy(...params);
   }
 }

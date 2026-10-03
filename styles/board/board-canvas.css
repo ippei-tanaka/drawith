@@ -1,6 +1,6 @@
 .bcv-canvas-area {
   position: relative;
-  min-height: calc(100vh - 114px);
+  /* min-height: calc(100vh - 114px); */
   overflow: hidden;
   border: 1px solid #d5dcdf;
   border-radius: 7px;

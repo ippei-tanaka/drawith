@@ -16,9 +16,9 @@ services:
     image: postgres:16-alpine
     container_name: drawith-postgres-test
     environment:
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $DRAWITH_DATABASE_USER
+      POSTGRES_PASSWORD: $DRAWITH_DATABASE_PASSWORD
+      POSTGRES_DB: $DRAWITH_DATABASE_NAME
     networks:
       test-net:
         aliases:
@@ -28,7 +28,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $DRAWITH_DATABASE_USER -d $DRAWITH_DATABASE_NAME"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -41,11 +41,12 @@ services:
     environment:
       BETTER_AUTH_URL: $BETTER_AUTH_URL
       BETTER_AUTH_SECRET: $BETTER_AUTH_SECRET
-      GRAPHQL_URI: $GRAPHQL_URI
-      POSTGRES_HOST: $POSTGRES_HOST
-      POSTGRES_DB: $POSTGRES_DB
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      DRAWITH_GRAPHQL_URI: $DRAWITH_GRAPHQL_URI
+      DRAWITH_DATABASE_HOST: $DRAWITH_DATABASE_HOST
+      DRAWITH_DATABASE_PORT: $DRAWITH_DATABASE_PORT
+      DRAWITH_DATABASE_NAME: $DRAWITH_DATABASE_NAME
+      DRAWITH_DATABASE_USER: $DRAWITH_DATABASE_USER
+      DRAWITH_DATABASE_PASSWORD: $DRAWITH_DATABASE_PASSWORD
       NODE_ENV: $NODE_ENV
     networks:
       test-net:
@@ -70,7 +71,7 @@ services:
       dockerfile: Dockerfile.test
     container_name: drawith-tests
     environment:
-      TEST_APP_URL: $TEST_APP_URL
+      DRAWITH_TEST_APP_URL: $DRAWITH_TEST_APP_URL
     depends_on:
       app:
         condition: service_healthy

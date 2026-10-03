@@ -1,13 +1,12 @@
 import { Container } from "pixi.js";
 import {
   addLayer,
+  clearLayer,
   removeLayer,
   reorderLayers,
   setLayerVisibility,
   setLayerOpacity,
   addStrokeToActiveLayer,
-  eraseAtActiveLayer,
-  setZoom,
   type BoardState,
   type Layer,
 } from "@/lib/store/boardSlice";
@@ -33,12 +32,12 @@ export class BoardRenderer {
     this.unsubscribe = listenerMiddleware.startListening({
       matcher: isAnyOf(
         addLayer,
+        clearLayer,
         removeLayer,
         reorderLayers,
         setLayerVisibility,
         setLayerOpacity,
         addStrokeToActiveLayer,
-        eraseAtActiveLayer,
       ),
 
       effect: (_, listenerApi) => {

@@ -1,11 +1,20 @@
 import { createSlice, type PayloadAction, nanoid } from "@reduxjs/toolkit";
-import { eraseStroke } from "@/drawing-board/drawing/eraseStroke";
 
 export enum DrawingTool {
   Pen = "pen",
   Brush = "brush",
   Eraser = "eraser",
 }
+
+export const ZOOM = {
+  MIN_LEVEL: 20,
+  MAX_LEVEL: 500,
+};
+
+export const BRUSH_SIZE = {
+  MIN_SIZE: 1,
+  MAX_SIZE: 300,
+};
 
 const DRAWING_TOOLS: DrawingTool[] = Object.values(DrawingTool);
 
@@ -76,6 +85,10 @@ export interface BoardState
   errors: Error[];
 }
 
+export interface PersistedBoardState {
+  layerStack: LayerStack;
+}
+
 const defaultLayerId = nanoid();
 
 const initialState: BoardState = {
@@ -112,6 +125,11 @@ const boardSlice = createSlice({
   initialState,
   reducers: 
   {
+    hydrateBoard(state, action: PayloadAction<PersistedBoardState>) {
+      state.layerStack = action.payload.layerStack;
+      state.errors = [];
+    },
+    
     setTool(state, action: PayloadAction<Tool>) {
       if (DRAWING_TOOLS.includes(action.payload as DrawingTool)) {
         state.brushSettings.tool = action.payload as DrawingTool;
@@ -129,7 +147,7 @@ const boardSlice = createSlice({
   
     setZoom(state, action: PayloadAction<{ level: number, position: { x: number; y: number } }>) {
       if (Number.isFinite(action.payload.level)) {
-        state.zoom.level = Math.round(Math.min(300, Math.max(50, action.payload.level)));
+        state.zoom.level = Math.round(Math.min(ZOOM.MAX_LEVEL, Math.max(ZOOM.MIN_LEVEL, action.payload.level)));
       }
       state.zoom.position = action.payload.position;
     },
@@ -198,17 +216,24 @@ const boardSlice = createSlice({
         return;
       }
 
-      if (!layer.visible) {
-        state.errors.push({ message: "Layer is not visible." });
-        return;
-      }
-
       if (!Number.isFinite(action.payload.opacity)) {
         state.errors.push({ message: "Invalid opacity value." });
         return;
       }
 
       layer.opacity = Math.min(1, Math.max(0, action.payload.opacity));
+    },
+
+    clearLayer(state, action: PayloadAction<{ id: string }>)
+    {
+      const layer = state.layerStack.layers.find(layer => layer.id === action.payload.id);
+
+      if (!layer) {
+        state.errors.push({ message: "Layer not found." });
+        return;
+      }
+
+      layer.strokes = [];
     },
 
     reorderLayers(state, action: PayloadAction<{ fromIndex: number; toIndex: number }>)
@@ -262,41 +287,6 @@ const boardSlice = createSlice({
       activeLayer.strokes.push(action.payload);
     },
 
-    eraseAtActiveLayer(state, action: PayloadAction<{
-      from: PointerSample;
-      to: PointerSample;
-      size: number;
-    }>) {
-      const activeLayer = state.layerStack.layers.find(
-        layer => layer.id === state.layerStack.activeLayerId,
-      );
-
-      if (!activeLayer || !activeLayer.visible) {
-        return;
-      }
-
-      const strokes = activeLayer.strokes.flatMap(stroke => {
-        const erased = eraseStroke(
-          stroke,
-          action.payload.from,
-          action.payload.to,
-          action.payload.size,
-        );
-
-        if (!erased) {
-          return [stroke];
-        }
-
-        return erased.map((part, index) => ({
-          ...part,
-          id: index === 0 ? stroke.id : nanoid(),
-        }));
-      });
-
-      console.log("Updated strokes for active layer:", strokes);
-      activeLayer.strokes = strokes;
-    },
-
     clearErrors(state) {
       state.errors = [];
     },
@@ -308,6 +298,7 @@ const boardSlice = createSlice({
 });
 
 export const { 
+  hydrateBoard,
   setTool,
   setColor,
   setSize,
@@ -317,11 +308,12 @@ export const {
   renameLayer,
   setLayerVisibility,
   setLayerOpacity,
+  clearLayer,
   reorderLayers,
   removeLayer,
   addStrokeToActiveLayer,
-  eraseAtActiveLayer,
   clearErrors,
+  clearBoard,
 } = boardSlice.actions;
 
 export default boardSlice.reducer;

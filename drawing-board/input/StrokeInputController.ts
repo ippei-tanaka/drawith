@@ -4,6 +4,7 @@ import { Viewport } from "../viewport/Viewport";
 
 export class StrokeInputController {
   private drawing = false;
+  private lastPressure = 1;
   private _onStart: (point: PointerSample) => void = () => {};
   private _onMove: (point: PointerSample) => void = () => {};
   private _onEnd: (point: PointerSample) => void = () => {};
@@ -49,6 +50,7 @@ export class StrokeInputController {
 
   private pointerDown = (event: FederatedPointerEvent) => {
     this.drawing = true;
+    this.lastPressure = 1;
     this._onStart(this.samplePoint(event));
   };
 
@@ -68,10 +70,14 @@ export class StrokeInputController {
   };
 
   private samplePoint(event: FederatedPointerEvent) {
+    if (event.pressure > 0) {
+      this.lastPressure = event.pressure;
+    }
+
     return {
       x: event.global.x,
       y: event.global.y,
-      pressure: event.pressure,
+      pressure: this.lastPressure,
     };
   }
 }

@@ -1,21 +1,25 @@
 import { useSortable } from '@dnd-kit/react/sortable';
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useAppDispatch } from "@/lib/store/hooks";
 import {
+  clearLayer,
   renameLayer,
   setActiveLayer,
+  setLayerOpacity,
   setLayerVisibility,
 } from "@/lib/store/boardSlice";
 import type { Layer } from "@/lib/store/boardSlice";
 import { BoardLayerPreview } from "./BoardLayerPreview";
 
 export function BoardLayer (
-  {layer, index, isActive}: 
-  {layer: Layer, index: number, isActive: boolean}) 
+  {layer, index, isActive, onDelete}: 
+  {layer: Layer, index: number, isActive: boolean, onDelete: (layer: Layer) => void}) 
 {
   const dispatch = useAppDispatch();
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { id, name, visible } = layer;
 
   const {ref, isDragging, isDropTarget} = useSortable({
@@ -27,7 +31,8 @@ export function BoardLayer (
     data: {
       id,
       hasDropTarget: () => isDropTarget
-    }
+    },
+    disabled: isMenuOpen,
   });
 
   const commitName = (layerId: string, name: string) => {
@@ -35,11 +40,31 @@ export function BoardLayer (
     if (nextName) dispatch(renameLayer({ id: layerId, name: nextName }));
   };
 
+  const openMenu = (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsMenuOpen(true);
+  };
+
+  useEffect(() => {
+    const closeMenuOnOutsidePointer = (event: PointerEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeMenuOnOutsidePointer);
+    return () => {
+      document.removeEventListener("pointerdown", closeMenuOnOutsidePointer);
+    };
+  }, []);
+
   return (
     <div 
       className={`
         bly-layer-item ${isDragging ? "bly-layer-dragging" : ""} 
         ${isDragging && !isDropTarget ? "bly-layer-has-no-drop-target" : ""}
+        ${!visible ? "bly-layer-hidden" : ""}
         ${isActive ? "bly-layer-active" : ""}
       `}
       data-has-drop-target={isDropTarget}
@@ -75,19 +100,80 @@ export function BoardLayer (
           aria-label={`Rename ${name}`}/>
       }
 
-      <span 
-        className="bly-layer-visibility"
-        role="button"
-        tabIndex={0}
-        aria-label={visible ? `Hide ${name}` : `Show ${name}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          dispatch(setLayerVisibility({ id, visible: !visible }));
-        }}>
-        {visible 
-        ? <Image src="/eye-open.svg" alt="Layer visible" aria-label="Layer visible" width={16} height={16} /> 
-        : <Image src="/eye-closed.svg" alt="Layer hidden" aria-label="Layer hidden" width={16} height={16} /> }
-      </span>
+      {!visible && (
+        <Image
+          className="bly-layer-hidden-icon"
+          src="/eye-off.svg"
+          alt="Layer hidden"
+          width={16}
+          height={16}
+        />
+      )}
+
+      <button
+        className="bly-layer-menu-button"
+        type="button"
+        aria-label={`Open ${name} layer menu`}
+        aria-expanded={isMenuOpen}
+        aria-haspopup="menu"
+        onClick={openMenu}
+      >
+        <span aria-hidden="true">...</span>
+      </button>
+
+      {isMenuOpen && (
+        <div
+          className="bly-layer-menu"
+          ref={menuRef}
+          role="menu"
+          aria-label={`${name} layer actions`}
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          <button className="bly-layer-menu-item" type="button" role="menuitem" onClick={() => { setIsMenuOpen(false); setIsEditingName(true); }}>
+            <Image src="/rename.svg" alt="" width={16} height={16} />
+            Rename
+          </button>
+          <button
+            className="bly-layer-visibility-menu-item"
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              dispatch(setLayerVisibility({ id, visible: !visible }));
+              setIsMenuOpen(false);
+            }}
+          >
+            {visible
+              ? <Image src="/eye-closed.svg" alt="" width={16} height={16} />
+              : <Image src="/eye-open.svg" alt="" width={16} height={16} />}
+            {visible ? "Hide" : "Show"}
+          </button>
+          <label className="bly-layer-opacity" role="menuitem">
+            <span className="bly-layer-opacity-label">
+              <Image src="/opacity.svg" alt="" width={16} height={16} />
+              <span>Opacity</span>
+            </span>
+            <span className="bly-layer-opacity-value">{Math.round(layer.opacity * 100)}%</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={layer.opacity}
+              aria-label="Layer opacity"
+              onChange={(event) => dispatch(setLayerOpacity({ id, opacity: Number(event.target.value) }))}
+            />
+          </label>
+          <button className="bly-layer-menu-item" type="button" role="menuitem" onClick={() => { dispatch(clearLayer({ id })); setIsMenuOpen(false); }}>
+            <Image src="/clean.svg" alt="" width={16} height={16} />
+            Clear
+          </button>
+          <button className="bly-layer-menu-item" type="button" role="menuitem" onClick={() => { setIsMenuOpen(false); onDelete(layer); }}>
+            <Image src="/trash.svg" alt="" width={16} height={16} />
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   )
 }
