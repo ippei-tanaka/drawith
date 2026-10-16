@@ -11,6 +11,7 @@
 	grid-template-columns: auto minmax(0, 1fr) 210px;
 	gap: 18px;
 	padding: 3px 28px 22px;
+	user-select: none;
 }
 
 .bd-toolbox-container {
